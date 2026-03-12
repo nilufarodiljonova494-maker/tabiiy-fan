@@ -1,0 +1,7 @@
+{
+  "name": "Tabiiy Fanlar Olami",
+  "description": "Tabiiy fanlarni o'rganish uchun interaktiv ta'lim platformasi. Biologiya, fizika, kimyo va astronomiya olamiga sayohat qiling.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
