@@ -14,6 +14,7 @@ export interface ScienceTopic {
   subject: Subject;
   icon: string;
   color: string;
+  grade?: number;
 }
 
 export interface ChatMessage {
