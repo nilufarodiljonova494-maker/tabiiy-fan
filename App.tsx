@@ -187,30 +187,6 @@ const ScienceMindMap = () => {
         <div className="w-24 h-1 bg-emerald-500 mx-auto rounded-full"></div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-3 gap-8 items-center relative">
-        {/* Central Globe */}
-        <div className="hidden md:flex md:col-start-2 md:row-start-2 items-center justify-center relative">
-          <div className="absolute w-48 h-48 border-2 border-slate-100 rounded-full animate-ping opacity-20"></div>
-          <div className="bg-white p-2 rounded-full shadow-2xl border border-slate-100 relative z-10 overflow-hidden w-48 h-48 flex items-center justify-center">
-            <img 
-              src="https://lh3.googleusercontent.com/d/1IMg0ZQ-HCJbgmY5lcrFLVyzN4Lkb2A3B" 
-              alt="Tabiiy Fanlar" 
-              className="w-full h-full object-cover rounded-full"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-        </div>
-
-        {/* Sections */}
-        {sections.map((section, idx) => (
-          <div key={idx} className={`${section.position} ${section.color} border-4 rounded-3xl p-6 shadow-lg transition-transform hover:scale-105 cursor-pointer flex flex-col items-center text-center gap-4`}>
-            <div className="mb-2">{section.icon}</div>
-            <h4 className="font-black text-sm tracking-widest">{section.title}</h4>
-            <p className="text-xs font-medium opacity-80">{section.desc}</p>
-          </div>
-        ))}
-      </div>
-
       <div className="mt-16 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-center gap-6">
         <div className="flex items-center gap-4 text-slate-700 font-bold">
            <Microscope size={28} className="text-emerald-600" />
@@ -264,15 +240,6 @@ const TextbookPage = ({ onSelectChapter }: { onSelectChapter: (id: string) => vo
       desc: "4-sinf o'quvchilari uchun tabiiy fanlar darsligining birinchi qismi.",
       link: "https://drive.google.com/file/d/1NhI-BAn3G5E7AszleIZY8M0MZK83WcmH/view?usp=sharing",
       img: "https://lh3.googleusercontent.com/d/1NhI-BAn3G5E7AszleIZY8M0MZK83WcmH",
-      badge: "4-sinf",
-      badgeColor: "bg-blue-100 text-blue-700"
-    },
-    {
-      id: '4-2',
-      title: "Tabiiy fanlar - 4-sinf (2-qism)",
-      desc: "4-sinf o'quvchilari uchun tabiiy fanlar darsligining ikkinchi qismi.",
-      link: "https://drive.google.com/file/d/1ODVI7m64rJapWVfiBZyuOKCCAKV7eUNK/view?usp=sharing",
-      img: "https://lh3.googleusercontent.com/d/1ODVI7m64rJapWVfiBZyuOKCCAKV7eUNK",
       badge: "4-sinf",
       badgeColor: "bg-blue-100 text-blue-700"
     }
@@ -3499,7 +3466,7 @@ const TopicList = ({ onSelectTopic }: { onSelectTopic: (id: string) => void }) =
         <a 
           href={selectedGrade === 3 
             ? "https://drive.google.com/file/d/1jdtTrLqnvG1X4a881QwBt7SmzKH9heta/view?usp=sharing"
-            : "https://drive.google.com/file/d/1jdtTrLqnvG1X4a881QwBt7SmzKH9heta/view?usp=sharing" // Placeholder for 4th grade
+            : "https://drive.google.com/file/d/1NhI-BAn3G5E7AszleIZY8M0MZK83WcmH/view?usp=sharing"
           }
           target="_blank" 
           rel="noopener noreferrer"
@@ -3508,7 +3475,7 @@ const TopicList = ({ onSelectTopic }: { onSelectTopic: (id: string) => void }) =
           <img 
             src={selectedGrade === 3
               ? "https://lh3.googleusercontent.com/d/1jdtTrLqnvG1X4a881QwBt7SmzKH9heta"
-              : "https://lh3.googleusercontent.com/d/1jdtTrLqnvG1X4a881QwBt7SmzKH9heta" // Placeholder
+              : "https://lh3.googleusercontent.com/d/1NhI-BAn3G5E7AszleIZY8M0MZK83WcmH"
             }
             alt={`Tabiiy Fanlar - ${selectedGrade}-sinf`} 
             className="w-full h-full object-cover"
