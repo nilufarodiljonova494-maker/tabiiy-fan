@@ -30,7 +30,8 @@ import {
   Gamepad2,
   Sparkles,
   Trophy,
-  Printer
+  Printer,
+  Download
 } from 'lucide-react';
 import { Subject, ScienceTopic, ChatMessage } from './types';
 import { askScienceTutor } from './services/geminiService';
@@ -520,14 +521,22 @@ const PlantsChapterDetail = ({ onBack }: { onBack: () => void }) => {
               O'simliklar haqidagi bilimlaringizni qiziqarli o'yin orqali sinab ko'ring va yangi ma'lumotlar oling.
             </p>
           </div>
-          <a 
-            href="https://drive.google.com/file/d/1PPcGPRK3kb5Txaay8x-GME7FYjEmysKY/view?usp=sharing"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap relative z-10"
-          >
-            O'yinni boshlash <ChevronRight size={20} />
-          </a>
+          <div className="flex flex-wrap gap-4 relative z-10">
+            <a 
+              href="https://drive.google.com/file/d/1PPcGPRK3kb5Txaay8x-GME7FYjEmysKY/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap"
+            >
+              O'yinni boshlash <ChevronRight size={20} />
+            </a>
+            <a 
+              href="https://drive.google.com/uc?export=download&id=1PPcGPRK3kb5Txaay8x-GME7FYjEmysKY"
+              className="bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-blue-400/30"
+            >
+              Yuklab olish <Download size={20} />
+            </a>
+          </div>
         </div>
       </div>
 
@@ -809,31 +818,6 @@ const EarthChapterDetail = ({ onBack }: { onBack: () => void }) => {
             className="bg-white text-indigo-900 px-8 py-4 rounded-2xl font-bold hover:bg-indigo-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap relative z-10"
           >
             Videoni ko'rish <ChevronRight size={20} />
-          </a>
-        </div>
-
-        {/* Interactive Game Section */}
-        <div className="bg-emerald-600 rounded-[2.5rem] p-8 text-white shadow-2xl mb-12 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
-          <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center flex-shrink-0 border border-white/20">
-            <Gamepad2 size={40} className="text-white" />
-          </div>
-          <div className="flex-1 text-center md:text-left relative z-10">
-            <div className="flex items-center gap-2 mb-2 justify-center md:justify-start">
-              <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-white/20">YANGI O'YIN</span>
-              <h3 className="text-2xl font-bold">Interaktiv O'yin: Yer va Koinot</h3>
-            </div>
-            <p className="text-emerald-50/90 text-lg">
-              O'yin orqali Yer sayyorasi va koinot haqidagi bilimlaringizni yanada qiziqarliroq mustahkamlang!
-            </p>
-          </div>
-          <a 
-            href="https://drive.google.com/file/d/1KuzvfvnEmaKsHuZ_gr3ihMFT5hEjEyxD/view?usp=sharing"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white text-emerald-700 px-8 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap relative z-10"
-          >
-            O'yinni boshlash <Sparkles size={20} />
           </a>
         </div>
       </div>
@@ -1131,14 +1115,22 @@ const PlantsGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
               O'simliklar dunyosini o'yin orqali yanada qiziqarliroq o'rganing!
             </p>
           </div>
-          <a 
-            href="https://drive.google.com/file/d/1I2yETWL-NXsKiN5diigq_tP3GOXvUcIT/view?usp=sharing"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white text-green-700 px-8 py-4 rounded-2xl font-bold hover:bg-green-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap relative z-10"
-          >
-            O'yinni boshlash <Sparkles size={20} />
-          </a>
+          <div className="flex flex-wrap gap-4 relative z-10">
+            <a 
+              href="https://drive.google.com/file/d/1I2yETWL-NXsKiN5diigq_tP3GOXvUcIT/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white text-green-700 px-8 py-4 rounded-2xl font-bold hover:bg-green-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap"
+            >
+              O'yinni boshlash <Sparkles size={20} />
+            </a>
+            <a 
+              href="https://drive.google.com/uc?export=download&id=1I2yETWL-NXsKiN5diigq_tP3GOXvUcIT"
+              className="bg-green-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-green-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-green-400/30"
+            >
+              Yuklab olish <Download size={20} />
+            </a>
+          </div>
         </div>
 
         {/* Image Gallery Section */}
@@ -2439,14 +2431,22 @@ const ResearcherChapterDetail = ({ onBack }: { onBack: () => void }) => {
             <p className="text-emerald-800/80 text-sm leading-relaxed mb-6">
               Tadqiqotchi bo'lish qanchalik qiziqarli ekanligini ushbu o'yin orqali sinab ko'ring!
             </p>
-            <a 
-              href="https://drive.google.com/file/d/1o226ZTUVuhxd_sfWJ_X4gouOTS_HHwu7/view?usp=sharing" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
-            >
-              <Gamepad2 size={20} /> O'yinni boshlash
-            </a>
+            <div className="flex flex-wrap gap-4">
+              <a 
+                href="https://drive.google.com/file/d/1o226ZTUVuhxd_sfWJ_X4gouOTS_HHwu7/view?usp=sharing" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
+              >
+                <Gamepad2 size={20} /> O'yinni boshlash
+              </a>
+              <a 
+                href="https://drive.google.com/uc?export=download&id=1o226ZTUVuhxd_sfWJ_X4gouOTS_HHwu7"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-emerald-600 px-6 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-lg border border-emerald-200"
+              >
+                <Download size={20} /> Yuklab olish
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -2583,14 +2583,22 @@ const ClimateChapterDetail = ({ onBack }: { onBack: () => void }) => {
               Ob-havo hodisalari va iqlim sirlarini o'yin orqali yanada qiziqarliroq o'rganing!
             </p>
           </div>
-          <a 
-            href="https://drive.google.com/file/d/1Wl_Sxu_ynPI4cy5EIQM140LhuId31gd4/view?usp=sharing"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white text-sky-700 px-8 py-4 rounded-2xl font-bold hover:bg-sky-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap relative z-10"
-          >
-            O'yinni boshlash <Sparkles size={20} />
-          </a>
+          <div className="flex flex-wrap gap-4 relative z-10">
+            <a 
+              href="https://drive.google.com/file/d/1Wl_Sxu_ynPI4cy5EIQM140LhuId31gd4/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white text-sky-700 px-8 py-4 rounded-2xl font-bold hover:bg-sky-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap"
+            >
+              O'yinni boshlash <Sparkles size={20} />
+            </a>
+            <a 
+              href="https://drive.google.com/uc?export=download&id=1Wl_Sxu_ynPI4cy5EIQM140LhuId31gd4"
+              className="bg-sky-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-sky-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-sky-400/30"
+            >
+              Yuklab olish <Download size={20} />
+            </a>
+          </div>
         </div>
       </div>
 
@@ -3059,6 +3067,12 @@ const AnimalsChapterDetail = ({ onBack }: { onBack: () => void }) => {
                 className="bg-white text-purple-700 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-purple-50 transition-all shadow-xl flex items-center gap-3 group/btn"
               >
                 O'yinni boshlash <Gamepad2 className="group-hover/btn:rotate-12 transition-transform" />
+              </a>
+              <a 
+                href="https://drive.google.com/uc?export=download&id=1qgwqWXQjtT7bEaXjGGlL7n3vazBoymo9"
+                className="bg-purple-800 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-purple-900 transition-all shadow-xl flex items-center gap-3 border border-purple-400/30"
+              >
+                Yuklab olish <Download size={24} />
               </a>
               <div className="flex items-center gap-3 text-purple-200 text-sm">
                 <div className="flex -space-x-2">
