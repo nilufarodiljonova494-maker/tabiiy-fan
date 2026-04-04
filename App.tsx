@@ -187,16 +187,6 @@ const ScienceMindMap = () => {
         </h3>
         <div className="w-24 h-1 bg-emerald-500 mx-auto rounded-full"></div>
       </div>
-
-      <div className="mt-16 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-center gap-6">
-        <div className="flex items-center gap-4 text-slate-700 font-bold">
-           <Microscope size={28} className="text-emerald-600" />
-           <Beaker size={28} className="text-blue-600" />
-        </div>
-        <p className="text-slate-600 font-bold text-center md:text-left text-lg">
-          DARSLAR KUZATISHLAR, TAJRIBALAR, EKSKURSIYALAR, INTERAKTIV O'YINLAR ORQALI OLIB BORILADI.
-        </p>
-      </div>
     </div>
   );
 };
@@ -522,14 +512,6 @@ const PlantsChapterDetail = ({ onBack }: { onBack: () => void }) => {
             </p>
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
-            <a 
-              href="https://drive.google.com/file/d/1PPcGPRK3kb5Txaay8x-GME7FYjEmysKY/view?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap"
-            >
-              O'yinni boshlash <ChevronRight size={20} />
-            </a>
             <a 
               href="https://drive.google.com/uc?export=download&id=1PPcGPRK3kb5Txaay8x-GME7FYjEmysKY"
               className="bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-blue-400/30"
@@ -912,6 +894,52 @@ const EarthChapterDetail = ({ onBack }: { onBack: () => void }) => {
               )}
             </div>
           </div>
+
+          {/* Interactive Games Section */}
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-white/20 transition-colors duration-700"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-400/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 shadow-inner">
+                  <Gamepad2 size={32} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-black tracking-tight">Interaktiv o'yinlar</h2>
+                  <p className="text-blue-100/80 font-medium">Mavzuni o'yin orqali mustahkamlang</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 hover:bg-white/15 transition-all group/card">
+                  <div className="w-full aspect-video rounded-2xl bg-white/5 mb-6 overflow-hidden relative">
+                    <img 
+                      src="https://lh3.googleusercontent.com/d/1bIb_lciPi-GKuHxDj_CvG1_didFYciTd" 
+                      alt="Yer sayyorasi o'yini"
+                      className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-700"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                      <span className="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs font-bold">INTERAKTIV</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">Yer sayyorasi sirlari</h3>
+                  <p className="text-blue-100/70 text-sm mb-6 leading-relaxed">
+                    Yerning tuzilishi va xususiyatlarini qiziqarli topshiriqlar orqali o'rganing.
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <a 
+                      href="https://drive.google.com/uc?export=download&id=1bIb_lciPi-GKuHxDj_CvG1_didFYciTd"
+                      className="bg-white text-blue-700 px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-blue-400/30"
+                    >
+                      Yuklab olish <Download size={20} />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="lg:col-span-1">
@@ -1100,8 +1128,8 @@ const PlantsGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
           </div>
         </div>
 
-        {/* Interactive Game Section */}
-        <div className="bg-green-600 rounded-[2.5rem] p-8 text-white shadow-2xl mb-12 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+        {/* Interactive Game Section 1 */}
+        <div className="bg-green-600 rounded-[2.5rem] p-8 text-white shadow-2xl mb-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
           <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center flex-shrink-0 border border-white/20">
             <Gamepad2 size={40} className="text-white" />
@@ -1117,16 +1145,33 @@ const PlantsGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
             <a 
-              href="https://drive.google.com/file/d/1I2yETWL-NXsKiN5diigq_tP3GOXvUcIT/view?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-green-700 px-8 py-4 rounded-2xl font-bold hover:bg-green-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap"
-            >
-              O'yinni boshlash <Sparkles size={20} />
-            </a>
-            <a 
               href="https://drive.google.com/uc?export=download&id=1I2yETWL-NXsKiN5diigq_tP3GOXvUcIT"
               className="bg-green-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-green-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-green-400/30"
+            >
+              Yuklab olish <Download size={20} />
+            </a>
+          </div>
+        </div>
+
+        {/* Interactive Game Section 2: Fotosintez */}
+        <div className="bg-emerald-600 rounded-[2.5rem] p-8 text-white shadow-2xl mb-12 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+          <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center flex-shrink-0 border border-white/20">
+            <Gamepad2 size={40} className="text-white" />
+          </div>
+          <div className="flex-1 text-center md:text-left relative z-10">
+            <div className="flex items-center gap-2 mb-2 justify-center md:justify-start">
+              <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-white/20">YANGI O'YIN</span>
+              <h3 className="text-2xl font-bold">Interaktiv O'yin: Fotosintez</h3>
+            </div>
+            <p className="text-emerald-50/90 text-lg">
+              Fotosintez jarayonini qiziqarli o'yin orqali o'rganing va bilimingizni sinab ko'ring!
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-4 relative z-10">
+            <a 
+              href="https://drive.google.com/uc?export=download&id=14YKQxBAKE7-UBvcGBy1VU7Cj2T3_ht2f"
+              className="bg-emerald-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-emerald-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-emerald-400/30"
             >
               Yuklab olish <Download size={20} />
             </a>
@@ -1798,6 +1843,31 @@ const HumanStructureGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) =
           </div>
         </div>
 
+        {/* Interactive Game Section */}
+        <div className="bg-pink-600 rounded-[2.5rem] p-8 text-white shadow-2xl mb-12 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
+          <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center flex-shrink-0 border border-white/20">
+            <Gamepad2 size={40} className="text-white" />
+          </div>
+          <div className="flex-1 text-center md:text-left relative z-10">
+            <div className="flex items-center gap-2 mb-2 justify-center md:justify-start">
+              <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-white/20">YANGI O'YIN</span>
+              <h3 className="text-2xl font-bold">Interaktiv O'yin: Odamning tuzilishi</h3>
+            </div>
+            <p className="text-pink-50/90 text-lg">
+              Odam tanasi va uning a'zolari haqidagi bilimlaringizni o'yin orqali mustahkamlang!
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-4 relative z-10">
+            <a 
+              href="https://drive.google.com/uc?export=download&id=1B7UWPF_x0B2quKreUZSQaGXjDqkXr4n0"
+              className="bg-pink-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-pink-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-pink-400/30"
+            >
+              Yuklab olish <Download size={20} />
+            </a>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
@@ -1990,25 +2060,49 @@ const EarthSpaceGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          <div className="bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border-4 border-white lg:col-span-2">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-500">
-                  <Play size={16} fill="currentColor" />
-                </div>
-                <div>
-                  <h3 className="text-white text-sm font-bold">Video dars: Yer va koinot sirlari</h3>
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+              <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-500">
+                    <Play size={16} fill="currentColor" />
+                  </div>
+                  <div>
+                    <h3 className="text-white text-sm font-bold">Koinot va Yer haqida qiziqarli ma'lumotlar</h3>
+                  </div>
                 </div>
               </div>
+              <div className="aspect-video w-full">
+                <iframe 
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/dbwPYHTWgrY" 
+                  title="Koinot va Yer haqida qiziqarli ma'lumotlar"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowFullScreen
+                ></iframe>
+              </div>
             </div>
-            <div className="aspect-video w-full">
-              <iframe 
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/placeholder" 
-                title="Yer va koinot dars videosi"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                allowFullScreen
-              ></iframe>
+
+            <div className="bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+              <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-500">
+                    <Play size={16} fill="currentColor" />
+                  </div>
+                  <div>
+                    <h3 className="text-white text-sm font-bold">Quyosh tizimi va sayyoralar</h3>
+                  </div>
+                </div>
+              </div>
+              <div className="aspect-video w-full">
+                <iframe 
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/vhkNqymUkMY" 
+                  title="Quyosh tizimi va sayyoralar"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowFullScreen
+                ></iframe>
+              </div>
             </div>
           </div>
 
@@ -2433,14 +2527,6 @@ const ResearcherChapterDetail = ({ onBack }: { onBack: () => void }) => {
             </p>
             <div className="flex flex-wrap gap-4">
               <a 
-                href="https://drive.google.com/file/d/1o226ZTUVuhxd_sfWJ_X4gouOTS_HHwu7/view?usp=sharing" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
-              >
-                <Gamepad2 size={20} /> O'yinni boshlash
-              </a>
-              <a 
                 href="https://drive.google.com/uc?export=download&id=1o226ZTUVuhxd_sfWJ_X4gouOTS_HHwu7"
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-emerald-600 px-6 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-lg border border-emerald-200"
               >
@@ -2584,14 +2670,6 @@ const ClimateChapterDetail = ({ onBack }: { onBack: () => void }) => {
             </p>
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
-            <a 
-              href="https://drive.google.com/file/d/1Wl_Sxu_ynPI4cy5EIQM140LhuId31gd4/view?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-sky-700 px-8 py-4 rounded-2xl font-bold hover:bg-sky-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap"
-            >
-              O'yinni boshlash <Sparkles size={20} />
-            </a>
             <a 
               href="https://drive.google.com/uc?export=download&id=1Wl_Sxu_ynPI4cy5EIQM140LhuId31gd4"
               className="bg-sky-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-sky-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-sky-400/30"
@@ -3061,14 +3139,6 @@ const AnimalsChapterDetail = ({ onBack }: { onBack: () => void }) => {
             </p>
             <div className="flex flex-wrap gap-4">
               <a 
-                href="https://drive.google.com/file/d/1qgwqWXQjtT7bEaXjGGlL7n3vazBoymo9/view?usp=drive_link"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white text-purple-700 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-purple-50 transition-all shadow-xl flex items-center gap-3 group/btn"
-              >
-                O'yinni boshlash <Gamepad2 className="group-hover/btn:rotate-12 transition-transform" />
-              </a>
-              <a 
                 href="https://drive.google.com/uc?export=download&id=1qgwqWXQjtT7bEaXjGGlL7n3vazBoymo9"
                 className="bg-purple-800 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-purple-900 transition-all shadow-xl flex items-center gap-3 border border-purple-400/30"
               >
@@ -3314,6 +3384,16 @@ const Hero = ({ onStart }: { onStart: () => void }) => (
           Endi Juda Oson
         </span>
       </h1>
+      
+      <div className="flex justify-center mb-10">
+        <img 
+          src="https://lh3.googleusercontent.com/d/1FFiRYf1C845ilKgkHlesexTtSdJbKiAv" 
+          alt="Tabiiy Fanlar Logotipi" 
+          className="w-48 h-48 object-contain drop-shadow-2xl animate-pulse-slow"
+          referrerPolicy="no-referrer"
+        />
+      </div>
+
       <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-2xl mx-auto">
         Koinot sirlarini, molekulalar tuzilishini va Yer sharini interaktiv usulda o'rganing. 
         AI yordamchimiz bilan savollaringizga soniyalar ichida javob oling.
@@ -3324,9 +3404,6 @@ const Hero = ({ onStart }: { onStart: () => void }) => (
           className="bg-emerald-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-all flex items-center gap-2 group"
         >
           O'rganishni boshlash <BookOpen size={20} className="group-hover:animate-bounce" />
-        </button>
-        <button className="bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-full font-bold text-lg hover:bg-slate-50 transition-all">
-          Mavzular bilan tanishish
         </button>
       </div>
     </div>
@@ -3593,32 +3670,6 @@ export default function App() {
           <>
             <Hero onStart={() => setActiveTab('topics')} />
             <ScienceMindMap />
-            <div className="bg-white py-20 border-y border-slate-100">
-              <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-                <div>
-                  <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <BrainCircuit size={32} />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4">Interaktiv AI</h3>
-                  <p className="text-slate-500">Murakkab savollarga aqlli va tushunarli javoblar bera oladigan sun'iy intellekt ustozi.</p>
-                </div>
-                <div>
-                  <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <BookOpen size={32} />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4">Boy Kutubxona</h3>
-                  <p className="text-slate-500">Biologiyadan Astronomiyagacha bo'lgan barcha tabiiy fanlar bo'yicha saralangan mavzular.</p>
-                </div>
-                <div>
-                  <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <Orbit size={32} />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4">Vizualizatsiya</h3>
-                  <p className="text-slate-500">Abstrakt tushunchalarni tushunishga yordam beruvchi chiroyli va interaktiv grafikalar.</p>
-                </div>
-              </div>
-            </div>
-            <UsefulPlatforms />
             <TopicList onSelectTopic={(id) => {
               if (id === '1' || id === '8' || id === '2' || id === '6' || id === '7' || id === '9' || id === '10' || id === '11' || id === '12' || id === '13') setSelectedTopicId(id);
               else setActiveTab('topics');
@@ -3688,7 +3739,7 @@ export default function App() {
             </div>
           </div>
           <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
-            <p>© 2024 Tabiiy Fanlar Olami. Barcha huquqlar himoyalangan.</p>
+            <p>© 2026 Tabiiy Fanlar Olami. Muallif: Nilufar Rustamova. Barcha huquqlar himoyalangan.</p>
             <div className="flex gap-6">
               <a href="#" className="hover:text-white transition-colors">Maxfiylik siyosati</a>
               <a href="#" className="hover:text-white transition-colors">Foydalanish shartlari</a>
