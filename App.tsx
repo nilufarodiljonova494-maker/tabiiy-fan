@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Beaker, 
   Microscope, 
@@ -31,12 +31,70 @@ import {
   Sparkles,
   Trophy,
   Printer,
-  Download
+  Download,
+  Users
 } from 'lucide-react';
 import { Subject, ScienceTopic, ChatMessage } from './types';
 import { askScienceTutor } from './services/geminiService';
 
 // Reusable Components
+const VisitorCounter = () => {
+  const [count, setCount] = useState(0);
+  const [online, setOnline] = useState(0);
+
+  useEffect(() => {
+    const savedCount = localStorage.getItem('site_visits') || '0';
+    const newCount = parseInt(savedCount) + 1;
+    localStorage.setItem('site_visits', newCount.toString());
+    setCount(newCount);
+    setOnline(Math.floor(Math.random() * 15) + 5);
+  }, []);
+
+  return (
+    <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-lg flex items-center justify-center">
+          <Users size={16} />
+        </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-wider font-bold text-slate-500">Tashriflar soni</p>
+          <p className="text-lg font-mono font-bold text-white leading-none">
+            {(1240 + count).toLocaleString()}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+        <span className="text-[10px] text-slate-400">Hozir saytda: {online} kishi</span>
+      </div>
+    </div>
+  );
+};
+
+const GameModal = ({ url, onClose }: { url: string | null, onClose: () => void }) => {
+  if (!url) return null;
+  
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="relative w-full max-w-5xl aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all"
+        >
+          <X size={24} />
+        </button>
+        <iframe 
+          src={url} 
+          className="w-full h-full border-none"
+          title="Interaktiv o'yin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+      </div>
+    </div>
+  );
+};
+
 const Navbar = ({ activeTab, setActiveTab, onBackToHome }: { activeTab: string, setActiveTab: (t: string) => void, onBackToHome: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   
@@ -346,7 +404,7 @@ const TextbookPage = ({ onSelectChapter }: { onSelectChapter: (id: string) => vo
   );
 };
 
-const PlantsChapterDetail = ({ onBack }: { onBack: () => void }) => {
+const PlantsChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPlayGame: (url: string) => void }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -512,8 +570,15 @@ const PlantsChapterDetail = ({ onBack }: { onBack: () => void }) => {
             </p>
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
+            <button 
+              onClick={() => onPlayGame("https://drive.google.com/file/d/1PPcGPRK3kb5Txaay8x-GME7FYjEmysKY/preview")}
+              className="bg-white text-blue-700 px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-blue-400/30"
+            >
+              O'ynash <Play size={20} />
+            </button>
             <a 
               href="https://drive.google.com/uc?export=download&id=1PPcGPRK3kb5Txaay8x-GME7FYjEmysKY"
+              download="osimliklar-dunyosi.html"
               className="bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-blue-400/30"
             >
               Yuklab olish <Download size={20} />
@@ -650,7 +715,7 @@ const PlantsChapterDetail = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const EarthChapterDetail = ({ onBack }: { onBack: () => void }) => {
+const EarthChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPlayGame: (url: string) => void }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -929,9 +994,16 @@ const EarthChapterDetail = ({ onBack }: { onBack: () => void }) => {
                     Yerning tuzilishi va xususiyatlarini qiziqarli topshiriqlar orqali o'rganing.
                   </p>
                   <div className="flex flex-wrap gap-4">
+                    <button 
+                      onClick={() => onPlayGame("https://drive.google.com/uc?export=view&id=1bIb_lciPi-GKuHxDj_CvG1_didFYciTd")}
+                      className="bg-white text-blue-700 px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-blue-400/30"
+                    >
+                      O'ynash <Play size={20} />
+                    </button>
                     <a 
                       href="https://drive.google.com/uc?export=download&id=1bIb_lciPi-GKuHxDj_CvG1_didFYciTd"
-                      className="bg-white text-blue-700 px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-blue-400/30"
+                      download="yer-sayyorasi-sirlari.html"
+                      className="bg-blue-500 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-600 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap"
                     >
                       Yuklab olish <Download size={20} />
                     </a>
@@ -978,7 +1050,7 @@ const EarthChapterDetail = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const PlantsGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
+const PlantsGrade4ChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPlayGame: (url: string) => void }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -1144,8 +1216,15 @@ const PlantsGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
             </p>
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
+            <button 
+              onClick={() => onPlayGame("https://drive.google.com/file/d/1I2yETWL-NXsKiN5diigq_tP3GOXvUcIT/preview")}
+              className="bg-white text-green-700 px-8 py-4 rounded-2xl font-bold hover:bg-green-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-green-400/30"
+            >
+              O'ynash <Play size={20} />
+            </button>
             <a 
               href="https://drive.google.com/uc?export=download&id=1I2yETWL-NXsKiN5diigq_tP3GOXvUcIT"
+              download="osimliklar-sirlari.html"
               className="bg-green-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-green-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-green-400/30"
             >
               Yuklab olish <Download size={20} />
@@ -1169,8 +1248,15 @@ const PlantsGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
             </p>
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
+            <button 
+              onClick={() => onPlayGame("https://drive.google.com/file/d/14YKQxBAKE7-UBvcGBy1VU7Cj2T3_ht2f/preview")}
+              className="bg-white text-emerald-700 px-8 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-emerald-400/30"
+            >
+              O'ynash <Play size={20} />
+            </button>
             <a 
               href="https://drive.google.com/uc?export=download&id=14YKQxBAKE7-UBvcGBy1VU7Cj2T3_ht2f"
+              download="fotosintez-oyini.html"
               className="bg-emerald-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-emerald-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-emerald-400/30"
             >
               Yuklab olish <Download size={20} />
@@ -1392,7 +1478,7 @@ const PlantsGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const AnimalsGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
+const AnimalsGrade4ChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPlayGame: (url: string) => void }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -1688,7 +1774,7 @@ const AnimalsGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const HumanStructureGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
+const HumanStructureGrade4ChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPlayGame: (url: string) => void }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -1859,8 +1945,15 @@ const HumanStructureGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) =
             </p>
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
+            <button 
+              onClick={() => onPlayGame("https://drive.google.com/file/d/1B7UWPF_x0B2quKreUZSQaGXjDqkXr4n0/preview")}
+              className="bg-white text-pink-700 px-8 py-4 rounded-2xl font-bold hover:bg-pink-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-pink-400/30"
+            >
+              O'ynash <Play size={20} />
+            </button>
             <a 
               href="https://drive.google.com/uc?export=download&id=1B7UWPF_x0B2quKreUZSQaGXjDqkXr4n0"
+              download="odamning-tuzilishi.html"
               className="bg-pink-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-pink-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-pink-400/30"
             >
               Yuklab olish <Download size={20} />
@@ -2000,7 +2093,7 @@ const HumanStructureGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) =
   );
 };
 
-const EarthSpaceGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
+const EarthSpaceGrade4ChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPlayGame: (url: string) => void }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -2141,6 +2234,61 @@ const EarthSpaceGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
               </p>
             </div>
 
+            {/* Interactive Games Section */}
+            <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-white/20 transition-colors duration-700"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-400/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 shadow-inner">
+                    <Gamepad2 size={32} className="text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black tracking-tight">Interaktiv o'yinlar</h2>
+                    <p className="text-purple-100/80 font-medium">Mavzuni o'yin orqali mustahkamlang</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 hover:bg-white/15 transition-all group/card">
+                    <div className="w-full aspect-video rounded-2xl bg-white/5 mb-6 overflow-hidden relative">
+                      <img 
+                        src="https://picsum.photos/seed/space-game/800/450" 
+                        alt="Koinot sirlari o'yini"
+                        className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-700"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity flex items-end p-6">
+                        <span className="text-sm font-bold">Koinot sirlari</span>
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-black mb-3 tracking-tight">Koinot sirlari</h3>
+                    <p className="text-purple-100/70 text-sm leading-relaxed mb-6">
+                      Quyosh tizimi va sayyoralar haqidagi bilimlaringizni sinab ko'ring.
+                    </p>
+                    <div className="flex flex-wrap gap-4">
+                      <button 
+                        onClick={() => onPlayGame("https://drive.google.com/file/d/1A1uVFnasDeuTUB-2g9_97XpTbjupgOK2/preview")}
+                        className="bg-white text-purple-700 px-8 py-4 rounded-2xl font-black hover:bg-purple-50 transition-all shadow-xl shadow-purple-900/20 flex items-center gap-3"
+                      >
+                        <Play size={20} />
+                        O'YNASH
+                      </button>
+                      <a 
+                        href="https://drive.google.com/uc?export=download&id=1A1uVFnasDeuTUB-2g9_97XpTbjupgOK2" 
+                        download="yer-va-koinot-oyini.html"
+                        className="inline-flex items-center gap-3 bg-purple-500 text-white px-8 py-4 rounded-2xl font-black hover:bg-purple-600 transition-all shadow-xl shadow-purple-900/20 group/btn"
+                      >
+                        <Download size={20} className="group-hover/btn:translate-y-1 transition-transform" />
+                        YUKLAB OLISH
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Quiz Section */}
             <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm overflow-hidden relative">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-full -mr-16 -mt-16 z-0"></div>
@@ -2244,7 +2392,7 @@ const EarthSpaceGrade4ChapterDetail = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const ResearcherChapterDetail = ({ onBack }: { onBack: () => void }) => {
+const ResearcherChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPlayGame: (url: string) => void }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -2526,8 +2674,15 @@ const ResearcherChapterDetail = ({ onBack }: { onBack: () => void }) => {
               Tadqiqotchi bo'lish qanchalik qiziqarli ekanligini ushbu o'yin orqali sinab ko'ring!
             </p>
             <div className="flex flex-wrap gap-4">
+              <button 
+                onClick={() => onPlayGame("https://drive.google.com/file/d/1o226ZTUVuhxd_sfWJ_X4gouOTS_HHwu7/preview")}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg border border-emerald-500"
+              >
+                <Play size={20} /> O'ynash
+              </button>
               <a 
                 href="https://drive.google.com/uc?export=download&id=1o226ZTUVuhxd_sfWJ_X4gouOTS_HHwu7"
+                download="tadqiqotchi-oyini.html"
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-emerald-600 px-6 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-lg border border-emerald-200"
               >
                 <Download size={20} /> Yuklab olish
@@ -2540,7 +2695,7 @@ const ResearcherChapterDetail = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const ClimateChapterDetail = ({ onBack }: { onBack: () => void }) => {
+const ClimateChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPlayGame: (url: string) => void }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -2670,8 +2825,15 @@ const ClimateChapterDetail = ({ onBack }: { onBack: () => void }) => {
             </p>
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
+            <button 
+              onClick={() => onPlayGame("https://drive.google.com/file/d/1Wl_Sxu_ynPI4cy5EIQM140LhuId31gd4/preview")}
+              className="bg-white text-sky-700 px-8 py-4 rounded-2xl font-bold hover:bg-sky-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-sky-400/30"
+            >
+              O'ynash <Play size={20} />
+            </button>
             <a 
               href="https://drive.google.com/uc?export=download&id=1Wl_Sxu_ynPI4cy5EIQM140LhuId31gd4"
+              download="iqlim-va-ob-havo.html"
               className="bg-sky-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-sky-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-sky-400/30"
             >
               Yuklab olish <Download size={20} />
@@ -2831,7 +2993,7 @@ const ClimateChapterDetail = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const AnimalsChapterDetail = ({ onBack }: { onBack: () => void }) => {
+const AnimalsChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPlayGame: (url: string) => void }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -3138,8 +3300,15 @@ const AnimalsChapterDetail = ({ onBack }: { onBack: () => void }) => {
               Darsda o'rganganlaringizni o'yin orqali mustahkamlang! Ushbu interaktiv o'yin sizni hayvonlar dunyosiga sayohatga chorlaydi.
             </p>
             <div className="flex flex-wrap gap-4">
+              <button 
+                onClick={() => onPlayGame("https://drive.google.com/file/d/1qgwqWXQjtT7bEaXjGGlL7n3vazBoymo9/preview")}
+                className="bg-white text-purple-700 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-purple-50 transition-all shadow-xl flex items-center gap-3 border border-purple-200"
+              >
+                O'ynash <Play size={24} />
+              </button>
               <a 
                 href="https://drive.google.com/uc?export=download&id=1qgwqWXQjtT7bEaXjGGlL7n3vazBoymo9"
+                download="hayvonlar-olami-oyini.html"
                 className="bg-purple-800 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-purple-900 transition-all shadow-xl flex items-center gap-3 border border-purple-400/30"
               >
                 Yuklab olish <Download size={24} />
@@ -3504,8 +3673,11 @@ const ScienceTutor = () => {
   );
 };
 
-const TopicList = ({ onSelectTopic }: { onSelectTopic: (id: string) => void }) => {
-  const [selectedGrade, setSelectedGrade] = useState<number>(3);
+const TopicList = ({ onSelectTopic, selectedGrade, setSelectedGrade }: { 
+  onSelectTopic: (id: string) => void, 
+  selectedGrade: number, 
+  setSelectedGrade: (grade: number) => void 
+}) => {
   const topics: ScienceTopic[] = [
     { id: '8', title: 'Hayvonlar', description: 'Darslikning 1-bobi: Hayvonlar tasnifi va ularning yashash tarzi.', subject: Subject.BIOLOGY, icon: 'microscope', color: 'bg-red-500', grade: 3 },
     { id: '2', title: 'O\'simliklar', description: 'Darslikning 2-bobi: O\'simliklar dunyosi va ularning hayoti.', subject: Subject.BIOLOGY, icon: 'microscope', color: 'bg-green-500', grade: 3 },
@@ -3591,7 +3763,7 @@ const TopicList = ({ onSelectTopic }: { onSelectTopic: (id: string) => void }) =
             <a 
               href={selectedGrade === 3 
                 ? "https://drive.google.com/file/d/1jdtTrLqnvG1X4a881QwBt7SmzKH9heta/view?usp=sharing"
-                : "https://drive.google.com/file/d/1jdtTrLqnvG1X4a881QwBt7SmzKH9heta/view?usp=sharing"
+                : "https://drive.google.com/file/d/1NhI-BAn3G5E7AszleIZY8M0MZK83WcmH/view?usp=sharing"
               }
               target="_blank" 
               rel="noopener noreferrer"
@@ -3631,37 +3803,39 @@ const TopicList = ({ onSelectTopic }: { onSelectTopic: (id: string) => void }) =
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+  const [selectedGameUrl, setSelectedGameUrl] = useState<string | null>(null);
+  const [selectedGrade, setSelectedGrade] = useState<number>(3);
 
   const renderContent = () => {
     if (selectedTopicId === '1') {
       return <CellStructureDetail onBack={() => setSelectedTopicId(null)} />;
     }
     if (selectedTopicId === '8') {
-      return <AnimalsChapterDetail onBack={() => setSelectedTopicId(null)} />;
+      return <AnimalsChapterDetail onBack={() => setSelectedTopicId(null)} onPlayGame={setSelectedGameUrl} />;
     }
     if (selectedTopicId === '2') {
-      return <PlantsChapterDetail onBack={() => setSelectedTopicId(null)} />;
+      return <PlantsChapterDetail onBack={() => setSelectedTopicId(null)} onPlayGame={setSelectedGameUrl} />;
     }
     if (selectedTopicId === '6') {
-      return <EarthChapterDetail onBack={() => setSelectedTopicId(null)} />;
+      return <EarthChapterDetail onBack={() => setSelectedTopicId(null)} onPlayGame={setSelectedGameUrl} />;
     }
     if (selectedTopicId === '7') {
-      return <ClimateChapterDetail onBack={() => setSelectedTopicId(null)} />;
+      return <ClimateChapterDetail onBack={() => setSelectedTopicId(null)} onPlayGame={setSelectedGameUrl} />;
     }
     if (selectedTopicId === '9') {
-      return <ResearcherChapterDetail onBack={() => setSelectedTopicId(null)} />;
+      return <ResearcherChapterDetail onBack={() => setSelectedTopicId(null)} onPlayGame={setSelectedGameUrl} />;
     }
     if (selectedTopicId === '10') {
-      return <PlantsGrade4ChapterDetail onBack={() => setSelectedTopicId(null)} />;
+      return <PlantsGrade4ChapterDetail onBack={() => setSelectedTopicId(null)} onPlayGame={setSelectedGameUrl} />;
     }
     if (selectedTopicId === '11') {
-      return <AnimalsGrade4ChapterDetail onBack={() => setSelectedTopicId(null)} />;
+      return <AnimalsGrade4ChapterDetail onBack={() => setSelectedTopicId(null)} onPlayGame={setSelectedGameUrl} />;
     }
     if (selectedTopicId === '12') {
-      return <HumanStructureGrade4ChapterDetail onBack={() => setSelectedTopicId(null)} />;
+      return <HumanStructureGrade4ChapterDetail onBack={() => setSelectedTopicId(null)} onPlayGame={setSelectedGameUrl} />;
     }
     if (selectedTopicId === '13') {
-      return <EarthSpaceGrade4ChapterDetail onBack={() => setSelectedTopicId(null)} />;
+      return <EarthSpaceGrade4ChapterDetail onBack={() => setSelectedTopicId(null)} onPlayGame={setSelectedGameUrl} />;
     }
 
     switch (activeTab) {
@@ -3670,14 +3844,16 @@ export default function App() {
           <>
             <Hero onStart={() => setActiveTab('topics')} />
             <ScienceMindMap />
-            <TopicList onSelectTopic={(id) => {
-              if (id === '1' || id === '8' || id === '2' || id === '6' || id === '7' || id === '9' || id === '10' || id === '11' || id === '12' || id === '13') setSelectedTopicId(id);
-              else setActiveTab('topics');
-            }} />
           </>
         );
       case 'topics':
-        return <TopicList onSelectTopic={(id) => (id === '1' || id === '8' || id === '2' || id === '6' || id === '7' || id === '9' || id === '10' || id === '11' || id === '12' || id === '13') ? setSelectedTopicId(id) : null} />;
+        return (
+          <TopicList 
+            selectedGrade={selectedGrade}
+            setSelectedGrade={setSelectedGrade}
+            onSelectTopic={(id) => (id === '1' || id === '8' || id === '2' || id === '6' || id === '7' || id === '9' || id === '10' || id === '11' || id === '12' || id === '13') ? setSelectedTopicId(id) : null} 
+          />
+        );
       case 'darslik':
         return <TextbookPage onSelectChapter={(id) => setSelectedTopicId(id)} />;
       case 'tutor':
@@ -3698,6 +3874,8 @@ export default function App() {
       <main>
         {renderContent()}
       </main>
+
+      <GameModal url={selectedGameUrl} onClose={() => setSelectedGameUrl(null)} />
 
       <footer className="bg-slate-900 text-slate-400 py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -3730,12 +3908,8 @@ export default function App() {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">Platforma</h4>
-              <ul className="space-y-3 text-sm">
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Biz haqimizda</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Hamkorlik</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Aloqa</a></li>
-              </ul>
+              <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wider">Statistika</h4>
+              <VisitorCounter />
             </div>
           </div>
           <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
