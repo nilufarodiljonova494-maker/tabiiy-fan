@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { 
   Beaker, 
   Microscope, 
@@ -38,6 +39,134 @@ import { Subject, ScienceTopic, ChatMessage } from './types';
 import { askScienceTutor } from './services/geminiService';
 
 // Reusable Components
+const FloatingNatureElements = () => {
+  // Elements configuration for Biology (green leaf), Physics (yellow star), Geography (blue drop), Chemistry/Botany (pink petal)
+  const items = [
+    { id: 1, type: 'leaf', left: '5%', size: 42, delay: 0, duration: 16, drift: 50, rotate: 60, color: 'text-emerald-500/25' },
+    { id: 2, type: 'petal', left: '15%', size: 16, delay: 3, duration: 20, drift: -40, rotate: -30, color: 'text-pink-400/15' },
+    { id: 3, type: 'sparkle', left: '28%', size: 14, delay: 6, duration: 15, drift: 60, rotate: 140, color: 'text-amber-400/20' },
+    { id: 4, type: 'drop', left: '42%', size: 18, delay: 1, duration: 18, drift: -50, rotate: 90, color: 'text-blue-400/20' },
+    { id: 5, type: 'leaf', left: '55%', size: 46, delay: 8, duration: 22, drift: 40, rotate: 20, color: 'text-emerald-500/25' },
+    { id: 6, type: 'petal', left: '68%', size: 18, delay: 4, duration: 19, drift: -45, rotate: -70, color: 'text-pink-400/15' },
+    { id: 7, type: 'sparkle', left: '78%', size: 16, delay: 2, duration: 16, drift: 30, rotate: 105, color: 'text-amber-400/20' },
+    { id: 8, type: 'drop', left: '92%', size: 20, delay: 7, duration: 21, drift: -60, rotate: 160, color: 'text-sky-400/20' },
+    { id: 9, type: 'leaf', left: '12%', size: 36, delay: 11, duration: 17, drift: 50, rotate: 40, color: 'text-emerald-500/25' },
+    { id: 10, type: 'petal', left: '35%', size: 20, delay: 5, duration: 19, drift: -30, rotate: -50, color: 'text-pink-400/15' },
+    { id: 11, type: 'sparkle', left: '62%', size: 18, delay: 9, duration: 16, drift: 40, rotate: 120, color: 'text-amber-400/20' },
+    { id: 12, type: 'drop', left: '88%', size: 22, delay: 12, duration: 23, drift: -50, rotate: 85, color: 'text-blue-400/20' },
+  ];
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-40">
+      {items.map((item) => (
+        <motion.div
+          key={item.id}
+          initial={{ y: -60, x: 0, opacity: 0, rotate: 0 }}
+          animate={{
+            y: '105vh',
+            x: item.drift,
+            opacity: [0, 0.4, 0.6, 0.6, 0.4, 0],
+            rotate: item.rotate * 5,
+          }}
+          transition={{
+            duration: item.duration,
+            repeat: Infinity,
+            delay: item.delay,
+            ease: 'linear',
+          }}
+          style={{
+            position: 'absolute',
+            left: item.left,
+            width: item.size,
+            height: item.size,
+          }}
+        >
+          {item.type === 'leaf' && (
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={`w-full h-full drop-shadow-[0_2px_4px_rgba(16,185,129,0.1)] ${item.color}`}>
+              <path d="M2 22C2 22 6 20 10 16C14 12 22 2 22 2C22 2 12 2 8 6C4 10 2 22 2 22Z" fill="currentColor" />
+              <path d="M2 22C6 18 12 12 22 2" stroke="rgba(16,185,129,0.3)" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          )}
+          {item.type === 'petal' && (
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={`w-full h-full drop-shadow-[0_2px_4px_rgba(244,63,94,0.1)] ${item.color}`}>
+              <path d="M12 22C12 22 4 16 4 10.5C4 6.5 7 3.5 10.5 3.5C14 3.5 17 6.0 17 10.5C17 15.5 12 22 12 22Z" fill="currentColor" />
+            </svg>
+          )}
+          {item.type === 'sparkle' && (
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={`w-full h-full drop-shadow-[0_2px_4px_rgba(245,158,11,0.15)] ${item.color}`}>
+              <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" fill="currentColor" />
+            </svg>
+          )}
+          {item.type === 'drop' && (
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={`w-full h-full drop-shadow-[0_2px_4px_rgba(14,165,233,0.15)] ${item.color}`}>
+              <path d="M12 2.5C12 2.5 19 9.5 19 14.5C19 18.5 15.5 21.5 12 21.5C8.5 21.5 5 18.5 5 14.5C5 9.5 12 2.5 12 2.5Z" fill="currentColor" />
+            </svg>
+          )}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+const BackgroundGlows = () => {
+  const starsArray = [
+    { top: '3%', left: '8%', size: 'w-2 h-2 md:w-3 md:h-3', delay: '0s', duration: '2.5s', color: 'bg-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.9)]' },
+    { top: '6%', left: '88%', size: 'w-3.5 h-3.5 md:w-4.5 md:h-4.5', delay: '1.2s', duration: '3.5s', color: 'bg-yellow-250 shadow-[0_0_15px_rgba(253,224,71,0.95)]' },
+    { top: '10%', left: '22%', size: 'w-2 h-2', delay: '0.5s', duration: '2s', color: 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]' },
+    { top: '14%', left: '68%', size: 'w-2.5 h-2.5', delay: '2s', duration: '4s', color: 'bg-amber-250 shadow-[0_0_12px_rgba(251,191,36,0.8)]' },
+    { top: '19%', left: '38%', size: 'w-2 h-2 md:w-3 md:h-3', delay: '0.8s', duration: '3s', color: 'bg-yellow-200 shadow-[0_0_12px_rgba(254,240,138,0.9)]' },
+    { top: '24%', left: '12%', size: 'w-2.5 h-2.5', delay: '1.5s', duration: '2.8s', color: 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]' },
+    { top: '29%', left: '92%', size: 'w-2 h-2 md:w-4 md:h-4', delay: '0.3s', duration: '3.2s', color: 'bg-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.9)]' },
+    { top: '34%', left: '52%', size: 'w-2.5 h-2.5', delay: '2.4s', duration: '4.5s', color: 'bg-yellow-250 shadow-[0_0_12px_rgba(253,224,71,0.8)]' },
+    { top: '39%', left: '6%', size: 'w-2 h-2', delay: '1.1s', duration: '2.2s', color: 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]' },
+    { top: '44%', left: '78%', size: 'w-2.5 h-2.5 md:w-3 md:h-3', delay: '0.6s', duration: '3.7s', color: 'bg-amber-250 shadow-[0_0_12px_rgba(251,191,36,0.8)]' },
+    { top: '49%', left: '20%', size: 'w-3 h-3 md:w-4 md:h-4', delay: '1.9s', duration: '2.9s', color: 'bg-yellow-200 shadow-[0_0_15px_rgba(254,240,138,0.95)]' },
+    { top: '54%', left: '63%', size: 'w-2 h-2', delay: '0.2s', duration: '4.2s', color: 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]' },
+    { top: '59%', left: '10%', size: 'w-3 h-3 md:w-4 md:h-4', delay: '2.5s', duration: '3.4s', color: 'bg-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.9)]' },
+    { top: '64%', left: '86%', size: 'w-2 h-2', delay: '1.4s', duration: '2.6s', color: 'bg-yellow-250 shadow-[0_0_12px_rgba(253,224,71,0.8)]' },
+    { top: '69%', left: '28%', size: 'w-2.5 h-2.5', delay: '0.7s', duration: '4.8s', color: 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]' },
+    { top: '74%', left: '72%', size: 'w-3.5 h-3.5 md:w-4.5 md:h-4.5', delay: '2.1s', duration: '3.1s', color: 'bg-amber-300 shadow-[0_0_18px_rgba(251,191,36,0.95)]' },
+    { top: '79%', left: '16%', size: 'w-2 h-2 md:w-3 md:h-3', delay: '1.3s', duration: '3s', color: 'bg-yellow-100 shadow-[0_0_12px_rgba(254,240,138,0.9)]' },
+    { top: '84%', left: '80%', size: 'w-2.5 h-2.5', delay: '0.9s', duration: '2.7s', color: 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]' },
+    { top: '88%', left: '46%', size: 'w-2 h-2', delay: '2.3s', duration: '3.6s', color: 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]' },
+    { top: '91%', left: '93%', size: 'w-2.5 h-2.5', delay: '1.7s', duration: '2.9s', color: 'bg-amber-250 shadow-[0_0_12px_rgba(251,191,36,0.8)]' },
+    { top: '94%', left: '60%', size: 'w-2 h-2', delay: '0.4s', duration: '4.1s', color: 'bg-yellow-350 shadow-[0_0_12px_rgba(253,224,71,0.8)]' },
+    { top: '97%', left: '4%', size: 'w-3 h-3 md:w-4 md:h-4', delay: '1.8s', duration: '3.3s', color: 'bg-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.9)]' },
+    { top: '8%', left: '30%', size: 'w-2 h-2', delay: '0.5s', duration: '2.7s', color: 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]' },
+    { top: '15%', left: '94%', size: 'w-2.5 h-2.5', delay: '2.2s', duration: '3.9s', color: 'bg-yellow-250 shadow-[0_0_12px_rgba(253,224,71,0.8)]' },
+    { top: '27%', left: '44%', size: 'w-2 h-2 md:w-3 md:h-3', delay: '1.1s', duration: '4.3s', color: 'bg-amber-350 shadow-[0_0_12px_rgba(245,158,11,0.8)]' },
+    { top: '42%', left: '96%', size: 'w-2 h-2', delay: '0s', duration: '2.5s', color: 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]' },
+    { top: '61%', left: '50%', size: 'w-3 h-3 md:w-4 md:h-4', delay: '1.6s', duration: '3.1s', color: 'bg-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.9)]' },
+    { top: '76%', left: '2%', size: 'w-2 h-2', delay: '2.4s', duration: '3.7s', color: 'bg-yellow-200 shadow-[0_0_12px_rgba(254,240,138,0.8)]' },
+    { top: '86%', left: '52%', size: 'w-2.5 h-2.5', delay: '0.8s', duration: '2.6s', color: 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]' }
+  ];
+
+  return (
+    <div className="absolute inset-x-0 top-0 h-full w-full pointer-events-none overflow-hidden -z-20">
+      {/* Decorative gradient color glows */}
+      <div className="absolute top-[5%] left-[2%] w-[500px] h-[500px] rounded-full bg-emerald-300/35 blur-[130px] animate-pulse" style={{ animationDuration: '9s' }} />
+      <div className="absolute top-[22%] right-[4%] w-[600px] h-[600px] rounded-full bg-blue-300/30 blur-[140px] animate-pulse" style={{ animationDuration: '11s' }} />
+      <div className="absolute top-[45%] left-[6%] w-[550px] h-[550px] rounded-full bg-amber-300/30 blur-[120px] animate-pulse" style={{ animationDuration: '7s' }} />
+      <div className="absolute top-[68%] right-[3%] w-[580px] h-[580px] rounded-full bg-pink-300/30 blur-[130px] animate-pulse" style={{ animationDuration: '13s' }} />
+      <div className="absolute top-[85%] left-[12%] w-[500px] h-[500px] rounded-full bg-purple-300/30 blur-[110px] animate-pulse" style={{ animationDuration: '8s' }} />
+
+      {/* Sparkling Twinkling Star Field */}
+      {starsArray.map((star, index) => (
+        <div
+          key={index}
+          className={`absolute rounded-full animate-pulse z-10 ${star.color} ${star.size.split(' ')[0] || 'w-1.5'} ${star.size.split(' ')[1] || 'h-1.5'}`}
+          style={{
+            top: star.top,
+            left: star.left,
+            animationDelay: star.delay,
+            animationDuration: star.duration,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 const VisitorCounter = () => {
   const [count, setCount] = useState(0);
   const [online, setOnline] = useState(0);
@@ -99,7 +228,7 @@ const Navbar = ({ activeTab, setActiveTab, onBackToHome }: { activeTab: string, 
   const [isOpen, setIsOpen] = useState(false);
   
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+    <nav className="sticky top-0 z-50 bg-gradient-to-r from-emerald-50/90 via-sky-50/90 to-purple-50/90 backdrop-blur-md border-b border-emerald-100/80 shadow-md shadow-emerald-500/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -107,8 +236,8 @@ const Navbar = ({ activeTab, setActiveTab, onBackToHome }: { activeTab: string, 
               <div className="bg-emerald-600 p-2 rounded-lg text-white">
                 <BrainCircuit size={24} />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                Tabiiy Fanlar
+              <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent flex items-center gap-1.5">
+                Tabiiy Fanlar <span className="text-base" style={{ display: 'inline-block', transform: 'rotate(-15deg)' }}>🍃</span>
               </span>
             </button>
           </div>
@@ -137,117 +266,236 @@ const Navbar = ({ activeTab, setActiveTab, onBackToHome }: { activeTab: string, 
   );
 };
 
-const UsefulPlatforms = () => {
-  const platforms = [
+const ScienceFactHub = () => {
+  const [selectedCat, setSelectedCat] = useState<'all' | 'bio' | 'geo' | 'phys'>('all');
+  const [aiFact, setAiFact] = useState<string | null>(null);
+  const [loadingAi, setLoadingAi] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  const loadingTexts = [
+    "Kallani ishlatyapman... 🧠",
+    "Koinot energiyasini yig'yapman... ⚡",
+    "Mikro-dunyoni tadqiq qilyapman... 🔬",
+    "Eng qiziqarli sirni qidiryapman... 🌟"
+  ];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loadingAi) {
+      interval = setInterval(() => {
+        setLoadingStep((prev) => (prev + 1) % loadingTexts.length);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [loadingAi]);
+
+  const generateAiFact = async () => {
+    setLoadingAi(true);
+    setAiFact(null);
+    try {
+      const prompt = "Tabiiy fanlarga oid o'ta hayratlanarli, bolalarbop qisqa qiziqarli fakt (masalan, koinot, hayvonlar, o'simliklar yoki fizika haqida) va unga mos emoji yozib ber. Javob 2-3 ta qatordan oshmasin. Sodda, tushunarli o'zbek tilida bo'lsin.";
+      const res = await askScienceTutor(prompt, []);
+      setAiFact(res);
+    } catch (e) {
+      setAiFact("Mikroskop ostidagi dunyo juda ajoyib! Keyingi gal yana harakat qilib ko'ramiz. 🔬✨");
+    } finally {
+      setLoadingAi(false);
+    }
+  };
+
+  const facts = [
     {
-      name: "Kahoot va Quizizz",
-      desc: "Bilimlarni mustahkamlash va baholash uchun.",
-      color: "border-yellow-400 bg-yellow-50 text-yellow-700",
-      icon: <Gamepad2 size={32} />
+      id: 1,
+      cat: 'bio',
+      title: "Chaqmoqdek Tezkorlik 🐆",
+      text: "Dunyodagi eng tezkor quruqlik hayvoni - geparddir! U atigi 3 soniyada soatiga 100 km tezlikka chiqa oladi. Bu deyarli sport avtomobillari bilan barobar!",
+      bgColor: "from-emerald-500/10 to-teal-500/10 border-emerald-500/30",
+      accentColor: "bg-emerald-500 text-white",
+      icon: <Trees size={24} />
     },
     {
-      name: "Google Forms",
-      desc: "Diagnostik baholash uchun.",
-      color: "border-red-400 bg-red-50 text-red-700",
-      icon: <ClipboardCheck size={32} />
+      id: 2,
+      cat: 'geo',
+      title: "Ulkan va Nurafshon Quyosh ☀️",
+      text: "Quyosh Quyosh tizimidagi jami moddalarning 99.8% qismini tashkil qiladi! Agar uni bo'sh quti desak, ichiga bemalol 1.3 million dona Yer sayyorasi sig'adi.",
+      bgColor: "from-amber-500/10 to-orange-500/10 border-amber-500/30",
+      accentColor: "bg-amber-500 text-white",
+      icon: <Sun size={24} />
     },
     {
-      name: "LearningApps",
-      desc: "Interaktiv mashqlar yaratish uchun.",
-      color: "border-orange-400 bg-orange-50 text-orange-700",
-      icon: <Smartphone size={32} />
+      id: 3,
+      cat: 'phys',
+      title: "Uchuvchi Suv 🧊",
+      text: "Suv muzlaganda hajmi kengayadi (boshqa deyarli barcha suyuqliklar qisqaradi). Aynan shu tufayli muz suvdan yengilroq bo'lib, daryolarda suv ustiga qalqiydi va baliqlarni qishda sovuqdan asraydi!",
+      bgColor: "from-blue-500/10 to-sky-500/10 border-blue-500/30",
+      accentColor: "bg-blue-500 text-white",
+      icon: <CloudRain size={24} />
+    },
+    {
+      id: 4,
+      cat: 'bio',
+      title: "Yashil Chempion 🎋",
+      text: "Bambuk dunyodagi eng tez o'sadigan o't o'simligidir. U bir kunda o'rtacha 91 santimetrgacha o'sa oladi, ya'ni siz ko'z o'ngingizda uning bo'yi cho'zilayotganini ko'rishingiz mumkin!",
+      bgColor: "from-green-500/10 to-emerald-500/10 border-green-500/30",
+      accentColor: "bg-green-500 text-white",
+      icon: <Trees size={24} />
+    },
+    {
+      id: 5,
+      cat: 'geo',
+      title: "Sehrli Kamalak 🌈",
+      text: "Aslida kamalak mukammal aylanadir! Biz uni faqat ufq chizig'i tufayli yarim doira shaklida ko'ramiz. Samolyotda uchganda esa uning to'liq aylanasini ko'rish mumkin.",
+      bgColor: "from-violet-500/10 to-pink-500/10 border-violet-500/30",
+      accentColor: "bg-violet-500 text-white",
+      icon: <Sparkles size={24} />
+    },
+    {
+      id: 6,
+      cat: 'phys',
+      title: "Oltin Energiya ⚡",
+      text: "Bir marta chaqqan yashindagi energiya 100 wattlik elektr lampochkani to'xtovsiz 3 oy davomida yoritishga yetadi! Tabiat kuch-g'ayratga to'la.",
+      bgColor: "from-indigo-500/10 to-purple-500/10 border-indigo-500/30",
+      accentColor: "bg-indigo-500 text-white",
+      icon: <Atom size={24} />
     }
   ];
 
+  const filteredFacts = selectedCat === 'all' 
+    ? facts 
+    : facts.filter(f => f.cat === selectedCat);
+
   return (
-    <div className="max-w-7xl mx-auto py-20 px-4">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl font-black text-slate-800 tracking-tight mb-4">
-          TABIIY FAN DARSLARIDA FOYDALI PLATFORMALAR
+    <div className="max-w-7xl mx-auto py-16 px-4 relative z-10">
+      <div className="text-center mb-12">
+        <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-800 rounded-full text-xs font-black uppercase tracking-widest mb-4">
+          🧪 Tabiat sirlari burchagi
+        </span>
+        <h2 className="text-3xl md:text-5xl font-black text-slate-800 tracking-tight leading-none mb-4">
+          BILIMLAR XAZINASI
         </h2>
-        <div className="w-24 h-1 bg-indigo-500 mx-auto rounded-full"></div>
+        <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+          Tabiiy fanlarga doir eng qiziqarli kashfiyotlar va sehrli faktlar bilan tanishing!
+        </p>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-10">
-        <div className="grid grid-cols-1 gap-6 w-full md:w-1/3">
-          {platforms.slice(0, 2).map((p, i) => (
-            <div key={i} className={`${p.color} border-2 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex items-start gap-4`}>
-              <div className="p-3 bg-white rounded-xl shadow-sm">{p.icon}</div>
-              <div>
-                <h4 className="font-bold text-lg mb-1">{p.name}</h4>
-                <p className="text-sm opacity-80">{p.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Category Tabs */}
+      <div className="flex flex-wrap justify-center items-center gap-3 mb-10">
+        <button
+          onClick={() => setSelectedCat('all')}
+          className={`px-5 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 border-2 ${selectedCat === 'all' ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-slate-100/80 text-slate-700 border-slate-200 hover:bg-slate-200'}`}
+        >
+          🌌 Hammasi
+        </button>
+        <button
+          onClick={() => setSelectedCat('bio')}
+          className={`px-5 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 border-2 ${selectedCat === 'bio' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-emerald-50/80 text-emerald-800 border-emerald-150 hover:bg-emerald-100'}`}
+        >
+          🌿 Biologiya (Hayot)
+        </button>
+        <button
+          onClick={() => setSelectedCat('geo')}
+          className={`px-5 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 border-2 ${selectedCat === 'geo' ? 'bg-amber-500 text-white border-amber-500 shadow-md' : 'bg-amber-50/80 text-amber-850 border-amber-200 hover:bg-amber-100'}`}
+        >
+          🌍 Geografiya & Koinot
+        </button>
+        <button
+          onClick={() => setSelectedCat('phys')}
+          className={`px-5 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 border-2 ${selectedCat === 'phys' ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-blue-50/80 text-blue-800 border-blue-200 hover:bg-blue-100'}`}
+        >
+          ⚛️ Fizika & Kimyo
+        </button>
+      </div>
 
-        <div className="w-48 h-48 md:w-64 md:h-64 bg-slate-100 rounded-full flex items-center justify-center border-8 border-white shadow-inner relative">
-          <Smartphone size={80} className="text-slate-400 animate-pulse" />
-          <div className="absolute -top-4 -right-4 bg-indigo-600 text-white p-4 rounded-full shadow-lg">
-             <Search size={24} />
-          </div>
-        </div>
-
-        <div className="w-full md:w-1/3">
-          <div className={`${platforms[2].color} border-2 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex items-start gap-4`}>
-            <div className="p-3 bg-white rounded-xl shadow-sm">{platforms[2].icon}</div>
+      {/* Facts Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        {filteredFacts.map((fact, idx) => (
+          <motion.div
+            key={fact.id}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: idx * 0.1 }}
+            className={`bg-gradient-to-br ${fact.bgColor} border border-slate-200/50 rounded-[2rem] p-8 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all relative overflow-hidden flex flex-col justify-between group`}
+          >
+            {/* Top Row */}
             <div>
-              <h4 className="font-bold text-lg mb-1">{platforms[2].name}</h4>
-              <p className="text-sm opacity-80">{platforms[2].desc}</p>
+              <div className="flex items-center justify-between mb-6">
+                <div className={`p-3 rounded-2xl ${fact.accentColor} shadow-md group-hover:scale-110 transition-transform`}>
+                  {fact.icon}
+                </div>
+                <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest bg-white/60 px-3 py-1 rounded-full border border-slate-100">
+                  Fakt #{fact.id}
+                </span>
+              </div>
+              <h3 className="text-xl font-black mb-3 text-slate-800 leading-tight">
+                {fact.title}
+              </h3>
+              <p className="text-sm font-medium text-slate-600 leading-relaxed">
+                {fact.text}
+              </p>
             </div>
+
+            {/* Bottom styling */}
+            <div className="mt-6 flex items-center gap-1.5 text-xs font-black text-slate-400 uppercase tracking-widest group-hover:text-emerald-600 transition-colors">
+              Batafsil ma'lumot <span>→</span>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Interactive AI Magic Fact Oracle */}
+      <div className="bg-gradient-to-r from-indigo-900 via-slate-900 to-emerald-950 rounded-[2.5rem] p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
+        {/* Glow Effects */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="relative z-10 max-w-3xl mx-auto text-center flex flex-col items-center">
+          <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-yellow-300 mb-6 border border-white/10">
+            <Sparkles size={32} />
           </div>
+          <h3 className="text-2xl md:text-3xl font-black mb-3">AI SEHRGARIDAN YANGI SIR! 🧙‍♂️✨</h3>
+          <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-8 max-w-lg">
+            AI Ustozimiz o'z mikroskopi va orbital teleskopi orqali sizga mutlaqo tasodifiy, hayratlanarli tabiiy fan faktini yaratib beradi!
+          </p>
+
+          <button
+            onClick={generateAiFact}
+            disabled={loadingAi}
+            className="px-10 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl text-white font-black text-base md:text-lg hover:from-emerald-600 hover:to-teal-600 shadow-xl shadow-emerald-950/40 hover:shadow-2xl hover:scale-[1.03] active:scale-[0.98] transition-all flex items-center gap-3 disabled:opacity-50"
+          >
+            {loadingAi ? (
+              <>
+                <Loader2 className="animate-spin" size={24} />
+                <span>{loadingTexts[loadingStep]}</span>
+              </>
+            ) : (
+              <>
+                <Sparkles size={24} />
+                <span>Sirni ochish (AI Fakt yaratish)</span>
+              </>
+            )}
+          </button>
+
+          {/* AI generated display */}
+          {aiFact && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="mt-8 bg-white/10 backdrop-blur-md border border-white/15 p-6 rounded-3xl max-w-xl text-left shadow-inner relative"
+            >
+              <div className="absolute top-2 right-4 text-xs font-bold text-emerald-400">Yangi Fakt</div>
+              <p className="text-base text-teal-100 font-bold leading-relaxed pr-8">
+                {aiFact}
+              </p>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-const ScienceMindMap = () => {
-  const sections = [
-    {
-      title: "ATROF-MUHITNI O'RGANISH",
-      desc: "Yashash joylari, bog'lar, o'rmonlar bilan tanishish.",
-      color: "border-emerald-500 bg-emerald-50 text-emerald-700",
-      icon: <Trees size={32} />,
-      position: "md:col-start-1 md:row-start-1"
-    },
-    {
-      title: "O'SIMLIKLAR VA HAYVONOT DUNYOSI",
-      desc: "O'simliklar turlari, o'sishi, hayvonlar hayot tarzi.",
-      color: "border-yellow-500 bg-yellow-50 text-yellow-700",
-      icon: <Tent size={32} />,
-      position: "md:col-start-3 md:row-start-1"
-    },
-    {
-      title: "YORUG'LIK VA OVOZ",
-      desc: "Yorug'lik va ovoz hodisalari.",
-      color: "border-orange-500 bg-orange-50 text-orange-700",
-      icon: <Music size={32} />,
-      position: "md:col-start-2 md:row-start-3"
-    },
-    {
-      title: "INSON VA SALOMATLIK",
-      desc: "Inson tanasi, gigiena, sog'lom turmush tarzi.",
-      color: "border-purple-500 bg-purple-50 text-purple-700",
-      icon: <HeartPulse size={32} />,
-      position: "md:col-start-3 md:row-start-3"
-    }
-  ];
 
-  return (
-    <div className="max-w-7xl mx-auto py-16 px-4">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl font-black text-slate-800 tracking-tight uppercase mb-2">
-          Boshlang'ich ta'limda
-        </h2>
-        <h3 className="text-5xl font-black text-emerald-600 mb-4 tracking-wider">
-          TABIIY FANLAR
-        </h3>
-        <div className="w-24 h-1 bg-emerald-500 mx-auto rounded-full"></div>
-      </div>
-    </div>
-  );
-};
+
 
 const TopicCard: React.FC<{ topic: ScienceTopic, onClick: () => void }> = ({ topic, onClick }) => {
   const Icon = ({
@@ -258,15 +506,29 @@ const TopicCard: React.FC<{ topic: ScienceTopic, onClick: () => void }> = ({ top
     [Subject.ASTRONOMY]: Orbit,
   })[topic.subject];
 
+  // Map subjects to gorgeous, lively pastel backgrounds and rich border accent colors
+  const subjectStyles = {
+    [Subject.BIOLOGY]: "bg-gradient-to-br from-[#effdf4] to-[#dafbe4] border-emerald-300 text-emerald-950 hover:shadow-emerald-250/30",
+    [Subject.GEOGRAPHY]: "bg-gradient-to-br from-[#f0f9ff] to-[#daf0ff] border-sky-300 text-sky-950 hover:shadow-sky-250/30",
+    [Subject.PHYSICS]: "bg-gradient-to-br from-[#faf5ff] to-[#f3e8ff] border-purple-300 text-purple-950 hover:shadow-purple-250/30",
+    [Subject.CHEMISTRY]: "bg-gradient-to-br from-[#fffbeb] to-[#fef3c7] border-amber-300 text-amber-950 hover:shadow-amber-250/30",
+    [Subject.ASTRONOMY]: "bg-gradient-to-br from-[#fdf4ff] to-[#fae8ff] border-pink-300 text-pink-950 hover:shadow-pink-250/30"
+  };
+
+  const currentStyle = subjectStyles[topic.subject] || "bg-gradient-to-br from-[#fff1f2] to-[#ffe4e6] border-rose-300 text-rose-950 hover:shadow-rose-250/30";
+
   return (
-    <div onClick={onClick} className="bg-white p-6 rounded-2xl border border-slate-200 hover:shadow-xl hover:border-emerald-200 transition-all group cursor-pointer">
-      <div className={`${topic.color} w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
+    <div 
+      onClick={onClick} 
+      className={`p-7 rounded-[2rem] border-2 shadow-sm ${currentStyle} hover:shadow-xl hover:scale-[1.03] transition-all duration-305 group cursor-pointer`}
+    >
+      <div className={`${topic.color} w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-5 shadow-md group-hover:scale-110 group-hover:rotate-6 transition-transform`}>
         <Icon size={24} />
       </div>
-      <h3 className="text-lg font-bold text-slate-800 mb-2">{topic.title}</h3>
-      <p className="text-slate-500 text-sm leading-relaxed mb-4">{topic.description}</p>
-      <div className="flex items-center text-emerald-600 font-medium text-sm">
-        Batafsil <ChevronRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
+      <h3 className="text-xl font-black mb-2 tracking-tight transition-colors">{topic.title}</h3>
+      <p className="opacity-80 text-sm leading-relaxed mb-6 font-medium">{topic.description}</p>
+      <div className="flex items-center font-bold text-sm">
+        Batafsil o'rganish <ChevronRight size={16} className="ml-1.5 group-hover:translate-x-1.5 transition-transform" />
       </div>
     </div>
   );
@@ -317,8 +579,15 @@ const TextbookPage = ({ onSelectChapter }: { onSelectChapter: (id: string) => vo
       </div>
 
       <div className="space-y-12 mb-20">
-        {textbooks.map((book) => (
-          <div key={book.id} className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-xl flex flex-col lg:flex-row items-center gap-12 hover:border-emerald-200 transition-colors">
+        {textbooks.map((book, bIdx) => (
+          <div 
+            key={book.id} 
+            className={`rounded-[2.5rem] p-8 md:p-12 border-2 ${
+              bIdx === 0 
+                ? 'bg-gradient-to-br from-[#ebfcf3]/90 via-[#f0fcf5]/80 to-[#dafbe6] border-emerald-200 shadow-lg hover:shadow-xl hover:shadow-emerald-200/50 text-emerald-950' 
+                : 'bg-gradient-to-br from-[#ebf4fc]/90 via-[#f3f8fe]/80 to-[#daebfb] border-blue-200 shadow-lg hover:shadow-xl hover:shadow-blue-200/50 text-blue-950'
+            } flex flex-col lg:flex-row items-center gap-12 transition-all duration-350 hover:scale-[1.01]`}
+          >
             <div className="w-full max-w-sm aspect-[3/4] bg-slate-100 rounded-2xl shadow-2xl overflow-hidden border-8 border-white transform hover:scale-105 transition-transform duration-500">
               <a 
                 href={book.link} 
@@ -379,25 +648,37 @@ const TextbookPage = ({ onSelectChapter }: { onSelectChapter: (id: string) => vo
         ))}
       </div>
 
-      <div className="border-t border-slate-200 pt-16">
-        <h3 className="text-2xl font-bold text-slate-800 mb-8">Interaktiv Boblar</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {chapters.map((chapter) => (
-            <div 
-              key={chapter.id} 
-              onClick={() => onSelectChapter(chapter.id)}
-              className="bg-white p-8 rounded-3xl border border-slate-200 hover:border-emerald-500 hover:shadow-xl transition-all cursor-pointer group"
-            >
-              <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                {chapter.icon}
+      <div className="border-t border-slate-300/60 pt-16">
+        <h3 className="text-3xl font-black text-slate-800 mb-8 tracking-tight">Interaktiv Boblar</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {chapters.map((chapter, index) => {
+            const gradients = [
+              "bg-gradient-to-br from-[#effdf4] to-[#dafbe4] border-emerald-300/75 text-emerald-950 hover:shadow-emerald-250/30",
+              "bg-gradient-to-br from-[#fffbeb] to-[#fef3c7] border-amber-300/75 text-amber-950 hover:shadow-amber-250/30",
+              "bg-gradient-to-br from-[#f0f9ff] to-[#daf0ff] border-blue-300/75 text-blue-950 hover:shadow-blue-200/30",
+              "bg-gradient-to-br from-[#fdf4ff] to-[#fae8ff] border-pink-300/75 text-pink-950 hover:shadow-pink-200/30",
+              "bg-gradient-to-br from-[#faf5ff] to-[#f3e8ff] border-purple-300/75 text-purple-950 hover:shadow-purple-200/30",
+              "bg-gradient-to-br from-[#f0fdfe] to-[#ccfbf1] border-teal-300/75 text-teal-950 hover:shadow-teal-200/30",
+              "bg-gradient-to-br from-[#fbf7ff] to-[#e0e7ff] border-indigo-300/75 text-indigo-950 hover:shadow-indigo-200/30"
+            ];
+            const currentGrad = gradients[index % gradients.length];
+            return (
+              <div 
+                key={chapter.id} 
+                onClick={() => onSelectChapter(chapter.id)}
+                className={`p-8 rounded-[2rem] border-2 shadow-sm ${currentGrad} hover:shadow-xl hover:scale-[1.03] transition-all duration-300 cursor-pointer group`}
+              >
+                <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                  {chapter.icon}
+                </div>
+                <h4 className="text-xl font-black mb-3 tracking-tight">{chapter.title}</h4>
+                <p className="opacity-80 text-sm font-medium mb-6 leading-relaxed">{chapter.desc}</p>
+                <div className="font-extrabold flex items-center gap-2 text-sm">
+                  O'rganish <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </div>
               </div>
-              <h4 className="text-xl font-bold text-slate-800 mb-3">{chapter.title}</h4>
-              <p className="text-slate-500 text-sm mb-6">{chapter.desc}</p>
-              <div className="text-emerald-600 font-bold flex items-center gap-2">
-                O'rganish <ChevronRight size={18} />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
@@ -2675,13 +2956,13 @@ const ResearcherChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, o
             </p>
             <div className="flex flex-wrap gap-4">
               <button 
-                onClick={() => onPlayGame("https://drive.google.com/file/d/1o226ZTUVuhxd_sfWJ_X4gouOTS_HHwu7/preview")}
+                onClick={() => onPlayGame("https://drive.google.com/file/d/1Noy2OVlwFl1yLhjOcEMG3edd41VVr9h1/preview")}
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg border border-emerald-500"
               >
                 <Play size={20} /> O'ynash
               </button>
               <a 
-                href="https://drive.google.com/uc?export=download&id=1o226ZTUVuhxd_sfWJ_X4gouOTS_HHwu7"
+                href="https://drive.google.com/uc?export=download&id=1Noy2OVlwFl1yLhjOcEMG3edd41VVr9h1"
                 download="tadqiqotchi-oyini.html"
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-emerald-600 px-6 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-lg border border-emerald-200"
               >
@@ -3547,11 +3828,24 @@ const Hero = ({ onStart }: { onStart: () => void }) => (
       <span className="inline-block py-1 px-4 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold mb-6">
         Zamonaviy Ta'lim Platformasi
       </span>
-      <h1 className="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight">
-        <span className="text-red-600">Tabiiy Fanlar</span> <br />
-        <span className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
-          Endi Juda Oson
-        </span>
+      <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tight leading-none select-none">
+        <motion.span 
+          initial={{ opacity: 0, y: -25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="inline-block bg-gradient-to-r from-orange-500 via-rose-500 to-red-600 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(239,68,68,0.15)] filter brightness-110"
+        >
+          Tabiiy Fanlar Olami
+        </motion.span>
+        <br />
+        <motion.span 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+          className="relative inline-block mt-4 bg-gradient-to-r from-emerald-400 via-cyan-400 via-sky-400 via-indigo-400 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_4px_15px_rgba(52,211,153,0.25)] font-extrabold text-3xl md:text-6xl py-2 animate-pulse-slow"
+        >
+          Sehrli Koinot va Hayot Mo'jizalari 🌟🧬
+        </motion.span>
       </h1>
       
       <div className="flex justify-center mb-10">
@@ -3843,7 +4137,7 @@ export default function App() {
         return (
           <>
             <Hero onStart={() => setActiveTab('topics')} />
-            <ScienceMindMap />
+            <ScienceFactHub />
           </>
         );
       case 'topics':
@@ -3864,7 +4158,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-b from-[#eaf6f0] via-[#f7fbf3] via-[#fcfdfe] to-[#eff8f4] text-slate-800 relative overflow-x-hidden">
+      <FloatingNatureElements />
+      <BackgroundGlows />
       <Navbar 
         activeTab={activeTab} 
         setActiveTab={(t) => { setActiveTab(t); setSelectedTopicId(null); }} 
