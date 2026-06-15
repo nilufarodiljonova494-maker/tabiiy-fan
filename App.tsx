@@ -3878,49 +3878,165 @@ const ScienceTutor = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (customText?: string) => {
+    const textToSend = customText || input;
+    if (!textToSend.trim() || isLoading) return;
 
-    const userMsg: ChatMessage = { role: 'user', text: input };
+    const userMsg: ChatMessage = { role: 'user', text: textToSend };
     setMessages(prev => [...prev, userMsg]);
-    setInput('');
+    if (!customText) setInput('');
     setIsLoading(true);
 
-    const history = messages.map(msg => ({
+    const history = [...messages, userMsg].map(msg => ({
       role: msg.role,
       parts: [{ text: msg.text }]
     }));
 
-    const responseText = await askScienceTutor(input, history);
+    const responseText = await askScienceTutor(textToSend, history);
     setMessages(prev => [...prev, { role: 'model', text: responseText }]);
     setIsLoading(false);
   };
 
+  const quickQuestions = [
+    { text: "🍀 Fotosintez jarayoni o'zi nima?", label: "Fotosintez" },
+    { text: "🪐 Quyosh tizimidagi eng katta sayyora qaysi?", label: "Quyosh va sayyoralar" },
+    { text: "⚡ Elektr toki qanday paydo bo'ladi?", label: "Elektr energiyasi" }
+  ];
+
   return (
     <div className="max-w-4xl mx-auto py-10 px-4 h-[calc(100vh-120px)] flex flex-col">
-      <div className="bg-white rounded-3xl shadow-xl border border-slate-200 flex flex-col h-full overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col h-full overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 bg-emerald-50 flex items-center gap-3">
-          <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white">
-            <BrainCircuit size={20} />
+        <div className="p-5 md:p-6 border-b border-slate-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50/50 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-md shadow-emerald-100">
+              <BrainCircuit size={24} />
+            </div>
+            <div>
+              <h2 className="font-black text-slate-800 text-lg">AI Tabiiy Fanlar Ustozi</h2>
+              <p className="text-xs text-emerald-600 font-bold flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                Online • Har doim yordamga tayyor
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-bold text-slate-800">AI Tabiiy Fanlar Ustozi</h2>
-            <p className="text-xs text-emerald-600 font-medium">Online • Har doim yordamga tayyor</p>
+
+          {/* Telegram bot button */}
+          <a 
+            href="https://t.me/Darsifybot" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="bg-gradient-to-r from-sky-400 via-sky-500 to-blue-600 hover:from-sky-500 hover:to-blue-700 text-white font-extrabold text-xs md:text-sm px-5 py-2.5 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 group cursor-pointer animate-pulse-slow"
+          >
+            <Smartphone size={18} className="group-hover:scale-110 transition-transform" />
+            <span>Telegram Bot: @Darsifybot 🤖</span>
+          </a>
+        </div>
+
+        {/* Telegram sticky warning/banner info */}
+        <div className="bg-sky-50/70 border-b border-sky-100/50 px-6 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">✨</span>
+            <p className="text-xs md:text-sm text-slate-600 font-medium leading-relaxed">
+              Darsingizni yanada qulay va mukammal tayyorlash uchun <span className="font-extrabold text-blue-700">@Darsifybot</span> Telegram botimizga yozing!
+            </p>
           </div>
+          <a 
+            href="https://t.me/Darsifybot" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex text-xs font-black text-sky-700 hover:text-sky-800 hover:underline gap-1 items-center shrink-0"
+          >
+            Botni ishga tushirish ↗
+          </a>
         </div>
 
         {/* Chat window */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/40">
           {messages.length === 0 && (
-            <div className="text-center py-20">
-              <div className="bg-white w-16 h-16 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mx-auto mb-4 text-emerald-500">
-                <MessageSquare size={32} />
+            <div className="space-y-8 py-4">
+              {/* Bot Spotlight Card */}
+              <div className="bg-gradient-to-br from-emerald-650 via-teal-700 to-cyan-800 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10" />
+                
+                <div className="relative z-10 space-y-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-bold tracking-wider uppercase backdrop-blur-md">
+                    <Sparkles size={12} className="text-amber-300 animate-spin-slow" />
+                    Telegramda AI Yordamchi
+                  </div>
+                  
+                  <h3 className="text-2xl md:text-3xl font-black tracking-tight">
+                    @Darsifybot — Tezkor Dars Tayyorlash Boti 📚🚀
+                  </h3>
+                  
+                  <p className="opacity-90 text-sm md:text-base leading-relaxed max-w-2xl font-medium">
+                    Mavzular bo'yicha mustaqil dars rejalar, mukammal dars konspektlari, qiziqarli topishmoqlar, test topshiriqlari hamda savol-javoblar tuzishni Telegram qulayligida boshlang!
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <div className="flex items-center gap-2 text-xs md:text-sm bg-white/5 hover:bg-white/10 rounded-xl p-2.5 transition">
+                      <span className="text-lg">🧪</span>
+                      <span>Dars rejalar va dars konspekti</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs md:text-sm bg-white/5 hover:bg-white/10 rounded-xl p-2.5 transition">
+                      <span className="text-lg">📝</span>
+                      <span>Interaktiv testlar va topishmoqlar</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs md:text-sm bg-white/5 hover:bg-white/10 rounded-xl p-2.5 transition">
+                      <span className="text-lg">💬</span>
+                      <span>24/7 Tezkor tabiiy dars savollari</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs md:text-sm bg-white/5 hover:bg-white/10 rounded-xl p-2.5 transition">
+                      <span className="text-lg">🔥</span>
+                      <span>Oson va tushunarli o'zbek tilida</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 flex flex-wrap gap-4">
+                    <a 
+                      href="https://t.me/Darsifybot" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="bg-white hover:bg-slate-50 text-emerald-800 font-extrabold px-6 py-3 rounded-2xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    >
+                      <Smartphone size={16} />
+                      Botni Telegramda Ishga Tushirish ⚡
+                    </a>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-slate-800">Savolingizni bering!</h3>
-              <p className="text-slate-500 max-w-xs mx-auto">Masalan: "Nega osmon moviy?", "Fotosintez nima?", "Nyuton qonunlari haqida gapirib ber."</p>
+
+              {/* Ask Web AI Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+                  <h4 className="font-extrabold text-slate-800 text-base">Yoki bu yerda bevosita savol so'rang:</h4>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {quickQuestions.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSend(q.text)}
+                      className="text-left bg-white border border-slate-200 hover:border-emerald-500 hover:shadow-md rounded-2xl p-4 transition-all duration-300 group cursor-pointer"
+                    >
+                      <span className="inline-block text-xs font-bold text-emerald-600 bg-emerald-50 rounded-lg px-2.5 py-1 mb-2">
+                        {q.label}
+                      </span>
+                      <p className="text-xs md:text-sm text-slate-700 font-semibold group-hover:text-emerald-800 line-clamp-2">
+                        {q.text}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
+
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] rounded-2xl px-5 py-3 ${
@@ -3954,7 +4070,7 @@ const ScienceTutor = () => {
               className="flex-1 bg-transparent border-none focus:outline-none px-3 text-slate-700"
             />
             <button 
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={isLoading || !input.trim()}
               className="bg-emerald-600 text-white p-3 rounded-xl hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
             >
