@@ -3874,6 +3874,7 @@ const Hero = ({ onStart }: { onStart: () => void }) => (
 );
 
 const ScienceTutor = () => {
+  const [activeSubTab, setActiveSubTab] = useState<'velux' | 'chat'>('velux');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -3904,13 +3905,13 @@ const ScienceTutor = () => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 h-[calc(100vh-120px)] flex flex-col">
+    <div className="max-w-6xl mx-auto py-10 px-4 h-[calc(100vh-100px)] flex flex-col">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col h-full overflow-hidden">
         {/* Header */}
-        <div className="p-5 md:p-6 border-b border-slate-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50/50 flex flex-wrap items-center justify-between gap-4">
+        <div className="p-5 md:p-6 border-b border-slate-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50/50 flex flex-wrap items-center justify-between gap-4 select-none">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-md shadow-emerald-100">
-              <BrainCircuit size={24} />
+            <div className="w-12 h-12 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-100">
+              <BrainCircuit size={24} className="animate-pulse" />
             </div>
             <div>
               <h2 className="font-black text-slate-800 text-lg">AI Tabiiy Fanlar Ustozi</h2>
@@ -3919,165 +3920,200 @@ const ScienceTutor = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                Online • Har doim yordamga tayyor
+                Velux AI & Tezkor Yordamchi
               </p>
             </div>
           </div>
 
-          {/* Telegram bot button */}
-          <a 
-            href="https://t.me/Darsifybot" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="bg-gradient-to-r from-sky-400 via-sky-500 to-blue-600 hover:from-sky-500 hover:to-blue-700 text-white font-extrabold text-xs md:text-sm px-5 py-2.5 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 group cursor-pointer animate-pulse-slow"
-          >
-            <Smartphone size={18} className="group-hover:scale-110 transition-transform" />
-            <span>Telegram Bot: @Darsifybot 🤖</span>
-          </a>
-        </div>
-
-        {/* Telegram sticky warning/banner info */}
-        <div className="bg-sky-50/70 border-b border-sky-100/50 px-6 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">✨</span>
-            <p className="text-xs md:text-sm text-slate-600 font-medium leading-relaxed">
-              Darsingizni yanada qulay va mukammal tayyorlash uchun <span className="font-extrabold text-blue-700">@Darsifybot</span> Telegram botimizga yozing!
-            </p>
-          </div>
-          <a 
-            href="https://t.me/Darsifybot" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex text-xs font-black text-sky-700 hover:text-sky-800 hover:underline gap-1 items-center shrink-0"
-          >
-            Botni ishga tushirish ↗
-          </a>
-        </div>
-
-        {/* Chat window */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/40">
-          {messages.length === 0 && (
-            <div className="space-y-8 py-4">
-              {/* Bot Spotlight Card */}
-              <div className="bg-gradient-to-br from-emerald-650 via-teal-700 to-cyan-800 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10" />
-                
-                <div className="relative z-10 space-y-4">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-bold tracking-wider uppercase backdrop-blur-md">
-                    <Sparkles size={12} className="text-amber-300 animate-spin-slow" />
-                    Telegramda AI Yordamchi
-                  </div>
-                  
-                  <h3 className="text-2xl md:text-3xl font-black tracking-tight">
-                    @Darsifybot — Tezkor Dars Tayyorlash Boti 📚🚀
-                  </h3>
-                  
-                  <p className="opacity-90 text-sm md:text-base leading-relaxed max-w-2xl font-medium">
-                    Mavzular bo'yicha mustaqil dars rejalar, mukammal dars konspektlari, qiziqarli topishmoqlar, test topshiriqlari hamda savol-javoblar tuzishni Telegram qulayligida boshlang!
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    <div className="flex items-center gap-2 text-xs md:text-sm bg-white/5 hover:bg-white/10 rounded-xl p-2.5 transition">
-                      <span className="text-lg">🧪</span>
-                      <span>Dars rejalar va dars konspekti</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs md:text-sm bg-white/5 hover:bg-white/10 rounded-xl p-2.5 transition">
-                      <span className="text-lg">📝</span>
-                      <span>Interaktiv testlar va topishmoqlar</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs md:text-sm bg-white/5 hover:bg-white/10 rounded-xl p-2.5 transition">
-                      <span className="text-lg">💬</span>
-                      <span>24/7 Tezkor tabiiy dars savollari</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs md:text-sm bg-white/5 hover:bg-white/10 rounded-xl p-2.5 transition">
-                      <span className="text-lg">🔥</span>
-                      <span>Oson va tushunarli o'zbek tilida</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 flex flex-wrap gap-4">
-                    <a 
-                      href="https://t.me/Darsifybot" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="bg-white hover:bg-slate-50 text-emerald-800 font-extrabold px-6 py-3 rounded-2xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-                    >
-                      <Smartphone size={16} />
-                      Botni Telegramda Ishga Tushirish ⚡
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              {/* Ask Web AI Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
-                  <h4 className="font-extrabold text-slate-800 text-base">Yoki bu yerda bevosita savol so'rang:</h4>
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {quickQuestions.map((q, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleSend(q.text)}
-                      className="text-left bg-white border border-slate-200 hover:border-emerald-500 hover:shadow-md rounded-2xl p-4 transition-all duration-300 group cursor-pointer"
-                    >
-                      <span className="inline-block text-xs font-bold text-emerald-600 bg-emerald-50 rounded-lg px-2.5 py-1 mb-2">
-                        {q.label}
-                      </span>
-                      <p className="text-xs md:text-sm text-slate-700 font-semibold group-hover:text-emerald-800 line-clamp-2">
-                        {q.text}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] rounded-2xl px-5 py-3 ${
-                msg.role === 'user' 
-                  ? 'bg-emerald-600 text-white rounded-tr-none' 
-                  : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none shadow-sm'
-              }`}>
-                <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-white text-slate-400 border border-slate-200 rounded-2xl rounded-tl-none px-5 py-3 shadow-sm flex items-center gap-2">
-                <Loader2 size={16} className="animate-spin" />
-                <span>O'ylamoqdaman...</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Input */}
-        <div className="p-4 bg-white border-t border-slate-100">
-          <div className="flex items-center gap-3 bg-slate-100 rounded-2xl p-2 focus-within:ring-2 ring-emerald-500 transition-all">
-            <input 
-              type="text" 
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Fanlar haqida savol so'rang..."
-              className="flex-1 bg-transparent border-none focus:outline-none px-3 text-slate-700"
-            />
-            <button 
-              onClick={() => handleSend()}
-              disabled={isLoading || !input.trim()}
-              className="bg-emerald-600 text-white p-3 rounded-xl hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+          {/* Tab switchers */}
+          <div className="flex bg-slate-100 p-1.5 rounded-2xl gap-1">
+            <button
+              onClick={() => setActiveSubTab('velux')}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-300 ${
+                activeSubTab === 'velux'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-slate-600 hover:bg-slate-200'
+              }`}
             >
-              <Send size={20} />
+              🚀 Velux AI Platformasi
+            </button>
+            <button
+              onClick={() => setActiveSubTab('chat')}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-300 ${
+                activeSubTab === 'chat'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              💬 Tezkor Savol-Javob
             </button>
           </div>
         </div>
+
+        {/* Velux AI tab content */}
+        {activeSubTab === 'velux' ? (
+          <div className="flex-1 flex flex-col bg-slate-50 relative overflow-hidden">
+            {/* Direct access toolbar */}
+            <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 text-xs md:text-sm font-medium z-10 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-lg animate-bounce">🤖</span>
+                <span>
+                  <strong className="font-extrabold text-yellow-350">Velux AI</strong> platformasi dars ishlanishlari, interaktiv laboratoriyalar va aqlli ta'lim uchun maxsus yaratilgan eng mukammal AI tizimidir.
+                </span>
+              </div>
+              <a
+                href="https://veluxai.netlify.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/20 hover:bg-white/30 text-white font-extrabold px-4 py-1.5 rounded-xl border border-white/20 transition-all backdrop-blur-sm shadow flex items-center gap-1 shrink-0"
+              >
+                Yangi oynada ochish ↗
+              </a>
+            </div>
+
+            {/* Platform interactive iframe */}
+            <div className="flex-1 w-full relative">
+              <iframe
+                src="https://veluxai.netlify.app/"
+                title="Velux AI Professor Portal"
+                className="absolute inset-0 w-full h-full border-none bg-white"
+                allow="clipboard-write; clipboard-read; camera; microphone; geolocation"
+              />
+            </div>
+          </div>
+        ) : (
+          /* Tezkor Savol-Javob view */
+          <>
+            {/* Chat header banner with Back Button */}
+            <div className="bg-emerald-50/70 border-b border-emerald-100/30 px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">✨</span>
+                <p className="text-xs md:text-sm text-slate-600 font-medium leading-relaxed">
+                  Tabiiy fanlarga (fizika, biologiya, geografiya, kimyo) oid o'zingizni qiziqtirgan har qanday savolga o'zbek tilida tezkor javob oling!
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveSubTab('velux')}
+                className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-emerald-50 text-emerald-800 hover:text-emerald-950 border border-slate-200 hover:border-emerald-300 text-xs font-black rounded-2xl transition-all duration-300 shadow-sm cursor-pointer select-none"
+              >
+                <ArrowLeft size={16} className="text-emerald-600" />
+                <span>Velux AI ga qaytish ↩</span>
+              </button>
+            </div>
+
+            {/* Chat window */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/40">
+              {messages.length === 0 && (
+                <div className="space-y-8 py-4">
+                  {/* Local AI Welcome Spotlight Card */}
+                  <div className="bg-gradient-to-br from-emerald-600 via-teal-700 to-cyan-800 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10" />
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10" />
+                    
+                    <div className="relative z-10 space-y-4">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-bold tracking-wider uppercase backdrop-blur-md">
+                        <Sparkles size={12} className="text-amber-300 animate-spin-slow" />
+                        Tezkor Aqlli Ustoz
+                      </div>
+                      
+                      <h3 className="text-2xl md:text-3xl font-black tracking-tight">
+                        Tabiiy Fanlar bo'yicha Savol-Javob Burchagi 🔬💬
+                      </h3>
+                      
+                      <p className="opacity-90 text-sm md:text-base leading-relaxed max-w-2xl font-medium">
+                        Quyosh tizimi, tirik organizmlar, fizika qonunlari yoki sayyoralar haqida bilmoqchi bo'lgan hamma narsangizni yozing. AI dars ustozi sizga tushunarli tilda dars konspektlari bilan javob qaytaradi!
+                      </p>
+
+                      <div className="pt-2 flex flex-wrap gap-2.5 font-bold">
+                        <span className="text-xs bg-white/10 px-3 py-1.5 rounded-xl">🧪 Fizik hodisalar</span>
+                        <span className="text-xs bg-white/10 px-3 py-1.5 rounded-xl">🌱 Biologiya olami</span>
+                        <span className="text-xs bg-white/10 px-3 py-1.5 rounded-xl">🌍 Geografiya va Yer</span>
+                        <span className="text-xs bg-white/10 px-3 py-1.5 rounded-xl">⚡ Kimyoviy reaksiyalar</span>
+                      </div>
+
+                      {/* Return button inside the welcome spotlight */}
+                      <div className="pt-4 flex flex-wrap gap-3">
+                        <button
+                          onClick={() => setActiveSubTab('velux')}
+                          className="bg-white hover:bg-slate-100 text-emerald-800 font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <ArrowLeft size={16} className="text-emerald-600" />
+                          <span>Velux AI dars portaliga qaytish ↩</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick suggest buttons */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+                      <h4 className="font-extrabold text-slate-800 text-base">Tavsiya etilayotgan savollar:</h4>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {quickQuestions.map((q, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleSend(q.text)}
+                          className="text-left bg-white border border-slate-200 hover:border-emerald-500 hover:shadow-md rounded-2xl p-4 transition-all duration-300 group cursor-pointer animate-fade-in"
+                        >
+                          <span className="inline-block text-xs font-bold text-emerald-600 bg-emerald-50 rounded-lg px-2.5 py-1 mb-2">
+                            {q.label}
+                          </span>
+                          <p className="text-xs md:text-sm text-slate-700 font-semibold group-hover:text-emerald-800 line-clamp-2">
+                            {q.text}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {messages.map((msg, i) => (
+                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] rounded-2xl px-5 py-3 ${
+                    msg.role === 'user' 
+                      ? 'bg-emerald-600 text-white rounded-tr-none shadow-md shadow-emerald-500/10' 
+                      : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none shadow-sm'
+                  }`}>
+                    <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white text-slate-400 border border-slate-200 rounded-2xl rounded-tl-none px-5 py-3 shadow-sm flex items-center gap-2">
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Mukammal javob tayyorlamoqdaman...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Input fields */}
+            <div className="p-4 bg-white border-t border-slate-100">
+              <div className="flex items-center gap-3 bg-slate-100 rounded-2xl p-2 focus-within:ring-2 ring-emerald-500 transition-all">
+                <input 
+                  type="text" 
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                  placeholder="Fanlar haqida savol so'rang..."
+                  className="flex-1 bg-transparent border-none focus:outline-none px-3 text-slate-700"
+                />
+                <button 
+                  onClick={() => handleSend()}
+                  disabled={isLoading || !input.trim()}
+                  className="bg-emerald-600 text-white p-3 rounded-xl hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Send size={20} />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
