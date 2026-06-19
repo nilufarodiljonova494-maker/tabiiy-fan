@@ -3962,7 +3962,7 @@ const ScienceTutor = () => {
                 </span>
               </div>
               <a
-                href="https://veluxai.netlify.app/"
+                href="https://veluxai1.netlify.app/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/20 hover:bg-white/30 text-white font-extrabold px-4 py-1.5 rounded-xl border border-white/20 transition-all backdrop-blur-sm shadow flex items-center gap-1 shrink-0"
@@ -3974,7 +3974,7 @@ const ScienceTutor = () => {
             {/* Platform interactive iframe */}
             <div className="flex-1 w-full relative">
               <iframe
-                src="https://veluxai.netlify.app/"
+                src="https://veluxai1.netlify.app/"
                 title="Velux AI Professor Portal"
                 className="absolute inset-0 w-full h-full border-none bg-white"
                 allow="clipboard-write; clipboard-read; camera; microphone; geolocation"
