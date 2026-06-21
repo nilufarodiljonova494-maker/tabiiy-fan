@@ -33,7 +33,8 @@ import {
   Trophy,
   Printer,
   Download,
-  Users
+  Users,
+  RefreshCw
 } from 'lucide-react';
 import { Subject, ScienceTopic, ChatMessage } from './types';
 import { askScienceTutor } from './services/geminiService';
@@ -2049,6 +2050,30 @@ const AnimalsGrade4ChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void
               Hayvonlarni asrang! Ular tabiatning ajralmas qismi. Har bir hayvon o'ziga xos xususiyatlarga ega va ularni o'rganish juda qiziqarli.
             </p>
           </div>
+
+          <div className="bg-emerald-50 p-8 rounded-3xl border border-emerald-100 mt-8">
+            <h3 className="text-xl font-bold text-emerald-900 mb-4 flex items-center gap-2">
+              <Gamepad2 size={20} /> Interaktiv o'yin
+            </h3>
+            <p className="text-emerald-800/80 text-sm leading-relaxed mb-6">
+              Hayvonlar olami va ularning hayot tarzi qanchalik ajoyib ekanligini ushbu qiziqarli o'yin orqali sinab ko'ring va bilimlaringizni mustahkamlang!
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <button 
+                onClick={() => onPlayGame("https://drive.google.com/file/d/18jAtnAMeqMg_VBBOQejBNSI4cZYpi-Kp/preview")}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg border border-emerald-500"
+              >
+                <Play size={20} /> O'ynash
+              </button>
+              <a 
+                href="https://drive.google.com/uc?export=download&id=18jAtnAMeqMg_VBBOQejBNSI4cZYpi-Kp"
+                download="hayvonlar-oyini.html"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-emerald-600 px-6 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-lg border border-emerald-200"
+              >
+                <Download size={20} /> Yuklab olish
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -3878,6 +3903,23 @@ const ScienceTutor = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [iframeKey, setIframeKey] = useState(0);
+  const [iframeLoading, setIframeLoading] = useState(true);
+
+  useEffect(() => {
+    if (activeSubTab === 'velux') {
+      setIframeLoading(true);
+      const timer = setTimeout(() => {
+        setIframeLoading(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeSubTab, iframeKey]);
+
+  const handleReloadIframe = () => {
+    setIframeLoading(true);
+    setIframeKey(prev => prev + 1);
+  };
 
   const handleSend = async (customText?: string) => {
     const textToSend = customText || input;
@@ -3961,23 +4003,48 @@ const ScienceTutor = () => {
                   <strong className="font-extrabold text-yellow-350">Aqlli AI Ustoz</strong> platformasi dars ishlanishlari, interaktiv laboratoriyalar va aqlli ta'lim uchun maxsus yaratilgan dars yordamchisidir.
                 </span>
               </div>
-              <a
-                href="https://imaginative-bubblegum-02e90b.netlify.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white/20 hover:bg-white/30 text-white font-extrabold px-4 py-1.5 rounded-xl border border-white/20 transition-all backdrop-blur-sm shadow flex items-center gap-1 shrink-0"
-              >
-                Yangi oynada ochish ↗
-              </a>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={handleReloadIframe}
+                  className="bg-white/20 hover:bg-white/30 text-white font-extrabold px-3 py-1.5 rounded-xl border border-white/20 transition-all backdrop-blur-sm shadow flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  title="Qayta yuklash"
+                >
+                  <RefreshCw size={14} className={iframeLoading ? 'animate-spin' : ''} />
+                  <span>Qayta yuklash 🔄</span>
+                </button>
+                <a
+                  href="https://earnest-faloodeh-e817ba.netlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/20 hover:bg-white/30 text-white font-extrabold px-4 py-1.5 rounded-xl border border-white/20 transition-all backdrop-blur-sm shadow flex items-center gap-1 shrink-0"
+                >
+                  Yangi oynada ochish ↗
+                </a>
+              </div>
             </div>
 
             {/* Platform interactive iframe */}
-            <div className="flex-1 w-full relative">
+            <div className="flex-1 w-full relative bg-white">
+              {iframeLoading && (
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/95 transition-all duration-300">
+                  <div className="flex flex-col items-center gap-4 text-center p-6 select-none">
+                    <Loader2 size={40} className="text-emerald-600 animate-spin" />
+                    <div>
+                      <h4 className="font-black text-slate-800 text-base">Aqlli AI Ustoz yuklanmoqda...</h4>
+                      <p className="text-xs text-slate-500 mt-1 max-w-sm leading-relaxed">
+                        Sayt yuklanishi bir necha soniya olishi mumkin. Agar kutilmaganda qotib qolsa yoki ochilmasa, yuqoridagi <strong className="text-emerald-700">"Qayta yuklash"</strong> tugmasini bosing yoki yangi oynada oching.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
               <iframe
-                src="https://imaginative-bubblegum-02e90b.netlify.app/"
+                key={iframeKey}
+                src="https://earnest-faloodeh-e817ba.netlify.app/"
                 title="Darsify AI Professor Portal"
-                className="absolute inset-0 w-full h-full border-none bg-white"
+                className="absolute inset-0 w-full h-full border-none bg-white z-10"
                 allow="clipboard-write; clipboard-read; camera; microphone; geolocation"
+                onLoad={() => setIframeLoading(false)}
               />
             </div>
           </div>
