@@ -2956,13 +2956,13 @@ const ResearcherChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, o
             </p>
             <div className="flex flex-wrap gap-4">
               <button 
-                onClick={() => onPlayGame("https://drive.google.com/file/d/1Noy2OVlwFl1yLhjOcEMG3edd41VVr9h1/preview")}
+                onClick={() => onPlayGame("https://drive.google.com/file/d/1qM0KhUBGomIR5QW-lV-ODne1vDJxNqXU/preview")}
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg border border-emerald-500"
               >
                 <Play size={20} /> O'ynash
               </button>
               <a 
-                href="https://drive.google.com/uc?export=download&id=1Noy2OVlwFl1yLhjOcEMG3edd41VVr9h1"
+                href="https://drive.google.com/uc?export=download&id=1qM0KhUBGomIR5QW-lV-ODne1vDJxNqXU"
                 download="tadqiqotchi-oyini.html"
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-emerald-600 px-6 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-lg border border-emerald-200"
               >
@@ -3920,7 +3920,7 @@ const ScienceTutor = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                Velux AI & Tezkor Yordamchi
+                Aqlli AI Ustoz & Tezkor Yordamchi
               </p>
             </div>
           </div>
@@ -3935,7 +3935,7 @@ const ScienceTutor = () => {
                   : 'text-slate-600 hover:bg-slate-200'
               }`}
             >
-              🚀 Velux AI Platformasi
+              🚀 Mukammal AI Ustoz Platformasi
             </button>
             <button
               onClick={() => setActiveSubTab('chat')}
@@ -3958,11 +3958,11 @@ const ScienceTutor = () => {
               <div className="flex items-center gap-2">
                 <span className="text-lg animate-bounce">🤖</span>
                 <span>
-                  <strong className="font-extrabold text-yellow-350">Velux AI</strong> platformasi dars ishlanishlari, interaktiv laboratoriyalar va aqlli ta'lim uchun maxsus yaratilgan eng mukammal AI tizimidir.
+                  <strong className="font-extrabold text-yellow-350">Aqlli AI Ustoz</strong> platformasi dars ishlanishlari, interaktiv laboratoriyalar va aqlli ta'lim uchun maxsus yaratilgan dars yordamchisidir.
                 </span>
               </div>
               <a
-                href="https://veluxai1.netlify.app/"
+                href="https://imaginative-bubblegum-02e90b.netlify.app/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/20 hover:bg-white/30 text-white font-extrabold px-4 py-1.5 rounded-xl border border-white/20 transition-all backdrop-blur-sm shadow flex items-center gap-1 shrink-0"
@@ -3974,8 +3974,8 @@ const ScienceTutor = () => {
             {/* Platform interactive iframe */}
             <div className="flex-1 w-full relative">
               <iframe
-                src="https://veluxai1.netlify.app/"
-                title="Velux AI Professor Portal"
+                src="https://imaginative-bubblegum-02e90b.netlify.app/"
+                title="Darsify AI Professor Portal"
                 className="absolute inset-0 w-full h-full border-none bg-white"
                 allow="clipboard-write; clipboard-read; camera; microphone; geolocation"
               />
@@ -3997,7 +3997,7 @@ const ScienceTutor = () => {
                 className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-emerald-50 text-emerald-800 hover:text-emerald-950 border border-slate-200 hover:border-emerald-300 text-xs font-black rounded-2xl transition-all duration-300 shadow-sm cursor-pointer select-none"
               >
                 <ArrowLeft size={16} className="text-emerald-600" />
-                <span>Velux AI ga qaytish ↩</span>
+                <span>AI Ustozga qaytish ↩</span>
               </button>
             </div>
 
@@ -4038,7 +4038,7 @@ const ScienceTutor = () => {
                           className="bg-white hover:bg-slate-100 text-emerald-800 font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                         >
                           <ArrowLeft size={16} className="text-emerald-600" />
-                          <span>Velux AI dars portaliga qaytish ↩</span>
+                          <span>AI dars portaliga qaytish ↩</span>
                         </button>
                       </div>
                     </div>
