@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>O'simliklar Dunyosi — 4 xil Interaktiv O'yin (3-sinf)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 45%, #e0f2fe 100%);
+      color: #064e3b;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .app { max-width: 980px; margin: 0 auto; }
+    .header {
+      background: linear-gradient(135deg, #059669, #0d9488);
+      color: #fff;
+      border-radius: 24px;
+      padding: 20px 24px;
+      box-shadow: 0 14px 30px rgba(5, 150, 105, 0.22);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .header h1 { font-size: clamp(1.3rem, 3vw, 1.85rem); font-weight: 900; display: flex; align-items: center; gap: 10px; }
+    .header p { font-size: 0.9rem; opacity: 0.92; margin-top: 4px; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 8px 14px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      backdrop-filter: blur(6px);
+    }
+    .tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 10px; margin-bottom: 18px; }
+    .tab-btn {
+      background: #fff;
+      border: 2px solid #a7f3d0;
+      color: #065f46;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(6, 78, 59, 0.06);
+    }
+    .tab-btn:hover { transform: translateY(-2px); border-color: #10b981; }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border-color: #059669;
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    }
+    .card-panel {
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid #a7f3d0;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 12px 30px rgba(6, 78, 59, 0.08);
+    }
+    .panel-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .panel-title { font-size: 1.25rem; font-weight: 900; color: #064e3b; }
+    .btn {
+      border: none; border-radius: 12px; padding: 10px 16px; font-weight: 800; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: #059669; color: #fff; }
+    .btn-primary:hover { background: #047857; }
+    .btn-secondary { background: #ecfdf5; color: #065f46; border: 2px solid #a7f3d0; }
+    .btn-secondary.active { background: #059669; color: #fff; border-color: #059669; }
+    .btn-amber { background: #f59e0b; color: #fff; }
+    .btn-amber:hover { background: #d97706; }
+
+    .memory-grid { display: grid; gap: 12px; margin-top: 12px; }
+    .mem-card { aspect-ratio: 1 / 1; perspective: 800px; cursor: pointer; user-select: none; }
+    .mem-inner { position: relative; width: 100%; height: 100%; transition: transform 0.45s; transform-style: preserve-3d; }
+    .mem-card.flipped .mem-inner, .mem-card.matched .mem-inner { transform: rotateY(180deg); }
+    .mem-face {
+      position: absolute; inset: 0; backface-visibility: hidden; border-radius: 16px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px; text-align: center;
+    }
+    .mem-front {
+      background: linear-gradient(135deg, #10b981, #0d9488); color: #fff; font-size: 2rem;
+      box-shadow: 0 6px 14px rgba(16, 185, 129, 0.25); border: 3px solid #fff;
+    }
+    .mem-back { background: #f0fdf4; border: 3px solid #34d399; transform: rotateY(180deg); }
+    .mem-card.matched .mem-back { background: #dcfce7; border-color: #059669; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25); }
+    .mem-emoji { font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.1; }
+    .mem-label { font-size: 0.72rem; font-weight: 800; color: #065f46; margin-top: 4px; }
+
+    .sort-pool {
+      display: flex; flex-wrap: wrap; gap: 10px; padding: 14px; background: #f0fdf4;
+      border: 2px dashed #6ee7b7; border-radius: 18px; min-height: 76px; margin-bottom: 18px;
+    }
+    .sort-item {
+      background: #fff; border: 2px solid #a7f3d0; border-radius: 14px; padding: 8px 14px;
+      font-weight: 800; font-size: 0.92rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); transition: all 0.18s; user-select: none;
+    }
+    .sort-item:hover { transform: scale(1.04); border-color: #059669; }
+    .sort-item.selected { background: #fef3c7; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3); }
+    .sort-buckets { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .bucket { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 18px; padding: 14px; min-height: 165px; cursor: pointer; transition: all 0.2s; }
+    .bucket:hover { border-color: #059669; background: #ecfdf5; }
+    .bucket-header { font-weight: 900; font-size: 1rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 2px solid rgba(0, 0, 0, 0.06); }
+    .bucket-items { display: flex; flex-wrap: wrap; gap: 8px; }
+    .placed-tag { background: #d1fae5; color: #065f46; border: 1px solid #34d399; border-radius: 10px; padding: 5px 10px; font-size: 0.84rem; font-weight: 800; }
+
+    .quiz-progress { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
+    .quiz-progress-bar { height: 100%; background: linear-gradient(90deg, #10b981, #0d9488); transition: width 0.3s ease; }
+    .quiz-box { background: #f0fdf4; border: 2px solid #a7f3d0; border-radius: 20px; padding: 20px; margin-bottom: 16px; }
+    .quiz-topic { display: inline-block; background: #059669; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; }
+    .quiz-question { font-size: 1.15rem; font-weight: 800; line-height: 1.55; color: #064e3b; }
+    .blank-slot { display: inline-block; min-width: 110px; padding: 2px 10px; border-bottom: 3px dashed #059669; color: #047857; font-weight: 900; text-align: center; margin: 0 4px; }
+    .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+    .opt-btn { background: #fff; border: 2px solid #cbd5e1; border-radius: 14px; padding: 14px; font-weight: 800; font-size: 0.96rem; color: #1e293b; cursor: pointer; transition: all 0.18s; text-align: center; }
+    .opt-btn:hover:not(:disabled) { border-color: #10b981; background: #ecfdf5; }
+    .opt-btn.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+    .opt-btn.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+
+    .cycle-list { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+    .cycle-row { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.2s; }
+    .cycle-row.right-pos { background: #dcfce7; border-color: #16a34a; }
+    .cycle-info { display: flex; align-items: center; gap: 12px; font-weight: 800; }
+    .cycle-step-num { width: 30px; height: 30px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0; }
+    .cycle-arrows { display: flex; gap: 6px; }
+    .arrow-btn { width: 36px; height: 36px; border-radius: 10px; border: 2px solid #cbd5e1; background: #fff; font-weight: 900; cursor: pointer; font-size: 1rem; }
+    .arrow-btn:hover:not(:disabled) { border-color: #059669; background: #ecfdf5; }
+    .arrow-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .feedback-banner { margin-top: 14px; padding: 12px 16px; border-radius: 14px; font-weight: 800; display: none; }
+    .feedback-banner.show { display: block; }
+    .feedback-banner.ok { background: #dcfce7; color: #14532d; border: 2px solid #86efac; }
+    .feedback-banner.err { background: #fee2e2; color: #7f1d1d; border: 2px solid #fca5a5; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div>
+        <h1>🌿 O'simliklar Dunyosi — 4 xil O'yin</h1>
+        <p>3-sinf Tabiiy fanlar • 2-bob: O'simliklar olamini o'yin orqali o'rganamiz!</p>
+      </div>
+      <div class="stats">
+        <div class="stat-pill">⭐ Ball: <span id="totalScore">0</span></div>
+        <div class="stat-pill">🏆 Bajarildi: <span id="gamesWon">0</span>/4</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(1, this)">🃏 1. Mozaika</button>
+      <button class="tab-btn" onclick="switchTab(2, this)">🗂️ 2. Tartibga Sol</button>
+      <button class="tab-btn" onclick="switchTab(3, this)">✏️ 3. Bo'shliq To'ldir</button>
+      <button class="tab-btn" onclick="switchTab(4, this)">🔄 4. Hayot Sikli</button>
+    </div>
+
+    <div id="game1" class="card-panel">
+      <div class="panel-top">
+        <div>
+          <div class="panel-title">🃏 O'simliklar Mozaikasi</div>
+          <small>Bir xil o'simlik kartalarini toping va juftlang!</small>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-secondary active" id="diffEasy" onclick="initMemory(6, this)">Oson (6 juft)</button>
+          <button class="btn btn-secondary" id="diffMed" onclick="initMemory(8, this)">O'rta (8 juft)</button>
+          <button class="btn btn-secondary" id="diffHard" onclick="initMemory(10, this)">Qiyin (10 juft)</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;font-weight:800;font-size:0.9rem;">
+        <span>Urinishlar: <strong id="memMoves">0</strong></span>
+        <span>Topildi: <strong id="memPairs">0</strong></span>
+        <span id="memStars">⭐⭐⭐</span>
+      </div>
+      <div id="memoryGrid" class="memory-grid"></div>
+      <div id="memFeedback" class="feedback-banner"></div>
+    </div>
+
+    <div id="game2" class="card-panel hidden">
+      <div class="panel-top">
+        <div>
+          <div class="panel-title">🗂️ O'simliklarni Guruhga Ajrat</div>
+          <small>O'simlikni bosing (yoki sudrab olib boring), keyin mos qutini bosing!</small>
+        </div>
+        <button class="btn btn-primary" onclick="initSort()">🔄 Qayta boshlash</button>
+      </div>
+      <div id="sortPool" class="sort-pool"></div>
+      <div class="sort-buckets">
+        <div class="bucket" onclick="placeInBucket('daraxt')" ondragover="allowDrop(event)" ondrop="dropInBucket(event, 'daraxt')">
+          <div class="bucket-header">🌳 Daraxtlar</div>
+          <div class="bucket-items" id="bucket-daraxt"></div>
+        </div>
+        <div class="bucket" onclick="placeInBucket('buta')" ondragover="allowDrop(event)" ondrop="dropInBucket(event, 'buta')">
+          <div class="bucket-header">🌿 Butalar</div>
+          <div class="bucket-items" id="bucket-buta"></div>
+        </div>
+        <div class="bucket" onclick="placeInBucket('gul')" ondragover="allowDrop(event)" ondrop="dropInBucket(event, 'gul')">
+          <div class="bucket-header">🌸 Guldor o'simliklar</div>
+          <div class="bucket-items" id="bucket-gul"></div>
+        </div>
+        <div class="bucket" onclick="placeInBucket('sabzavot')" ondragover="allowDrop(event)" ondrop="dropInBucket(event, 'sabzavot')">
+          <div class="bucket-header">🥕 Sabzavotlar</div>
+          <div class="bucket-items" id="bucket-sabzavot"></div>
+        </div>
+      </div>
+      <div id="sortFeedback" class="feedback-banner"></div>
+    </div>
+
+    <div id="game3" class="card-panel hidden">
+      <div class="panel-top">
+        <div>
+          <div class="panel-title">✏️ Bo'shliqni To'ldir (15 ta savol)</div>
+          <small>Fotosintez, ildiz, urug', barglar va o'rmon haqidagi savollar!</small>
+        </div>
+        <button class="btn btn-primary" onclick="initQuiz()">🔄 Qaytadan</button>
+      </div>
+      <div class="quiz-progress"><div id="quizBar" class="quiz-progress-bar" style="width:0%"></div></div>
+      <div id="quizContainer"></div>
+      <div id="quizFeedback" class="feedback-banner"></div>
+    </div>
+
+    <div id="game4" class="card-panel hidden">
+      <div class="panel-top">
+        <div>
+          <div class="panel-title">🔄 O'simlik Hayot Sikli</div>
+          <small>Bosqichlarni ↑ va ↓ tugmalari yordamida to'g'ri tartibda joylashtiring!</small>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-secondary active" onclick="initCycle(0, this)">🌻 Kungaboqar</button>
+          <button class="btn btn-secondary" onclick="initCycle(1, this)">🍎 Olma daraxti</button>
+          <button class="btn btn-secondary" onclick="initCycle(2, this)">🫘 Loviya</button>
+        </div>
+      </div>
+      <div id="cycleList" class="cycle-list"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+        <button class="btn btn-primary" onclick="checkCycle()">✅ Tekshirish</button>
+        <button class="btn btn-amber" onclick="shuffleCurrentCycle()">🔀 Aralashtirish</button>
+      </div>
+      <div id="cycleFeedback" class="feedback-banner"></div>
+    </div>
+  </div>
+
+  <script>
+    let totalScore = 0;
+    const completedSet = new Set();
+
+    function playTone(freq, dur = 0.14) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    function addScore(points, gameId) {
+      totalScore += points;
+      document.getElementById('totalScore').textContent = totalScore;
+      if (gameId) {
+        completedSet.add(gameId);
+        document.getElementById('gamesWon').textContent = completedSet.size;
+      }
+    }
+
+    function switchTab(num, btn) {
+      playTone(520, 0.08);
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById('game' + i).classList.toggle('hidden', i !== num);
+      }
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    const allPlantCards = [
+      { id: 'chinor', emoji: '🌳', name: 'Chinor' },
+      { id: 'lola', emoji: '🌷', name: 'Lola' },
+      { id: 'kungaboqar', emoji: '🌻', name: 'Kungaboqar' },
+      { id: 'atirgul', emoji: '🌹', name: 'Atirgul' },
+      { id: 'archa', emoji: '🌲', name: 'Archa' },
+      { id: 'kaktus', emoji: '🌵', name: 'Kaktus' },
+      { id: 'sabzi', emoji: '🥕', name: 'Sabzi' },
+      { id: 'pomidor', emoji: '🍅', name: 'Pomidor' },
+      { id: 'bugdoy', emoji: '🌾', name: "Bug'doy" },
+      { id: 'palma', emoji: '🌴', name: 'Palma' }
+    ];
+    let memPairCount = 6, memFlipped = [], memMatched = 0, memMoves = 0, memLock = false;
+
+    function initMemory(pairs, btn) {
+      memPairCount = pairs;
+      if (btn) {
+        ['diffEasy', 'diffMed', 'diffHard'].forEach(id => document.getElementById(id).classList.remove('active'));
+        btn.classList.add('active');
+      }
+      memFlipped = []; memMatched = 0; memMoves = 0; memLock = false;
+      document.getElementById('memMoves').textContent = '0';
+      document.getElementById('memPairs').textContent = `0/${pairs}`;
+      document.getElementById('memStars').textContent = '⭐⭐⭐';
+      document.getElementById('memFeedback').className = 'feedback-banner';
+
+      const chosen = allPlantCards.slice(0, pairs);
+      const deck = [...chosen, ...chosen].sort(() => Math.random() - 0.5);
+      const grid = document.getElementById('memoryGrid');
+      grid.style.gridTemplateColumns = pairs === 10 ? 'repeat(5, 1fr)' : 'repeat(4, 1fr)';
+      grid.innerHTML = '';
+
+      deck.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'mem-card';
+        card.dataset.id = item.id;
+        card.innerHTML = `
+          <div class="mem-inner">
+            <div class="mem-face mem-front">🌿</div>
+            <div class="mem-face mem-back">
+              <div class="mem-emoji">${item.emoji}</div>
+              <div class="mem-label">${item.name}</div>
+            </div>
+          </div>`;
+        card.onclick = () => flipCard(card);
+        grid.appendChild(card);
+      });
+    }
+
+    function flipCard(card) {
+      if (memLock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+      playTone(440, 0.07);
+      card.classList.add('flipped');
+      memFlipped.push(card);
+
+      if (memFlipped.length === 2) {
+        memMoves++;
+        document.getElementById('memMoves').textContent = memMoves;
+        document.getElementById('memStars').textContent = memMoves <= memPairCount + 4 ? '⭐⭐⭐' : memMoves <= memPairCount + 9 ? '⭐⭐' : '⭐';
+        const [c1, c2] = memFlipped;
+        if (c1.dataset.id === c2.dataset.id) {
+          c1.classList.add('matched');
+          c2.classList.add('matched');
+          memFlipped = [];
+          memMatched++;
+          document.getElementById('memPairs').textContent = `${memMatched}/${memPairCount}`;
+          playTone(660, 0.16);
+          if (memMatched === memPairCount) {
+            addScore(30, 1);
+            const fb = document.getElementById('memFeedback');
+            fb.className = 'feedback-banner ok show';
+            fb.textContent = `🎉 Barakalla! Barcha ${memPairCount} ta juftlikni ${memMoves} ta urinishda topdingiz! (+30 ball)`;
+          }
+        } else {
+          memLock = true;
+          setTimeout(() => {
+            c1.classList.remove('flipped');
+            c2.classList.remove('flipped');
+            memFlipped = [];
+            memLock = false;
+          }, 700);
+        }
+      }
+    }
+
+    const sortData = [
+      { id: 's1', name: '🌳 Chinor', cat: 'daraxt' },
+      { id: 's2', name: '🌲 Archa', cat: 'daraxt' },
+      { id: 's3', name: '🍎 Olma daraxti', cat: 'daraxt' },
+      { id: 's4', name: "🌹 Na'matak", cat: 'buta' },
+      { id: 's5', name: "🫐 Qorag'at", cat: 'buta' },
+      { id: 's6', name: '🍓 Malina', cat: 'buta' },
+      { id: 's7', name: '🌷 Lola', cat: 'gul' },
+      { id: 's8', name: '🌻 Kungaboqar', cat: 'gul' },
+      { id: 's9', name: '🌼 Moychechak', cat: 'gul' },
+      { id: 's10', name: '🥕 Sabzi', cat: 'sabzavot' },
+      { id: 's11', name: '🥔 Kartoshka', cat: 'sabzavot' },
+      { id: 's12', name: '🍅 Pomidor', cat: 'sabzavot' }
+    ];
+    let selectedSortId = null;
+    let remainingSort = [];
+
+    function initSort() {
+      selectedSortId = null;
+      remainingSort = [...sortData].sort(() => Math.random() - 0.5);
+      ['daraxt', 'buta', 'gul', 'sabzavot'].forEach(c => {
+        document.getElementById('bucket-' + c).innerHTML = '';
+      });
+      document.getElementById('sortFeedback').className = 'feedback-banner';
+      renderSortPool();
+    }
+
+    function renderSortPool() {
+      const pool = document.getElementById('sortPool');
+      pool.innerHTML = '';
+      if (remainingSort.length === 0) {
+        pool.innerHTML = "<span style='font-weight:800;color:#059669;'>🎉 Barcha o'simliklar to'g'ri joylashtirildi!</span>";
+        return;
+      }
+      remainingSort.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'sort-item' + (selectedSortId === item.id ? ' selected' : '');
+        el.textContent = item.name;
+        el.draggable = true;
+        el.ondragstart = (e) => {
+          selectedSortId = item.id;
+          e.dataTransfer.setData('text/plain', item.id);
+        };
+        el.onclick = () => {
+          selectedSortId = selectedSortId === item.id ? null : item.id;
+          playTone(480, 0.06);
+          renderSortPool();
+        };
+        pool.appendChild(el);
+      });
+    }
+
+    function allowDrop(e) { e.preventDefault(); }
+    function dropInBucket(e, cat) {
+      e.preventDefault();
+      const id = e.dataTransfer.getData('text/plain') || selectedSortId;
+      if (id) selectedSortId = id;
+      placeInBucket(cat);
+    }
+
+    function placeInBucket(cat) {
+      if (!selectedSortId) return;
+      const item = remainingSort.find(i => i.id === selectedSortId);
+      if (!item) return;
+      const fb = document.getElementById('sortFeedback');
+      if (item.cat === cat) {
+        playTone(680, 0.14);
+        remainingSort = remainingSort.filter(i => i.id !== item.id);
+        selectedSortId = null;
+        const tag = document.createElement('span');
+        tag.className = 'placed-tag';
+        tag.textContent = item.name;
+        document.getElementById('bucket-' + cat).appendChild(tag);
+        fb.className = 'feedback-banner ok show';
+        fb.textContent = `✅ To'g'ri! ${item.name} mos guruhga joylandi.`;
+        renderSortPool();
+        if (remainingSort.length === 0) {
+          addScore(40, 2);
+          fb.textContent = "🏆 Ajoyib! Barcha 12 ta o'simlikni to'g'ri guruhlarga ajratdingiz! (+40 ball)";
+        }
+      } else {
+        playTone(230, 0.18);
+        fb.className = 'feedback-banner err show';
+        fb.textContent = `❌ ${item.name} bu guruhga kirmaydi, boshqa qutini tanlang!`;
+      }
+    }
+
+    const quizData = [
+      { topic: "Fotosintez", q: "O'simliklar quyosh nuri yordamida oziqa hosil qilishi ____ deb ataladi.", ans: "fotosintez", opts: ["fotosintez", "bug'lanish", "changlanish", "unib chiqish"] },
+      { topic: "Ildiz", q: "O'simlik tuproqdan suv va mineral moddalarni ____ orqali shimib oladi.", ans: "ildizi", opts: ["ildizi", "guli", "mevasi", "po'stlog'i"] },
+      { topic: "Barglar", q: "O'simliklarning yashil rangda bo'lishiga ____ moddasi sabab bo'ladi.", ans: "xlorofill", opts: ["xlorofill", "kraxmal", "shakar", "kislorod"] },
+      { topic: "Urug'", q: "Yangi o'simlik hayoti tuproqqa tushgan ____ dan boshlanadi.", ans: "urug'", opts: ["urug'", "tikan", "xazon", "shox"] },
+      { topic: "O'rmon", q: "O'rmonlar havoni tozalab, biz nafas oladigan ____ gazini chiqaradi.", ans: "kislorod", opts: ["kislorod", "azot", "metan", "tuman"] },
+      { topic: "Barglar", q: "Barglar orqali ortiqcha suvning havoga chiqishi ____ deyiladi.", ans: "bug'lanish", opts: ["bug'lanish", "oziqlanish", "ildiz otish", "gullash"] },
+      { topic: "Fotosintez", q: "Fotosintez jarayonida o'simlik havodan ____ gazini yutadi.", ans: "karbonat angidrid", opts: ["karbonat angidrid", "kislorod", "vodorod", "geliy"] },
+      { topic: "Poya", q: "Suv va oziq moddalarni ildizdan barglarga ____ yetkazib beradi.", ans: "poya", opts: ["poya", "urug'", "tikan", "gulbarg"] },
+      { topic: "Gul", q: "O'simlikning meva va urug' hosil qilishida asosiy a'zo — bu ____.", ans: "gul", opts: ["gul", "ildiz", "po'stloq", "barg"] },
+      { topic: "O'rmon", q: "O'rmonlarni kesib yubormaslik va ko'chat ekish ____ ni asraydi.", ans: "tabiat", opts: ["tabiat", "qish", "tosh", "qum"] },
+      { topic: "Urug'", q: "Urug'ning unib chiqishi uchun suv, havo va ____ kerak bo'ladi.", ans: "issiq harorat", opts: ["issiq harorat", "qor", "muz", "shamol"] },
+      { topic: "Ildiz", q: "Daraxtlarning kuchli shamolda yiqilmasligini ____ ta'minlaydi.", ans: "ildiz tizimi", opts: ["ildiz tizimi", "barglar", "gullar", "mevalar"] },
+      { topic: "Barglar", q: "Kuzda daraxt barglari sarg'ayib to'kilishi ____ deb ataladi.", ans: "xazonrezgi", opts: ["xazonrezgi", "gullash", "ko'karish", "sug'orish"] },
+      { topic: "O'simlik turlari", q: "Archa va qarag'ay yil bo'yi yashil turadigan ____ daraxtlardir.", ans: "igna bargli", opts: ["igna bargli", "o'tsimon", "suv", "chirmovuq"] },
+      { topic: "Parvarish", q: "Xona o'simliklari yaxshi o'sishi uchun ularni vaqtida ____ lozim.", ans: "sug'orish", opts: ["sug'orish", "uzish", "qorong'ida saqlash", "muzlatish"] }
+    ];
+    let qIndex = 0, qScore = 0, qLocked = false;
+
+    function initQuiz() {
+      qIndex = 0; qScore = 0; qLocked = false;
+      document.getElementById('quizFeedback').className = 'feedback-banner';
+      renderQuiz();
+    }
+
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      document.getElementById('quizBar').style.width = `${(qIndex / quizData.length) * 100}%`;
+      if (qIndex >= quizData.length) {
+        addScore(qScore * 5, 3);
+        container.innerHTML = `
+          <div class="quiz-box" style="text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:8px;">🏆</div>
+            <h3>Tabriklaymiz!</h3>
+            <p style="margin:8px 0 14px;font-weight:700;">Siz 15 ta savoldan <strong>${qScore}</strong> tasiga birinchi urinishda to'g'ri javob berdingiz! (+${qScore * 5} ball)</p>
+            <button class="btn btn-primary" onclick="initQuiz()">Yana o'ynash</button>
+          </div>`;
+        return;
+      }
+      const item = quizData[qIndex];
+      const parts = item.q.split('____');
+      const shuffledOpts = [...item.opts].sort(() => Math.random() - 0.5);
+      container.innerHTML = `
+        <div class="quiz-box">
+          <span class="quiz-topic">${item.topic} • Savol ${qIndex + 1}/15</span>
+          <div class="quiz-question">${parts[0]}<span class="blank-slot" id="blankSlot">...</span>${parts[1] || ''}</div>
+        </div>
+        <div class="options-grid" id="quizOpts"></div>`;
+      const optsEl = document.getElementById('quizOpts');
+      shuffledOpts.forEach(opt => {
+        const b = document.createElement('button');
+        b.className = 'opt-btn';
+        b.textContent = opt;
+        b.onclick = () => answerQuiz(opt, b);
+        optsEl.appendChild(b);
+      });
+    }
+
+    function answerQuiz(choice, btn) {
+      if (qLocked) return;
+      const item = quizData[qIndex];
+      const fb = document.getElementById('quizFeedback');
+      if (choice === item.ans) {
+        qLocked = true; qScore++;
+        playTone(700, 0.15);
+        btn.classList.add('correct');
+        document.getElementById('blankSlot').textContent = choice;
+        fb.className = 'feedback-banner ok show';
+        fb.textContent = "✅ Barakalla! To'g'ri javob!";
+        setTimeout(() => {
+          qLocked = false; qIndex++;
+          fb.className = 'feedback-banner';
+          renderQuiz();
+        }, 850);
+      } else {
+        playTone(220, 0.16);
+        btn.classList.add('wrong');
+        btn.disabled = true;
+        fb.className = 'feedback-banner err show';
+        fb.textContent = "❌ Noto'g'ri, yana bir bor o'ylab ko'ring!";
+      }
+    }
+
+    const cycles = [
+      {
+        name: "Kungaboqar",
+        steps: [
+          "🌰 Urug'ni nam tuproqqa ekish",
+          "🌱 Kichik niholning unib chiqishi",
+          "🌿 Poya va yashil barglar o'sishi",
+          "🌻 Sariq gulning ochilishi",
+          "🌾 Pishgan kungaboqar urug'lari hosil bo'lishi"
+        ]
+      },
+      {
+        name: "Olma daraxti",
+        steps: [
+          "🌰 Olma urug'i unib chiqishi",
+          "🌱 Yosh olma ko'chati o'sishi",
+          "🌳 Katta mevali daraxtga aylanishi",
+          "🌸 Bahorda chiroyli gullashi",
+          "🍎 Shirin olmalar pishib yetilishi"
+        ]
+      },
+      {
+        name: "Loviya",
+        steps: [
+          "🫘 Loviya urug'ining bo'rtishi",
+          "🌱 Birinchi ildiz va poyacha chiqishi",
+          "🌿 Yashil barglarning yozilishi",
+          "🌼 Kichik gullar paydo bo'lishi",
+          "🫛 Yangi loviya dukkaklari yetilishi"
+        ]
+      }
+    ];
+    let currentCycleIdx = 0;
+    let currentOrder = [];
+
+    function initCycle(idx, btn) {
+      currentCycleIdx = idx;
+      if (btn) {
+        btn.parentElement.querySelectorAll('.btn-secondary').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      shuffleCurrentCycle();
+    }
+
+    function shuffleCurrentCycle() {
+      const steps = cycles[currentCycleIdx].steps;
+      currentOrder = steps.map((text, correctIdx) => ({ text, correctIdx }));
+      do {
+        currentOrder.sort(() => Math.random() - 0.5);
+      } while (currentOrder.every((item, i) => item.correctIdx === i));
+      document.getElementById('cycleFeedback').className = 'feedback-banner';
+      renderCycle();
+    }
+
+    function renderCycle(checked = false) {
+      const list = document.getElementById('cycleList');
+      list.innerHTML = '';
+      currentOrder.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'cycle-row' + (checked && item.correctIdx === idx ? ' right-pos' : '');
+        row.innerHTML = `
+          <div class="cycle-info">
+            <div class="cycle-step-num">${idx + 1}</div>
+            <span>${item.text}</span>
+          </div>
+          <div class="cycle-arrows">
+            <button class="arrow-btn" onclick="moveStep(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>↑</button>
+            <button class="arrow-btn" onclick="moveStep(${idx}, 1)" ${idx === currentOrder.length - 1 ? 'disabled' : ''}>↓</button>
+          </div>`;
+        list.appendChild(row);
+      });
+    }
+
+    function moveStep(idx, dir) {
+      const target = idx + dir;
+      if (target < 0 || target >= currentOrder.length) return;
+      playTone(500, 0.07);
+      [currentOrder[idx], currentOrder[target]] = [currentOrder[target], currentOrder[idx]];
+      renderCycle();
+    }
+
+    function checkCycle() {
+      renderCycle(true);
+      const fb = document.getElementById('cycleFeedback');
+      const allCorrect = currentOrder.every((item, i) => item.correctIdx === i);
+      if (allCorrect) {
+        playTone(760, 0.2);
+        addScore(35, 4);
+        fb.className = 'feedback-banner ok show';
+        fb.textContent = `🎉 Ajoyib! ${cycles[currentCycleIdx].name}ning hayot siklini mukammal tartibda tuzdingiz! (+35 ball)`;
+      } else {
+        playTone(240, 0.16);
+        const count = currentOrder.filter((item, i) => item.correctIdx === i).length;
+        fb.className = 'feedback-banner err show';
+        fb.textContent = `🔎 Hozircha ${count}/5 ta bosqich o'z joyida (yashil rangda). Qolganlarini ↑ va ↓ tugmalari bilan joyiga qo'ying!`;
+      }
+    }
+
+    initMemory(6);
+    initSort();
+    initQuiz();
+    initCycle(0);
+  </script>
+</body>
+</html>

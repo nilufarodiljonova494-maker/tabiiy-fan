@@ -34,7 +34,8 @@ import {
   Printer,
   Download,
   Users,
-  RefreshCw
+  RefreshCw,
+  ExternalLink
 } from 'lucide-react';
 import { Subject, ScienceTopic, ChatMessage } from './types';
 import { askScienceTutor } from './services/geminiService';
@@ -202,24 +203,145 @@ const VisitorCounter = () => {
 };
 
 const GameModal = ({ url, onClose }: { url: string | null, onClose: () => void }) => {
+  const [reloadKey, setReloadKey] = useState(0);
+  const [gameHtml, setGameHtml] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!url) {
+      setGameHtml(null);
+      setLoadError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(null);
+    setGameHtml(null);
+
+    fetch(url, { credentials: 'same-origin' })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(`O'yin yuklanmadi (HTTP ${res.status})`);
+        }
+        const text = await res.text();
+        if (!text || text.includes('id="root"')) {
+          throw new Error("O'yin fayli topilmadi.");
+        }
+        if (!cancelled) {
+          setGameHtml(text);
+          setLoading(false);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          const msg = err instanceof Error ? err.message : "O'yinni yuklashda xatolik yuz berdi.";
+          setLoadError(msg);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [url, reloadKey]);
+
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      if (e.data && e.data.type === 'reload-game') {
+        setReloadKey((k) => k + 1);
+      }
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
   if (!url) return null;
+  const fileName = url.split('/').pop() || 'oyin.html';
   
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="relative w-full max-w-5xl aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10">
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all"
-        >
-          <X size={24} />
-        </button>
-        <iframe 
-          src={url} 
-          className="w-full h-full border-none"
-          title="Interaktiv o'yin"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-900/90 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="relative w-full max-w-6xl h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 flex flex-col">
+        <div className="bg-slate-900 text-white px-4 py-3 flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2 font-bold text-sm sm:text-base">
+            <Gamepad2 size={20} className="text-emerald-400" />
+            <span>Interaktiv o'yin</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setReloadKey(k => k + 1)}
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+              title="O'yinni qayta boshlash"
+            >
+              <RefreshCw size={14} />
+              <span className="hidden sm:inline">Qayta yuklash</span>
+            </button>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+              title="Yangi oynada ochish"
+            >
+              <ExternalLink size={14} />
+              <span className="hidden sm:inline">Yangi oynada</span>
+            </a>
+            <a
+              href={url}
+              download={fileName}
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+            >
+              <Download size={14} />
+              <span className="hidden sm:inline">Yuklab olish</span>
+            </a>
+            <button 
+              onClick={onClose}
+              className="w-9 h-9 bg-white/15 hover:bg-red-500 rounded-xl flex items-center justify-center text-white transition-all"
+              title="Yopish"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+        {loading && (
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-slate-50 text-slate-600">
+            <Loader2 size={32} className="animate-spin text-emerald-600" />
+            <p className="font-bold text-sm">O'yin yuklanmoqda...</p>
+          </div>
+        )}
+        {!loading && loadError && (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 p-6 bg-slate-50 text-center">
+            <AlertCircle size={40} className="text-rose-500" />
+            <p className="font-bold text-slate-800">{loadError}</p>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <button
+                onClick={() => setReloadKey(k => k + 1)}
+                className="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700"
+              >
+                Qayta urinish
+              </button>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-sky-600 text-white rounded-xl font-bold text-sm hover:bg-sky-700"
+              >
+                Yangi oynada ochish
+              </a>
+            </div>
+          </div>
+        )}
+        {!loading && !loadError && gameHtml && (
+          <iframe 
+            key={`${url}-${reloadKey}`}
+            srcDoc={gameHtml}
+            className="w-full flex-1 border-none bg-white"
+            title="Interaktiv o'yin"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allowFullScreen
+          ></iframe>
+        )}
       </div>
     </div>
   );
@@ -297,8 +419,9 @@ const ScienceFactHub = () => {
       const prompt = "Tabiiy fanlarga oid o'ta hayratlanarli, bolalarbop qisqa qiziqarli fakt (masalan, koinot, hayvonlar, o'simliklar yoki fizika haqida) va unga mos emoji yozib ber. Javob 2-3 ta qatordan oshmasin. Sodda, tushunarli o'zbek tilida bo'lsin.";
       const res = await askScienceTutor(prompt, []);
       setAiFact(res);
-    } catch (e) {
-      setAiFact("Mikroskop ostidagi dunyo juda ajoyib! Keyingi gal yana harakat qilib ko'ramiz. 🔬✨");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "AI xizmatiga ulanishda xatolik yuz berdi.";
+      setAiFact(`⚠️ ${msg}`);
     } finally {
       setLoadingAi(false);
     }
@@ -853,13 +976,13 @@ const PlantsChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPla
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
             <button 
-              onClick={() => onPlayGame("https://drive.google.com/file/d/1PPcGPRK3kb5Txaay8x-GME7FYjEmysKY/preview")}
+              onClick={() => onPlayGame("/games/osimliklar-dunyosi.html")}
               className="bg-white text-blue-700 px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-blue-400/30"
             >
               O'ynash <Play size={20} />
             </button>
             <a 
-              href="https://drive.google.com/uc?export=download&id=1PPcGPRK3kb5Txaay8x-GME7FYjEmysKY"
+              href="/games/osimliklar-dunyosi.html"
               download="osimliklar-dunyosi.html"
               className="bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-blue-400/30"
             >
@@ -1277,13 +1400,13 @@ const EarthChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPlay
                   </p>
                   <div className="flex flex-wrap gap-4">
                     <button 
-                      onClick={() => onPlayGame("https://drive.google.com/uc?export=view&id=1bIb_lciPi-GKuHxDj_CvG1_didFYciTd")}
+                      onClick={() => onPlayGame("/games/yer-sayyorasi-sirlari.html")}
                       className="bg-white text-blue-700 px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-blue-400/30"
                     >
                       O'ynash <Play size={20} />
                     </button>
                     <a 
-                      href="https://drive.google.com/uc?export=download&id=1bIb_lciPi-GKuHxDj_CvG1_didFYciTd"
+                      href="/games/yer-sayyorasi-sirlari.html"
                       download="yer-sayyorasi-sirlari.html"
                       className="bg-blue-500 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-600 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap"
                     >
@@ -1499,13 +1622,13 @@ const PlantsGrade4ChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void,
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
             <button 
-              onClick={() => onPlayGame("https://drive.google.com/file/d/1I2yETWL-NXsKiN5diigq_tP3GOXvUcIT/preview")}
+              onClick={() => onPlayGame("/games/osimliklar-sirlari.html")}
               className="bg-white text-green-700 px-8 py-4 rounded-2xl font-bold hover:bg-green-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-green-400/30"
             >
               O'ynash <Play size={20} />
             </button>
             <a 
-              href="https://drive.google.com/uc?export=download&id=1I2yETWL-NXsKiN5diigq_tP3GOXvUcIT"
+              href="/games/osimliklar-sirlari.html"
               download="osimliklar-sirlari.html"
               className="bg-green-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-green-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-green-400/30"
             >
@@ -1531,13 +1654,13 @@ const PlantsGrade4ChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void,
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
             <button 
-              onClick={() => onPlayGame("https://drive.google.com/file/d/14YKQxBAKE7-UBvcGBy1VU7Cj2T3_ht2f/preview")}
+              onClick={() => onPlayGame("/games/fotosintez-oyini.html")}
               className="bg-white text-emerald-700 px-8 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-emerald-400/30"
             >
               O'ynash <Play size={20} />
             </button>
             <a 
-              href="https://drive.google.com/uc?export=download&id=14YKQxBAKE7-UBvcGBy1VU7Cj2T3_ht2f"
+              href="/games/fotosintez-oyini.html"
               download="fotosintez-oyini.html"
               className="bg-emerald-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-emerald-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-emerald-400/30"
             >
@@ -2060,13 +2183,13 @@ const AnimalsGrade4ChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void
             </p>
             <div className="flex flex-wrap gap-4">
               <button 
-                onClick={() => onPlayGame("https://drive.google.com/file/d/18jAtnAMeqMg_VBBOQejBNSI4cZYpi-Kp/preview")}
+                onClick={() => onPlayGame("/games/hayvonlar-oyini.html")}
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg border border-emerald-500"
               >
                 <Play size={20} /> O'ynash
               </button>
               <a 
-                href="https://drive.google.com/uc?export=download&id=18jAtnAMeqMg_VBBOQejBNSI4cZYpi-Kp"
+                href="/games/hayvonlar-oyini.html"
                 download="hayvonlar-oyini.html"
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-emerald-600 px-6 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-lg border border-emerald-200"
               >
@@ -2252,13 +2375,13 @@ const HumanStructureGrade4ChapterDetail = ({ onBack, onPlayGame }: { onBack: () 
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
             <button 
-              onClick={() => onPlayGame("https://drive.google.com/file/d/1B7UWPF_x0B2quKreUZSQaGXjDqkXr4n0/preview")}
+              onClick={() => onPlayGame("/games/odamning-tuzilishi.html")}
               className="bg-white text-pink-700 px-8 py-4 rounded-2xl font-bold hover:bg-pink-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-pink-400/30"
             >
               O'ynash <Play size={20} />
             </button>
             <a 
-              href="https://drive.google.com/uc?export=download&id=1B7UWPF_x0B2quKreUZSQaGXjDqkXr4n0"
+              href="/games/odamning-tuzilishi.html"
               download="odamning-tuzilishi.html"
               className="bg-pink-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-pink-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-pink-400/30"
             >
@@ -2575,14 +2698,14 @@ const EarthSpaceGrade4ChapterDetail = ({ onBack, onPlayGame }: { onBack: () => v
                     </p>
                     <div className="flex flex-wrap gap-4">
                       <button 
-                        onClick={() => onPlayGame("https://drive.google.com/file/d/1A1uVFnasDeuTUB-2g9_97XpTbjupgOK2/preview")}
+                        onClick={() => onPlayGame("/games/yer-va-koinot-oyini.html")}
                         className="bg-white text-purple-700 px-8 py-4 rounded-2xl font-black hover:bg-purple-50 transition-all shadow-xl shadow-purple-900/20 flex items-center gap-3"
                       >
                         <Play size={20} />
                         O'YNASH
                       </button>
                       <a 
-                        href="https://drive.google.com/uc?export=download&id=1A1uVFnasDeuTUB-2g9_97XpTbjupgOK2" 
+                        href="/games/yer-va-koinot-oyini.html" 
                         download="yer-va-koinot-oyini.html"
                         className="inline-flex items-center gap-3 bg-purple-500 text-white px-8 py-4 rounded-2xl font-black hover:bg-purple-600 transition-all shadow-xl shadow-purple-900/20 group/btn"
                       >
@@ -2981,13 +3104,13 @@ const ResearcherChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, o
             </p>
             <div className="flex flex-wrap gap-4">
               <button 
-                onClick={() => onPlayGame("https://drive.google.com/file/d/1qM0KhUBGomIR5QW-lV-ODne1vDJxNqXU/preview")}
+                onClick={() => onPlayGame("/games/tadqiqotchi-oyini.html")}
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg border border-emerald-500"
               >
                 <Play size={20} /> O'ynash
               </button>
               <a 
-                href="https://drive.google.com/uc?export=download&id=1qM0KhUBGomIR5QW-lV-ODne1vDJxNqXU"
+                href="/games/tadqiqotchi-oyini.html"
                 download="tadqiqotchi-oyini.html"
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-emerald-600 px-6 py-4 rounded-2xl font-bold hover:bg-emerald-50 transition-all shadow-lg border border-emerald-200"
               >
@@ -3132,13 +3255,13 @@ const ClimateChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPl
           </div>
           <div className="flex flex-wrap gap-4 relative z-10">
             <button 
-              onClick={() => onPlayGame("https://drive.google.com/file/d/1Wl_Sxu_ynPI4cy5EIQM140LhuId31gd4/preview")}
+              onClick={() => onPlayGame("/games/iqlim-va-ob-havo.html")}
               className="bg-white text-sky-700 px-8 py-4 rounded-2xl font-bold hover:bg-sky-50 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-sky-400/30"
             >
               O'ynash <Play size={20} />
             </button>
             <a 
-              href="https://drive.google.com/uc?export=download&id=1Wl_Sxu_ynPI4cy5EIQM140LhuId31gd4"
+              href="/games/iqlim-va-ob-havo.html"
               download="iqlim-va-ob-havo.html"
               className="bg-sky-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-sky-800 transition-all shadow-xl flex items-center gap-3 whitespace-nowrap border border-sky-400/30"
             >
@@ -3607,13 +3730,13 @@ const AnimalsChapterDetail = ({ onBack, onPlayGame }: { onBack: () => void, onPl
             </p>
             <div className="flex flex-wrap gap-4">
               <button 
-                onClick={() => onPlayGame("https://drive.google.com/file/d/1qgwqWXQjtT7bEaXjGGlL7n3vazBoymo9/preview")}
+                onClick={() => onPlayGame("/games/hayvonlar-olami-oyini.html")}
                 className="bg-white text-purple-700 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-purple-50 transition-all shadow-xl flex items-center gap-3 border border-purple-200"
               >
                 O'ynash <Play size={24} />
               </button>
               <a 
-                href="https://drive.google.com/uc?export=download&id=1qgwqWXQjtT7bEaXjGGlL7n3vazBoymo9"
+                href="/games/hayvonlar-olami-oyini.html"
                 download="hayvonlar-olami-oyini.html"
                 className="bg-purple-800 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-purple-900 transition-all shadow-xl flex items-center gap-3 border border-purple-400/30"
               >
@@ -3899,288 +4022,252 @@ const Hero = ({ onStart }: { onStart: () => void }) => (
 );
 
 const ScienceTutor = () => {
-  const [activeSubTab, setActiveSubTab] = useState<'velux' | 'chat'>('velux');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [iframeKey, setIframeKey] = useState(0);
-  const [iframeLoading, setIframeLoading] = useState(true);
-
-  useEffect(() => {
-    if (activeSubTab === 'velux') {
-      setIframeLoading(true);
-      const timer = setTimeout(() => {
-        setIframeLoading(false);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [activeSubTab, iframeKey]);
-
-  const handleReloadIframe = () => {
-    setIframeLoading(true);
-    setIframeKey(prev => prev + 1);
-  };
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [grade, setGrade] = useState<'all' | '3' | '4'>('all');
+  const [mode, setMode] = useState<'explain' | 'lesson' | 'experiment' | 'quiz'>('explain');
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 
   const handleSend = async (customText?: string) => {
-    const textToSend = customText || input;
-    if (!textToSend.trim() || isLoading) return;
+    const textToSend = (customText ?? input).trim();
+    if (!textToSend || isLoading) return;
 
+    setErrorMsg(null);
     const userMsg: ChatMessage = { role: 'user', text: textToSend };
-    setMessages(prev => [...prev, userMsg]);
+    const prevHistory = messages.map((msg) => ({
+      role: msg.role,
+      parts: [{ text: msg.text }],
+    }));
+
+    setMessages((prev) => [...prev, userMsg]);
     if (!customText) setInput('');
     setIsLoading(true);
 
-    const history = [...messages, userMsg].map(msg => ({
-      role: msg.role,
-      parts: [{ text: msg.text }]
-    }));
+    try {
+      const responseText = await askScienceTutor(textToSend, prevHistory, {
+        grade,
+        mode,
+      });
+      setMessages((prev) => [...prev, { role: 'model', text: responseText }]);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "AI xizmatiga ulanishda xatolik yuz berdi.";
+      setErrorMsg(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const responseText = await askScienceTutor(textToSend, history);
-    setMessages(prev => [...prev, { role: 'model', text: responseText }]);
-    setIsLoading(false);
+  const handleCopy = (text: string, idx: number) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 1800);
   };
 
   const quickQuestions = [
-    { text: "🍀 Fotosintez jarayoni o'zi nima?", label: "Fotosintez" },
-    { text: "🪐 Quyosh tizimidagi eng katta sayyora qaysi?", label: "Quyosh va sayyoralar" },
-    { text: "⚡ Elektr toki qanday paydo bo'ladi?", label: "Elektr energiyasi" }
+    { text: "🍀 Fotosintez jarayoni qanday kechadi? Oddiy misol bilan tushuntirib bering.", label: "Fotosintez" },
+    { text: "🪐 Quyosh tizimidagi sayyoralar haqida qiziqarli dars rejasi tuzib bering.", label: "Dars rejasi" },
+    { text: "🧪 Uyda suv va tuz yordamida xavfsiz qiziqarli tajriba o'rgating.", label: "Tajriba" },
+    { text: "🦴 Inson suyagi va mushaklari mavzusida 5 ta test savoli tuzib bering.", label: "Mini-test" },
+  ];
+
+  const modes = [
+    { id: 'explain' as const, label: "💡 Tushuntirish" },
+    { id: 'lesson' as const, label: "📝 Dars rejasi" },
+    { id: 'experiment' as const, label: "🧪 Tajriba" },
+    { id: 'quiz' as const, label: "🎯 Mini-test" },
   ];
 
   return (
-    <div className="max-w-6xl mx-auto py-10 px-4 h-[calc(100vh-100px)] flex flex-col">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col h-full overflow-hidden">
+    <div className="max-w-6xl mx-auto py-8 px-4 min-h-[calc(100vh-110px)] flex flex-col">
+      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col flex-1 overflow-hidden">
         {/* Header */}
-        <div className="p-5 md:p-6 border-b border-slate-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50/50 flex flex-wrap items-center justify-between gap-4 select-none">
+        <div className="p-5 md:p-6 border-b border-slate-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-100">
-              <BrainCircuit size={24} className="animate-pulse" />
+            <div className="w-12 h-12 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-100">
+              <BrainCircuit size={24} />
             </div>
             <div>
-              <h2 className="font-black text-slate-800 text-lg">AI Tabiiy Fanlar Ustozi</h2>
-              <p className="text-xs text-emerald-600 font-bold flex items-center gap-1.5">
+              <h2 className="font-black text-slate-800 text-lg sm:text-xl">Aqlli AI Ustoz</h2>
+              <p className="text-xs text-emerald-700 font-bold flex items-center gap-1.5">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                Aqlli AI Ustoz & Tezkor Yordamchi
+                Online • 3-4-sinf Tabiiy fanlar yordamchisi
               </p>
             </div>
           </div>
 
-          {/* Tab switchers */}
-          <div className="flex bg-slate-100 p-1.5 rounded-2xl gap-1">
-            <button
-              onClick={() => setActiveSubTab('velux')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-300 ${
-                activeSubTab === 'velux'
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              🚀 Mukammal AI Ustoz Platformasi
-            </button>
-            <button
-              onClick={() => setActiveSubTab('chat')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-300 ${
-                activeSubTab === 'chat'
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              💬 Tezkor Savol-Javob
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Grade switcher */}
+            <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+              {[
+                { id: 'all' as const, label: 'Hammasi' },
+                { id: '3' as const, label: '3-sinf' },
+                { id: '4' as const, label: '4-sinf' },
+              ].map((g) => (
+                <button
+                  key={g.id}
+                  onClick={() => setGrade(g.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+                    grade === g.id
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
+
+            {messages.length > 0 && (
+              <button
+                onClick={() => {
+                  setMessages([]);
+                  setErrorMsg(null);
+                }}
+                className="px-3 py-2 bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+              >
+                <RefreshCw size={14} />
+                <span>Yangi suhbat</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Velux AI tab content */}
-        {activeSubTab === 'velux' ? (
-          <div className="flex-1 flex flex-col bg-slate-50 relative overflow-hidden">
-            {/* Direct access toolbar */}
-            <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 text-xs md:text-sm font-medium z-10 shadow-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-lg animate-bounce">🤖</span>
-                <span>
-                  <strong className="font-extrabold text-yellow-350">Aqlli AI Ustoz</strong> platformasi dars ishlanishlari, interaktiv laboratoriyalar va aqlli ta'lim uchun maxsus yaratilgan dars yordamchisidir.
-                </span>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={handleReloadIframe}
-                  className="bg-white/20 hover:bg-white/30 text-white font-extrabold px-3 py-1.5 rounded-xl border border-white/20 transition-all backdrop-blur-sm shadow flex items-center gap-1.5 cursor-pointer active:scale-95"
-                  title="Qayta yuklash"
-                >
-                  <RefreshCw size={14} className={iframeLoading ? 'animate-spin' : ''} />
-                  <span>Qayta yuklash 🔄</span>
-                </button>
-                <a
-                  href="https://earnest-faloodeh-e817ba.netlify.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white/20 hover:bg-white/30 text-white font-extrabold px-4 py-1.5 rounded-xl border border-white/20 transition-all backdrop-blur-sm shadow flex items-center gap-1 shrink-0"
-                >
-                  Yangi oynada ochish ↗
-                </a>
-              </div>
-            </div>
+        {/* Mode selector bar */}
+        <div className="px-5 py-3 bg-slate-50/80 border-b border-slate-100 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-black text-slate-500 uppercase tracking-wider mr-1">Rejim:</span>
+          {modes.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => setMode(m.id)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all border ${
+                mode === m.id
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-300'
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
 
-            {/* Platform interactive iframe */}
-            <div className="flex-1 w-full relative bg-white">
-              {iframeLoading && (
-                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/95 transition-all duration-300">
-                  <div className="flex flex-col items-center gap-4 text-center p-6 select-none">
-                    <Loader2 size={40} className="text-emerald-600 animate-spin" />
-                    <div>
-                      <h4 className="font-black text-slate-800 text-base">Aqlli AI Ustoz yuklanmoqda...</h4>
-                      <p className="text-xs text-slate-500 mt-1 max-w-sm leading-relaxed">
-                        Sayt yuklanishi bir necha soniya olishi mumkin. Agar kutilmaganda qotib qolsa yoki ochilmasa, yuqoridagi <strong className="text-emerald-700">"Qayta yuklash"</strong> tugmasini bosing yoki yangi oynada oching.
-                      </p>
-                    </div>
+        {/* Chat window */}
+        <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-5 bg-slate-50/40 min-h-[380px]">
+          {messages.length === 0 && (
+            <div className="space-y-6 py-2">
+              <div className="bg-gradient-to-br from-emerald-600 via-teal-700 to-cyan-800 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10" />
+                <div className="relative z-10 space-y-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/15 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <Sparkles size={13} className="text-amber-300" />
+                    Aqlli AI Ustoz
                   </div>
+                  <h3 className="text-2xl md:text-3xl font-black tracking-tight">
+                    Tabiiy fanlar bo'yicha shaxsiy yordamchingiz! 🔬🌿
+                  </h3>
+                  <p className="text-emerald-50/90 text-sm md:text-base leading-relaxed max-w-2xl">
+                    Istalgan mavzuda savol bering: dars rejasi tuzish, murakkab mavzuni sodda tushuntirish, test savollari tayyorlash yoki qiziqarli tajriba o'tkazishda yordam beraman.
+                  </p>
                 </div>
-              )}
-              <iframe
-                key={iframeKey}
-                src="https://earnest-faloodeh-e817ba.netlify.app/"
-                title="Darsify AI Professor Portal"
-                className="absolute inset-0 w-full h-full border-none bg-white z-10"
-                allow="clipboard-write; clipboard-read; camera; microphone; geolocation"
-                onLoad={() => setIframeLoading(false)}
-              />
-            </div>
-          </div>
-        ) : (
-          /* Tezkor Savol-Javob view */
-          <>
-            {/* Chat header banner with Back Button */}
-            <div className="bg-emerald-50/70 border-b border-emerald-100/30 px-6 py-3 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">✨</span>
-                <p className="text-xs md:text-sm text-slate-600 font-medium leading-relaxed">
-                  Tabiiy fanlarga (fizika, biologiya, geografiya, kimyo) oid o'zingizni qiziqtirgan har qanday savolga o'zbek tilida tezkor javob oling!
-                </p>
               </div>
-              <button
-                onClick={() => setActiveSubTab('velux')}
-                className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-emerald-50 text-emerald-800 hover:text-emerald-950 border border-slate-200 hover:border-emerald-300 text-xs font-black rounded-2xl transition-all duration-300 shadow-sm cursor-pointer select-none"
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-5 bg-emerald-500 rounded-full" />
+                  <h4 className="font-extrabold text-slate-800 text-sm">Tezkor namunaviy savollar:</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {quickQuestions.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSend(q.text)}
+                      className="text-left bg-white border border-slate-200 hover:border-emerald-500 hover:shadow-md rounded-2xl p-4 transition-all duration-200 group cursor-pointer"
+                    >
+                      <span className="inline-block text-[11px] font-bold text-emerald-700 bg-emerald-50 rounded-lg px-2.5 py-1 mb-2">
+                        {q.label}
+                      </span>
+                      <p className="text-xs sm:text-sm text-slate-700 font-semibold group-hover:text-emerald-900 line-clamp-3">
+                        {q.text}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {messages.map((msg, i) => (
+            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div
+                className={`max-w-[88%] rounded-2xl px-5 py-3.5 ${
+                  msg.role === 'user'
+                    ? 'bg-emerald-600 text-white rounded-tr-none shadow-md shadow-emerald-500/10'
+                    : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none shadow-sm'
+                }`}
               >
-                <ArrowLeft size={16} className="text-emerald-600" />
-                <span>AI Ustozga qaytish ↩</span>
-              </button>
-            </div>
-
-            {/* Chat window */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/40">
-              {messages.length === 0 && (
-                <div className="space-y-8 py-4">
-                  {/* Local AI Welcome Spotlight Card */}
-                  <div className="bg-gradient-to-br from-emerald-600 via-teal-700 to-cyan-800 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10" />
-                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl transform -translate-x-10 translate-y-10" />
-                    
-                    <div className="relative z-10 space-y-4">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-bold tracking-wider uppercase backdrop-blur-md">
-                        <Sparkles size={12} className="text-amber-300 animate-spin-slow" />
-                        Tezkor Aqlli Ustoz
-                      </div>
-                      
-                      <h3 className="text-2xl md:text-3xl font-black tracking-tight">
-                        Tabiiy Fanlar bo'yicha Savol-Javob Burchagi 🔬💬
-                      </h3>
-                      
-                      <p className="opacity-90 text-sm md:text-base leading-relaxed max-w-2xl font-medium">
-                        Quyosh tizimi, tirik organizmlar, fizika qonunlari yoki sayyoralar haqida bilmoqchi bo'lgan hamma narsangizni yozing. AI dars ustozi sizga tushunarli tilda dars konspektlari bilan javob qaytaradi!
-                      </p>
-
-                      <div className="pt-2 flex flex-wrap gap-2.5 font-bold">
-                        <span className="text-xs bg-white/10 px-3 py-1.5 rounded-xl">🧪 Fizik hodisalar</span>
-                        <span className="text-xs bg-white/10 px-3 py-1.5 rounded-xl">🌱 Biologiya olami</span>
-                        <span className="text-xs bg-white/10 px-3 py-1.5 rounded-xl">🌍 Geografiya va Yer</span>
-                        <span className="text-xs bg-white/10 px-3 py-1.5 rounded-xl">⚡ Kimyoviy reaksiyalar</span>
-                      </div>
-
-                      {/* Return button inside the welcome spotlight */}
-                      <div className="pt-4 flex flex-wrap gap-3">
-                        <button
-                          onClick={() => setActiveSubTab('velux')}
-                          className="bg-white hover:bg-slate-100 text-emerald-800 font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <ArrowLeft size={16} className="text-emerald-600" />
-                          <span>AI dars portaliga qaytish ↩</span>
-                        </button>
-                      </div>
-                    </div>
+                <p className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base">{msg.text}</p>
+                {msg.role === 'model' && (
+                  <div className="mt-2 pt-2 border-t border-slate-100 flex justify-end">
+                    <button
+                      onClick={() => handleCopy(msg.text, i)}
+                      className="text-[11px] font-bold text-slate-400 hover:text-emerald-600 transition-colors"
+                    >
+                      {copiedIdx === i ? "✓ Nusxalandi" : "Nusxalash"}
+                    </button>
                   </div>
-
-                  {/* Quick suggest buttons */}
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
-                      <h4 className="font-extrabold text-slate-800 text-base">Tavsiya etilayotgan savollar:</h4>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {quickQuestions.map((q, i) => (
-                        <button
-                          key={i}
-                          onClick={() => handleSend(q.text)}
-                          className="text-left bg-white border border-slate-200 hover:border-emerald-500 hover:shadow-md rounded-2xl p-4 transition-all duration-300 group cursor-pointer animate-fade-in"
-                        >
-                          <span className="inline-block text-xs font-bold text-emerald-600 bg-emerald-50 rounded-lg px-2.5 py-1 mb-2">
-                            {q.label}
-                          </span>
-                          <p className="text-xs md:text-sm text-slate-700 font-semibold group-hover:text-emerald-800 line-clamp-2">
-                            {q.text}
-                          </p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] rounded-2xl px-5 py-3 ${
-                    msg.role === 'user' 
-                      ? 'bg-emerald-600 text-white rounded-tr-none shadow-md shadow-emerald-500/10' 
-                      : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none shadow-sm'
-                  }`}>
-                    <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-white text-slate-400 border border-slate-200 rounded-2xl rounded-tl-none px-5 py-3 shadow-sm flex items-center gap-2">
-                    <Loader2 size={16} className="animate-spin" />
-                    <span>Mukammal javob tayyorlamoqdaman...</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Input fields */}
-            <div className="p-4 bg-white border-t border-slate-100">
-              <div className="flex items-center gap-3 bg-slate-100 rounded-2xl p-2 focus-within:ring-2 ring-emerald-500 transition-all">
-                <input 
-                  type="text" 
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Fanlar haqida savol so'rang..."
-                  className="flex-1 bg-transparent border-none focus:outline-none px-3 text-slate-700"
-                />
-                <button 
-                  onClick={() => handleSend()}
-                  disabled={isLoading || !input.trim()}
-                  className="bg-emerald-600 text-white p-3 rounded-xl hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Send size={20} />
-                </button>
+                )}
               </div>
             </div>
-          </>
-        )}
+          ))}
+
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-white text-slate-500 border border-slate-200 rounded-2xl rounded-tl-none px-5 py-3.5 shadow-sm flex items-center gap-2.5">
+                <Loader2 size={18} className="animate-spin text-emerald-600" />
+                <span className="text-sm font-medium">Aqlli AI Ustoz javob tayyorlamoqda...</span>
+              </div>
+            </div>
+          )}
+
+          {errorMsg && (
+            <div className="bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl p-4 flex items-start gap-3">
+              <AlertCircle size={20} className="text-rose-600 shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-bold">Xatolik yuz berdi</p>
+                <p className="mt-0.5">{errorMsg}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input */}
+        <div className="p-4 bg-white border-t border-slate-100">
+          <div className="flex items-center gap-3 bg-slate-100 rounded-2xl p-2 focus-within:ring-2 ring-emerald-500 transition-all">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Tabiiy fanlar haqida savolingizni yozing..."
+              className="flex-1 bg-transparent border-none focus:outline-none px-3 py-1 text-slate-700 text-sm sm:text-base"
+            />
+            <button
+              onClick={() => handleSend()}
+              disabled={isLoading || !input.trim()}
+              className="bg-emerald-600 text-white px-4 py-3 rounded-xl hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-bold text-sm"
+            >
+              <Send size={18} />
+              <span className="hidden sm:inline">Yuborish</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

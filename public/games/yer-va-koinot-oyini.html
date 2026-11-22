@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kosmik Sarguzasht — 4-sinf</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:#050916;color:#fff;min-height:100vh;overflow-x:hidden;}
+
+/* ══════ CANVAS STARFIELD ══════ */
+#starCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ══════ SCREENS ══════ */
+.sc{display:none;min-height:100vh;flex-direction:column;align-items:center;position:relative;z-index:1;}
+.sc.on{display:flex;animation:fadeUp .4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══════════════════
+   INTRO
+══════════════════ */
+#s-intro{
+  background:radial-gradient(ellipse at 50% 30%,#0d1f6e 0%,#050916 70%);
+  justify-content:center;text-align:center;padding:30px 20px;
+}
+.intro-galaxy{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.nebula{position:absolute;border-radius:50%;filter:blur(60px);animation:nebPulse 6s ease-in-out infinite;}
+@keyframes nebPulse{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.6;transform:scale(1.08)}}
+
+.intro-rocket{font-size:clamp(70px,15vw,110px);display:block;margin:0 auto 8px;
+  animation:rocketHover 3s ease-in-out infinite;}
+@keyframes rocketHover{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-16px) rotate(5deg)}}
+
+.intro-title{font-family:'Fredoka One',cursive;font-size:clamp(26px,6vw,52px);
+  background:linear-gradient(135deg,#64b5f6,#fff,#f48fb1);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1.15;margin-bottom:8px;}
+.intro-sub{font-size:15px;font-weight:800;color:#90caf9;margin-bottom:10px;}
+.intro-info{background:rgba(255,255,255,.07);border-radius:20px;padding:14px 18px;
+  max-width:380px;margin:0 auto 22px;font-size:13px;font-weight:700;
+  color:#b3e5fc;line-height:1.8;border:1.5px solid rgba(100,181,246,.2);}
+.intro-btn{font-family:'Fredoka One',cursive;font-size:20px;padding:15px 44px;
+  border-radius:50px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;
+  box-shadow:0 0 0 3px rgba(100,181,246,.4),0 8px 28px rgba(21,101,192,.5);
+  transition:all .22s;position:relative;overflow:hidden;}
+.intro-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .2s;}
+.intro-btn:hover{transform:scale(1.06) translateY(-3px);box-shadow:0 0 0 5px rgba(100,181,246,.5),0 14px 36px rgba(21,101,192,.6);}
+.intro-btn:hover::before{opacity:1;}
+.intro-btn:active{transform:scale(.95);}
+
+/* ══════════════════
+   GAME SCREEN
+══════════════════ */
+#s-game{
+  padding:0 0 30px;
+  background:radial-gradient(ellipse at 20% 80%,rgba(13,71,161,.25) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(74,0,130,.2) 0%,transparent 50%),
+             linear-gradient(180deg,#050916 0%,#080f2e 100%);
+}
+
+/* TOP HUD */
+.hud{width:100%;max-width:800px;padding:14px 16px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.hud-score{font-family:'Fredoka One',cursive;font-size:18px;color:#ffd700;
+  background:rgba(255,215,0,.1);padding:6px 16px;border-radius:20px;
+  border:1.5px solid rgba(255,215,0,.25);}
+.hud-lives{font-size:18px;letter-spacing:2px;}
+.hud-level{font-family:'Fredoka One',cursive;font-size:14px;color:#90caf9;
+  background:rgba(144,202,249,.1);padding:6px 14px;border-radius:20px;
+  border:1.5px solid rgba(144,202,249,.2);margin-left:auto;}
+
+/* PROGRESS TRACK */
+.track-wrap{width:100%;max-width:800px;padding:12px 16px 0;}
+.track-road{position:relative;height:64px;background:rgba(255,255,255,.04);
+  border-radius:32px;border:1.5px solid rgba(255,255,255,.08);overflow:hidden;}
+.track-bg-stars{position:absolute;inset:0;overflow:hidden;}
+.track-planet{position:absolute;top:50%;transform:translateY(-50%);font-size:22px;
+  transition:all .4s;pointer-events:none;}
+.track-rocket{position:absolute;top:50%;transform:translateY(-50%);font-size:28px;
+  transition:left 1s cubic-bezier(.4,.8,.6,1);z-index:2;
+  filter:drop-shadow(0 0 8px rgba(100,181,246,.8));}
+.track-finish{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:22px;}
+.track-bar{position:absolute;left:0;top:0;bottom:0;border-radius:32px;
+  background:linear-gradient(90deg,rgba(21,101,192,.4),rgba(100,181,246,.3));
+  transition:width 1s cubic-bezier(.4,.8,.6,1);}
+.prog-labels{display:flex;justify-content:space-between;padding:4px 10px 0;
+  font-size:11px;font-weight:800;color:rgba(255,255,255,.35);}
+
+/* QUESTION AREA */
+.q-wrap{width:100%;max-width:800px;padding:12px 16px 0;display:flex;flex-direction:column;gap:11px;}
+
+/* PLANET VISUAL */
+.planet-stage{border-radius:24px;overflow:hidden;border:2px solid rgba(255,255,255,.1);
+  position:relative;height:190px;display:flex;align-items:center;justify-content:center;}
+.planet-stage svg{width:100%;height:100%;max-height:185px;}
+.planet-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
+.topic-badge{font-family:'Fredoka One',cursive;font-size:13px;padding:5px 16px;
+  border-radius:20px;color:#fff;box-shadow:0 3px 12px rgba(0,0,0,.3);}
+.planet-emoji-big{font-size:clamp(52px,10vw,80px);filter:drop-shadow(0 0 20px rgba(255,255,255,.3));
+  animation:floatPlanet 4s ease-in-out infinite;}
+@keyframes floatPlanet{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.04)}}
+
+/* ROBOT + QUESTION */
+.q-card{border-radius:22px;padding:18px;border:2px solid rgba(255,255,255,.1);position:relative;overflow:hidden;}
+.q-card::before{content:'';position:absolute;inset:0;border-radius:22px;
+  background:linear-gradient(135deg,rgba(255,255,255,.05),transparent);pointer-events:none;}
+.q-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;}
+.robot-icon{font-size:42px;flex-shrink:0;animation:rbtBob 3s ease-in-out infinite;}
+@keyframes rbtBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.q-meta{font-size:11px;font-weight:800;color:#90caf9;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.q-text{font-size:clamp(14px,2.5vw,17px);font-weight:800;color:#fff;line-height:1.6;}
+
+/* OPTIONS */
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.opt-btn{font-family:'Nunito',sans-serif;font-weight:800;font-size:clamp(12px,2vw,14px);
+  padding:13px 14px;border-radius:16px;border:2px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.06);color:#e3f2fd;cursor:pointer;
+  transition:all .2s;text-align:left;position:relative;overflow:hidden;line-height:1.4;}
+.opt-btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background .15s;}
+.opt-btn:hover{border-color:rgba(144,202,249,.5);background:rgba(144,202,249,.1);transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(0,0,0,.2);}
+.opt-btn:hover::before{background:rgba(255,255,255,.03);}
+.opt-btn:active{transform:scale(.97);}
+.opt-btn.correct{background:rgba(76,175,80,.25)!important;border-color:#66bb6a!important;color:#a5d6a7!important;
+  box-shadow:0 0 20px rgba(76,175,80,.3);}
+.opt-btn.wrong{background:rgba(229,57,53,.2)!important;border-color:#ef5350!important;color:#ef9a9a!important;
+  animation:wrongShake .35s ease;}
+.opt-btn.show-correct{background:rgba(76,175,80,.15)!important;border-color:#66bb6a!important;}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.opt-letter{display:inline-block;font-family:'Fredoka One',cursive;font-size:14px;
+  width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.12);
+  text-align:center;line-height:24px;margin-right:7px;flex-shrink:0;}
+
+/* FEEDBACK */
+.feedback{border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:800;line-height:1.6;border:2px solid;}
+.feedback.correct{background:rgba(76,175,80,.15);border-color:rgba(102,187,106,.4);color:#a5d6a7;}
+.feedback.wrong{background:rgba(229,57,53,.12);border-color:rgba(239,83,80,.35);color:#ef9a9a;}
+.fb-ico{font-size:28px;flex-shrink:0;}
+
+/* CONTINUE BTN */
+.continue-btn{font-family:'Fredoka One',cursive;font-size:16px;padding:13px 32px;
+  border-radius:40px;border:none;cursor:pointer;transition:all .22s;
+  align-self:center;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+.continue-btn:hover{transform:translateY(-3px);}
+.continue-btn:active{transform:scale(.95);}
+
+/* ══════════════════
+   FINAL SCREEN
+══════════════════ */
+#s-final{
+  background:radial-gradient(ellipse at 50% 20%,#0d2a4a 0%,#050916 65%);
+  justify-content:center;text-align:center;padding:30px 20px;
+}
+.final-rocket{font-size:clamp(60px,12vw,100px);display:block;margin:0 auto 8px;
+  animation:finalRocket 2s ease-in-out infinite;}
+@keyframes finalRocket{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-12px) rotate(10deg)}75%{transform:translateY(-8px) rotate(-5deg)}}
+.final-title{font-family:'Fredoka One',cursive;font-size:clamp(24px,5vw,44px);
+  background:linear-gradient(135deg,#ffd700,#fff,#ffd700);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+.stars-earned{font-size:clamp(28px,6vw,44px);margin:8px 0;letter-spacing:4px;}
+.final-score-box{background:rgba(255,215,0,.1);border:2px solid rgba(255,215,0,.3);
+  border-radius:20px;padding:14px 24px;margin:12px auto;max-width:320px;}
+.fsc-label{font-size:12px;font-weight:800;color:#ffd700;text-transform:uppercase;letter-spacing:1px;}
+.fsc-val{font-family:'Fredoka One',cursive;font-size:38px;color:#ffd700;}
+.achievement-row{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:12px 0;}
+.ach{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.15);
+  border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:#b3e5fc;}
+.ach .a-ico{font-size:22px;display:block;margin-bottom:3px;}
+.grade-msg{font-size:15px;font-weight:800;line-height:1.8;color:#90caf9;
+  background:rgba(255,255,255,.06);border-radius:18px;padding:14px;
+  max-width:380px;margin:10px auto;}
+.replay-btn{font-family:'Fredoka One',cursive;font-size:18px;padding:14px 40px;
+  border-radius:50px;border:none;cursor:pointer;margin-top:14px;
+  background:linear-gradient(135deg,#ffd700,#ffa000);color:#1a237e;
+  box-shadow:0 8px 26px rgba(255,160,0,.4);transition:all .22s;}
+.replay-btn:hover{transform:scale(1.06) translateY(-3px);}
+.replay-btn:active{transform:scale(.95);}
+
+/* CONFETTI */
+.cp{position:fixed;top:-20px;border-radius:3px;animation:fall linear forwards;pointer-events:none;z-index:999;}
+@keyframes fall{to{top:110vh;transform:rotate(720deg) translateX(80px);}}
+
+/* ══ PLANET BACKGROUNDS ══ */
+.bg-earth{background:linear-gradient(135deg,#0d2a4a 0%,#1565c0 50%,#1b5e20 100%);}
+.bg-moon{background:linear-gradient(135deg,#1a1a2e 0%,#2d2d44 50%,#0a0a15 100%);}
+.bg-sun{background:linear-gradient(135deg,#bf360c 0%,#e64a19 40%,#ff8f00 100%);}
+.bg-mars{background:linear-gradient(135deg,#4e1c00 0%,#7f2d00 50%,#b33000 100%);}
+.bg-saturn{background:linear-gradient(135deg,#1a1200 0%,#3d2c00 50%,#6d4f00 100%);}
+.bg-galaxy{background:linear-gradient(135deg,#0d0020 0%,#1a0040 50%,#2d0060 100%);}
+.bg-jupiter{background:linear-gradient(135deg,#2d1500 0%,#6b3300 50%,#b35a00 100%);}
+.bg-star{background:linear-gradient(135deg,#000020 0%,#000835 50%,#001060 100%);}
+.bg-venus{background:linear-gradient(135deg,#3d1a00 0%,#7a3400 50%,#b85000 100%);}
+.bg-neptune{background:linear-gradient(135deg,#001a3d 0%,#00265c 50%,#003380 100%);}
+
+@media(max-width:500px){
+  .opts-grid{grid-template-columns:1fr;}
+  .hud{gap:7px;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<!-- ═══════════════════════════════════
+     INTRO
+═══════════════════════════════════ -->
+<div class="sc on" id="s-intro">
+  <div class="intro-galaxy">
+    <div class="nebula" style="width:400px;height:300px;top:-100px;left:-100px;background:radial-gradient(#1565c0,transparent);"></div>
+    <div class="nebula" style="width:350px;height:280px;bottom:-80px;right:-80px;background:radial-gradient(#6a1b9a,transparent);animation-delay:3s;"></div>
+    <div class="nebula" style="width:300px;height:250px;top:30%;left:60%;background:radial-gradient(#00695c,transparent);animation-delay:1.5s;"></div>
+  </div>
+  <span class="intro-rocket">🚀</span>
+  <h1 class="intro-title">Kosmik<br>Sarguzasht!</h1>
+  <p class="intro-sub">4-sinf · Yer va Koinot · Interaktiv O'yin</p>
+  <div class="intro-info">
+    🌍 Yer · 🌕 Oy · ☀️ Quyosh · 🪐 Sayyoralar<br>
+    ⭐ Yulduzlar · 🌌 Galaktika · ☄️ Kometalar<br><br>
+    👨‍🚀 Kosmoschi bolakay va 🤖 Robot Cosmo<br>
+    birgalikda koinotni kashf etishadi!<br><br>
+    ✅ To'g'ri javob → Raketa oldinga!<br>
+    ❌ Xato → Tushuntirish va qayta urinish!
+  </div>
+  <button class="intro-btn" onclick="startGame()">🚀 Sayohatni Boshlash!</button>
+</div>
+
+<!-- ═══════════════════════════════════
+     GAME
+═══════════════════════════════════ -->
+<div class="sc" id="s-game">
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-score" id="hudScore">⭐ 0 ball</div>
+    <div class="hud-lives" id="hudLives">❤️❤️❤️</div>
+    <div class="hud-level" id="hudLevel">Savol 1 / 15</div>
+  </div>
+
+  <!-- TRACK -->
+  <div class="track-wrap">
+    <div class="track-road" id="trackRoad">
+      <div class="track-bar" id="trackBar" style="width:0%"></div>
+      <div class="track-rocket" id="trackRocket" style="left:10px">🚀</div>
+      <div class="track-finish" style="right:8px">🌌</div>
+    </div>
+    <div class="prog-labels">
+      <span>🚀 Boshlash</span>
+      <span>Manzil: Galaktika 🌌</span>
+    </div>
+  </div>
+
+  <!-- QUESTION -->
+  <div class="q-wrap" id="qWrap">
+    <!-- Planet Stage -->
+    <div class="planet-stage" id="planetStage">
+      <div class="planet-overlay">
+        <div class="topic-badge" id="topicBadge">🌍 Mavzu</div>
+        <div class="planet-emoji-big" id="planetEmoji">🌍</div>
+      </div>
+    </div>
+
+    <!-- Q Card -->
+    <div class="q-card" id="qCard" style="background:rgba(13,31,110,.4);">
+      <div class="q-top">
+        <div class="robot-icon">🤖</div>
+        <div style="flex:1;">
+          <div class="q-meta" id="qMeta">SAVOL 1</div>
+          <div class="q-text" id="qText">Savol yuklanmoqda...</div>
+        </div>
+      </div>
+      <div class="opts-grid" id="optsGrid"></div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="feedback" id="feedback" style="display:none;">
+      <span class="fb-ico" id="fbIco">✅</span>
+      <div id="fbText"></div>
+    </div>
+
+    <!-- Continue -->
+    <button class="continue-btn" id="continueBtn" style="display:none;" onclick="nextQuestion()">
+      Davom etish ➜
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     FINAL
+═══════════════════════════════════ -->
+<div class="sc" id="s-final">
+  <span class="final-rocket">🚀</span>
+  <h2 class="final-title">Galaktikaga Yetib Keldingiz!</h2>
+  <div class="stars-earned" id="starsEarned">⭐⭐⭐</div>
+  <div class="final-score-box">
+    <div class="fsc-label">Jami Ball</div>
+    <div class="fsc-val" id="finalScore">0</div>
+  </div>
+  <div class="achievement-row" id="achRow"></div>
+  <div class="grade-msg" id="gradeMsg"></div>
+  <button class="replay-btn" onclick="restart()">🔄 Qayta O'ynash!</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  STARFIELD CANVAS
+// ══════════════════════════════════════════
+(function(){
+  const c=document.getElementById('starCanvas');
+  const ctx=c.getContext('2d');
+  let W,H,stars=[];
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;makeStars();}
+  function makeStars(){
+    stars=[];
+    for(let i=0;i<220;i++){
+      stars.push({x:Math.random()*W,y:Math.random()*H,
+        r:Math.random()*1.6+.3,
+        a:Math.random(),speed:Math.random()*.006+.002,t:Math.random()*Math.PI*2,
+        color:`hsl(${200+Math.random()*160},80%,${70+Math.random()*30}%)`});
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(s=>{
+      s.t+=s.speed;
+      const a=.2+Math.abs(Math.sin(s.t))*.8;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=s.color.replace(')',`,${a})`).replace('hsl','hsla');
+      ctx.fill();
+    });
+    // Shooting stars occasionally
+    if(Math.random()<.003){
+      const sx=Math.random()*W,sy=Math.random()*H*.4;
+      ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+80,sy+30);
+      ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1.5;ctx.stroke();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);
+  resize();draw();
+})();
+
+// ══════════════════════════════════════════
+//  QUESTIONS DATABASE
+// ══════════════════════════════════════════
+const QUESTIONS = [
+  // EARTH
+  {topic:'Yer',emoji:'🌍',bg:'bg-earth',
+   q:'Yer quyosh atrofida bir marta aylanishi uchun qancha vaqt kerak?',
+   opts:['365 kun','24 soat','30 kun','7 kun'],ans:0,
+   explain:'Yer Quyosh atrofida 365 kun va 6 soatda bir aylanadi. Shu sababli har 4 yilda bir marta 366 kunlik "kabisa yil" bo\'ladi!'},
+  {topic:'Yer',emoji:'🌍',bg:'bg-earth',
+   q:'Yer yuzasining qancha qismi suv bilan qoplangan?',
+   opts:['30%','50%','71%','90%'],ans:2,
+   explain:'Yer yuzasining 71% i suv (dengiz va okeanlar) bilan qoplangan! Shu sababli kosmosdan Yer "Moviy sayyora" ko\'rinadi.'},
+  {topic:'Yer',emoji:'🌏',bg:'bg-earth',
+   q:'Yer o\'z o\'qi atrofida necha soatda bir marta aylanadi?',
+   opts:['12 soat','24 soat','48 soat','365 soat'],ans:1,
+   explain:'Yer o\'z o\'qi atrofida taxminan 24 soatda bir aylanadi. Bu kun va tunning almashinuvini hosil qiladi!'},
+  // MOON
+  {topic:'Oy',emoji:'🌕',bg:'bg-moon',
+   q:'Oyning Yerdan masofasi qancha?',
+   opts:['38,400 km','384,400 km','3,844,000 km','38,440,000 km'],ans:1,
+   explain:'Oy Yerdan o\'rtacha 384,400 km masofada joylashgan. Yorug\'lik bu masofani 1.28 soniyada bosib o\'tadi!'},
+  {topic:'Oy',emoji:'🌙',bg:'bg-moon',
+   q:'Birinchi Oyga oyoq qo\'ygan inson kim edi?',
+   opts:['Yuriy Gagarin','Neil Armstrong','Buzz Aldrin','John Glenn'],ans:1,
+   explain:'Neil Armstrong 1969-yil 21-iyulda Oyga birinchi qadam qo\'ygan inson bo\'ldi. U "Kichik bir qadam — insoniyat uchun ulkan sakrash" dedi!'},
+  {topic:'Oy',emoji:'🌕',bg:'bg-moon',
+   q:'Oy Yer atrofida bir marta aylanishi uchun qancha vaqt kerak?',
+   opts:['7 kun','14 kun','27 kun','365 kun'],ans:2,
+   explain:'Oy Yer atrofida taxminan 27.3 kunda bir marta aylanadi. Qiziq holat: Oy ham o\'z o\'qi atrofida xuddi 27 kunda aylanadi, shu sababli biz har doim faqat bir tomonini ko\'ramiz!'},
+  // SUN
+  {topic:'Quyosh',emoji:'☀️',bg:'bg-sun',
+   q:'Quyosh qanday jismdan iborat?',
+   opts:['Qattiq tosh','Suyuq lava','Qizigan gaz (plazma)','Muz kristallari'],ans:2,
+   explain:'Quyosh asosan vodorod (75%) va geliy (25%) gazlaridan iborat plazmadir. Uning yuzasi harorati 5,500°C, markazi esa 15 million gradus!'},
+  {topic:'Quyosh',emoji:'☀️',bg:'bg-sun',
+   q:'Quyoshdan Yerga yorug\'lik qancha vaqtda yetib keladi?',
+   opts:['1 sekund','8 daqiqa','1 soat','1 kun'],ans:1,
+   explain:'Quyosh nuri 300,000 km/s tezlikda harakat qiladi va Yerga 8 daqiqa 20 soniyada yetib keladi. Bu masofani o\'ting sinab ko\'ring — 150 million km!'},
+  {topic:'Quyosh',emoji:'🌟',bg:'bg-sun',
+   q:'Quyosh quyidagilarning qaysi biriga kiradi?',
+   opts:['Sayyora','Yulduz','Yo\'ldosh','Asteroid'],ans:1,
+   explain:'Quyosh — bizning Quyosh tizimidagi yagona YULDUZ! U Yer hajmidan 1.3 million marta katta. Eng yaqin yulduz — Proxima Centauri — 4.2 yorug\'lik yili uzoqda.'},
+  // PLANETS
+  {topic:'Sayyoralar',emoji:'🪐',bg:'bg-saturn',
+   q:'Quyosh tizimidagi eng katta sayyora qaysi?',
+   opts:['Saturn','Mars','Yupiter','Neptun'],ans:2,
+   explain:'Yupiter — Quyosh tizimidagi eng katta sayyora! Uning ichiga 1,300 ta Yer sig\'adi. 79 ta yo\'ldoshi bor va "Katta qizil dog\'" — 350 yildan beri davom etayotgan bo\'ron!'},
+  {topic:'Sayyoralar',emoji:'🔴',bg:'bg-mars',
+   q:'Qaysi sayyora "Qizil sayyora" deb ataladi?',
+   opts:['Venera','Mars','Merkuriy','Saturn'],ans:1,
+   explain:'Mars yuzasida ko\'p miqdorda temir oksidi (zang) borligi sababli qizil rangda ko\'rinadi va "Qizil sayyora" nomini olgan. Olimp vulqoni — Quyosh tizimidagi eng baland tog\'!'},
+  {topic:'Sayyoralar',emoji:'💛',bg:'bg-venus',
+   q:'Quyosh tizimidagi eng issiq sayyora qaysi?',
+   opts:['Merkuriy','Mars','Venera','Yupiter'],ans:2,
+   explain:'Venera — eng issiq sayyora (462°C)! Merkuriy Quyoshga yaqinroq bo\'lsa-da, Venerada issiqxona effekti kuchliroq. Qo\'rg\'oshin erishi mumkin!'},
+  {topic:'Sayyoralar',emoji:'🔵',bg:'bg-neptune',
+   q:'Quyosh tizimidagi eng uzoq sayyora qaysi?',
+   opts:['Saturn','Uran','Neptun','Pluton'],ans:2,
+   explain:'Neptun — Quyosh tizimidagi eng uzoq sayyora. U 165 yilda bir marta Quyosh atrofida aylanadi. Pluton esa 2006-yildan sayyora hisoblanmaydi — u "mitti sayyora" deb tasniflangan!'},
+  // STARS & GALAXY
+  {topic:'Yulduzlar',emoji:'⭐',bg:'bg-star',
+   q:'Bizning Quyoshga eng yaqin yulduz qaysi?',
+   opts:['Sirius','Polaris','Proxima Centauri','Betelgeuse'],ans:2,
+   explain:'Proxima Centauri — Quyoshimizga eng yaqin yulduz. U 4.24 yorug\'lik yili (40 trillion km) uzoqlikda. Hozirgi raketalarda u yerga borishga 70,000 yil kerak bo\'lar edi!'},
+  {topic:'Galaktika',emoji:'🌌',bg:'bg-galaxy',
+   q:'Yerning galaktikasi qanday nom bilan ataladi?',
+   opts:['Andromeda','Kichik Magellan','Somon Yo\'li','Triangulum'],ans:2,
+   explain:'Biz "Somon Yo\'li" (Milky Way) galaktikasida yashaymiz! Unda 200-400 milliard yulduz bor. Galaktikamizning markazi qora tuynukdir va u 100,000 yorug\'lik yili kenglikda!'},
+];
+
+// ══════════════════════════════════════════
+//  SVG PLANET SCENES
+// ══════════════════════════════════════════
+function getPlanetSVG(bg){
+  const svgs={
+    'bg-earth':`<svg viewBox="0 0 800 190" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="eg" cx="40%" cy="35%"><stop offset="0%" stop-color="#1e88e5"/><stop offset="100%" stop-color="#0d47a1"/></radialGradient>
+        <radialGradient id="sunG" cx="50%" cy="50%"><stop offset="0%" stop-color="#fff9c4"/><stop offset="100%" stop-color="#ffca28"/></radialGradient>
+      </defs>
+      <!-- Stars -->
+      <circle cx="50" cy="30" r="1.5" fill="#fff" opacity=".7"/>
+      <circle cx="150" cy="60" r="1" fill="#fff" opacity=".6"/>
+      <circle cx="700" cy="25" r="1.5" fill="#fff" opacity=".8"/>
+      <circle cx="750" cy="80" r="1" fill="#fff" opacity=".5"/>
+      <circle cx="680" cy="150" r="2" fill="#fff" opacity=".6"/>
+      <circle cx="120" cy="155" r="1.2" fill="#fff" opacity=".7"/>
+      <!-- Sun hint -->
+      <circle cx="720" cy="40" r="30" fill="url(#sunG)" opacity=".6"/>
+      <!-- Earth -->
+      <circle cx="400" cy="95" r="80" fill="url(#eg)"/>
+      <path d="M360,35 Q390,25 420,40 Q445,55 435,75 Q420,88 395,80 Q368,70 360,50Z" fill="#43a047" opacity=".9"/>
+      <path d="M430,75 Q460,68 480,90 Q490,110 475,125 Q455,135 435,120 Q418,105 430,88Z" fill="#2e7d32" opacity=".9"/>
+      <path d="M330,95 Q350,88 368,100 Q375,115 360,128 Q342,135 328,120 Q318,108 330,97Z" fill="#43a047" opacity=".85"/>
+      <path d="M380,130 Q400,125 420,140 Q425,155 405,162 Q385,163 375,148Z" fill="#388e3c" opacity=".8"/>
+      <!-- Clouds -->
+      <ellipse cx="355" cy="60" rx="28" ry="9" fill="rgba(255,255,255,.5)"/>
+      <ellipse cx="445" cy="115" rx="22" ry="7" fill="rgba(255,255,255,.4)"/>
+      <!-- Moon -->
+      <circle cx="550" cy="60" r="22" fill="#bdbdbd"/>
+      <circle cx="540" cy="52" r="5" fill="#9e9e9e" opacity=".6"/>
+      <circle cx="558" cy="67" r="3.5" fill="#9e9e9e" opacity=".5"/>
+      <circle cx="548" cy="75" r="4" fill="#9e9e9e" opacity=".4"/>
+      <!-- Label -->
+      <rect x="356" y="158" width="88" height="18" rx="8" fill="rgba(255,255,255,.15)"/>
+      <text x="400" y="171" text-anchor="middle" font-size="11" fill="#fff" font-family="Nunito" font-weight="800">Yer sayyorasi</text>
+    </svg>`,
+
+    'bg-moon':`<svg viewBox="0 0 800 190" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="moonG" cx="38%" cy="32%"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="100%" stop-color="#757575"/></radialGradient></defs>
+      <circle cx="80" cy="40" r="2" fill="#fff" opacity=".8"/>
+      <circle cx="200" cy="20" r="1.5" fill="#fff" opacity=".6"/>
+      <circle cx="600" cy="35" r="1.5" fill="#fff" opacity=".7"/>
+      <circle cx="720" cy="60" r="2" fill="#fff" opacity=".5"/>
+      <circle cx="650" cy="155" r="1.5" fill="#fff" opacity=".6"/>
+      <circle cx="160" cy="160" r="1" fill="#fff" opacity=".5"/>
+      <!-- Earth in sky -->
+      <circle cx="660" cy="55" r="28" fill="#1e88e5" opacity=".7"/>
+      <path d="M648,40 Q660,36 672,44 Q678,52 668,60 Q657,65 646,56Z" fill="#43a047" opacity=".8"/>
+      <!-- Moon -->
+      <circle cx="400" cy="95" r="82" fill="url(#moonG)"/>
+      <circle cx="368" cy="72" r="14" fill="#9e9e9e" opacity=".55"/>
+      <circle cx="420" cy="58" r="10" fill="#9e9e9e" opacity=".5"/>
+      <circle cx="445" cy="88" r="8" fill="#9e9e9e" opacity=".45"/>
+      <circle cx="380" cy="118" r="12" fill="#9e9e9e" opacity=".5"/>
+      <circle cx="428" cy="128" r="7" fill="#9e9e9e" opacity=".4"/>
+      <circle cx="358" cy="108" r="5" fill="#9e9e9e" opacity=".45"/>
+      <!-- Flag -->
+      <line x1="408" y1="38" x2="408" y2="20" stroke="#bdbdbd" stroke-width="1.5"/>
+      <rect x="408" y="20" width="14" height="9" fill="#1565c0"/>
+      <line x1="408" y1="20" x2="422" y2="20" stroke="#fff" stroke-width="1"/>
+      <!-- Rover -->
+      <rect x="374" y="174" width="24" height="10" rx="3" fill="#78909c"/>
+      <circle cx="377" cy="185" r="4" fill="#546e7a"/>
+      <circle cx="395" cy="185" r="4" fill="#546e7a"/>
+      <!-- Label -->
+      <rect x="356" y="155" width="88" height="18" rx="8" fill="rgba(255,255,255,.12)"/>
+      <text x="400" y="168" text-anchor="middle" font-size="11" fill="#e0e0e0" font-family="Nunito" font-weight="800">Oy</text>
+    </svg>`,
+
+    'bg-sun':`<svg viewBox="0 0 800 190" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="sG" cx="50%" cy="50%"><stop offset="0%" stop-color="#fff9c4"/><stop offset="40%" stop-color="#ffca28"/><stop offset="100%" stop-color="#e65100"/></radialGradient></defs>
+      <!-- Corona rays -->
+      <g stroke="#ff8f00" stroke-width="2.5" opacity=".4">
+        <line x1="400" y1="5" x2="400" y2="22"/>
+        <line x1="455" y1="16" x2="446" y2="30"/>
+        <line x1="498" y1="50" x2="484" y2="58"/>
+        <line x1="508" y1="95" x2="492" y2="95"/>
+        <line x1="498" y1="140" x2="484" y2="132"/>
+        <line x1="455" y1="174" x2="446" y2="160"/>
+        <line x1="400" y1="185" x2="400" y2="168"/>
+        <line x1="345" y1="174" x2="354" y2="160"/>
+        <line x1="302" y1="140" x2="316" y2="132"/>
+        <line x1="292" y1="95" x2="308" y2="95"/>
+        <line x1="302" y1="50" x2="316" y2="58"/>
+        <line x1="345" y1="16" x2="354" y2="30"/>
+      </g>
+      <!-- Glow rings -->
+      <circle cx="400" cy="95" r="92" fill="#ff8f00" opacity=".07"/>
+      <circle cx="400" cy="95" r="80" fill="#ffa000" opacity=".12"/>
+      <!-- Sun -->
+      <circle cx="400" cy="95" r="68" fill="url(#sG)"/>
+      <!-- Surface details -->
+      <circle cx="370" cy="75" r="18" fill="#ff6f00" opacity=".3"/>
+      <circle cx="435" cy="115" r="14" fill="#ff6f00" opacity=".25"/>
+      <circle cx="390" cy="118" r="10" fill="#ff6f00" opacity=".2"/>
+      <!-- Sunspot -->
+      <ellipse cx="358" cy="95" rx="12" ry="9" fill="#bf360c" opacity=".5"/>
+      <ellipse cx="440" cy="80" rx="8" ry="6" fill="#bf360c" opacity=".4"/>
+      <!-- Prominences -->
+      <path d="M400,27 Q415,15 420,25 Q410,30 400,27Z" fill="#ff8f00" opacity=".6"/>
+      <path d="M468,142 Q478,132 483,145 Q475,148 468,142Z" fill="#ff8f00" opacity=".5"/>
+      <!-- Label -->
+      <rect x="356" y="152" width="88" height="18" rx="8" fill="rgba(0,0,0,.3)"/>
+      <text x="400" y="165" text-anchor="middle" font-size="11" fill="#fff9c4" font-family="Nunito" font-weight="800">Quyosh yulduzi</text>
+    </svg>`,
+
+    'bg-mars':`<svg viewBox="0 0 800 190" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="marG" cx="38%" cy="32%"><stop offset="0%" stop-color="#ff7043"/><stop offset="100%" stop-color="#bf360c"/></radialGradient></defs>
+      <circle cx="100" cy="35" r="1.5" fill="#fff" opacity=".6"/>
+      <circle cx="680" cy="28" r="1.5" fill="#fff" opacity=".7"/>
+      <circle cx="720" cy="160" r="1" fill="#fff" opacity=".5"/>
+      <!-- Mars -->
+      <circle cx="400" cy="95" r="78" fill="url(#marG)"/>
+      <!-- Surface features -->
+      <ellipse cx="370" cy="80" rx="35" ry="12" fill="#8d3300" opacity=".4" transform="rotate(-20,370,80)"/>
+      <ellipse cx="440" cy="115" rx="28" ry="9" fill="#8d3300" opacity=".35" transform="rotate(10,440,115)"/>
+      <!-- Olympus Mons -->
+      <ellipse cx="365" cy="88" rx="22" ry="10" fill="#6d2700" opacity=".5"/>
+      <text x="366" y="76" text-anchor="middle" font-size="8" fill="#ffccbc" font-family="Nunito" font-weight="800">Olimp vulqoni</text>
+      <!-- Polar ice caps -->
+      <ellipse cx="400" cy="24" rx="22" ry="7" fill="rgba(255,255,255,.55)"/>
+      <ellipse cx="400" cy="168" rx="18" ry="6" fill="rgba(255,255,255,.4)"/>
+      <!-- Phobos moon -->
+      <ellipse cx="540" cy="50" rx="12" ry="9" fill="#8d6e63" opacity=".85"/>
+      <text x="540" y="38" text-anchor="middle" font-size="8" fill="#ffccbc" font-family="Nunito" font-weight="700">Fobos</text>
+      <!-- Label -->
+      <rect x="350" y="155" width="100" height="18" rx="8" fill="rgba(0,0,0,.3)"/>
+      <text x="400" y="168" text-anchor="middle" font-size="11" fill="#ffccbc" font-family="Nunito" font-weight="800">Qizil sayyora — Mars</text>
+    </svg>`,
+
+    'bg-saturn':`<svg viewBox="0 0 800 190" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="satG" cx="38%" cy="32%"><stop offset="0%" stop-color="#ffe082"/><stop offset="100%" stop-color="#f57f17"/></radialGradient></defs>
+      <circle cx="80" cy="25" r="1.5" fill="#fff" opacity=".7"/>
+      <circle cx="700" cy="35" r="2" fill="#fff" opacity=".6"/>
+      <!-- Rings back -->
+      <ellipse cx="400" cy="100" rx="130" ry="22" fill="none" stroke="#f9a825" stroke-width="14" opacity=".3"/>
+      <ellipse cx="400" cy="100" rx="108" ry="18" fill="none" stroke="#ffca28" stroke-width="10" opacity=".35"/>
+      <!-- Saturn -->
+      <circle cx="400" cy="95" r="68" fill="url(#satG)"/>
+      <!-- Bands -->
+      <ellipse cx="400" cy="82" rx="68" ry="9" fill="#e65100" opacity=".2"/>
+      <ellipse cx="400" cy="97" rx="68" ry="7" fill="#bf360c" opacity=".18"/>
+      <ellipse cx="400" cy="112" rx="68" ry="6" fill="#e65100" opacity=".15"/>
+      <!-- Rings front -->
+      <path d="M280,118 Q400,145 520,118" stroke="#f9a825" stroke-width="14" fill="none" opacity=".32"/>
+      <path d="M296,114 Q400,138 504,114" stroke="#ffca28" stroke-width="10" fill="none" opacity=".38"/>
+      <!-- Highlight -->
+      <ellipse cx="375" cy="72" rx="22" ry="14" fill="rgba(255,255,255,.18)" transform="rotate(-20,375,72)"/>
+      <!-- Label -->
+      <rect x="356" y="155" width="88" height="18" rx="8" fill="rgba(0,0,0,.3)"/>
+      <text x="400" y="168" text-anchor="middle" font-size="11" fill="#ffe082" font-family="Nunito" font-weight="800">Halqali Saturn</text>
+    </svg>`,
+
+    'bg-galaxy':`<svg viewBox="0 0 800 190" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="galG" cx="50%" cy="50%"><stop offset="0%" stop-color="#7b1fa2"/><stop offset="50%" stop-color="#4a148c"/><stop offset="100%" stop-color="#1a0040"/></radialGradient>
+      </defs>
+      <!-- Stars lots -->
+      <g fill="#fff">
+        <circle cx="100" cy="40" r="1.2" opacity=".8"/><circle cx="200" cy="25" r=".8" opacity=".6"/>
+        <circle cx="320" cy="15" r="1.5" opacity=".7"/><circle cx="500" cy="22" r="1" opacity=".6"/>
+        <circle cx="620" cy="40" r="1.2" opacity=".8"/><circle cx="700" cy="18" r=".9" opacity=".5"/>
+        <circle cx="150" cy="160" r="1" opacity=".6"/><circle cx="650" cy="155" r="1.2" opacity=".7"/>
+        <circle cx="750" cy="100" r=".8" opacity=".5"/><circle cx="50" cy="110" r="1" opacity=".6"/>
+      </g>
+      <!-- Galaxy spiral -->
+      <circle cx="400" cy="95" r="88" fill="url(#galG)" opacity=".5"/>
+      <!-- Spiral arms -->
+      <path d="M400,95 Q430,65 470,55 Q510,48 520,70 Q525,90 500,100 Q470,108 445,95 Q420,82 410,70 Q400,55 420,42 Q440,30 460,40" stroke="#ce93d8" stroke-width="3" fill="none" opacity=".5"/>
+      <path d="M400,95 Q370,125 330,135 Q290,142 280,120 Q275,100 300,90 Q330,82 355,95 Q380,108 390,120 Q400,135 380,148 Q360,160 340,150" stroke="#9c27b0" stroke-width="3" fill="none" opacity=".45"/>
+      <!-- Stars in galaxy -->
+      <g fill="#fff" opacity=".8">
+        <circle cx="440" cy="60" r="2"/><circle cx="480" cy="72" r="1.5"/><circle cx="360" cy="130" r="2"/>
+        <circle cx="320" cy="115" r="1.5"/><circle cx="420" cy="85" r="1.2"/><circle cx="385" cy="108" r="1"/>
+      </g>
+      <!-- Center bright -->
+      <circle cx="400" cy="95" r="18" fill="#f8bbd0" opacity=".6"/>
+      <circle cx="400" cy="95" r="10" fill="#fff" opacity=".7"/>
+      <!-- Label -->
+      <rect x="334" y="158" width="132" height="18" rx="8" fill="rgba(0,0,0,.4)"/>
+      <text x="400" y="171" text-anchor="middle" font-size="11" fill="#e1bee7" font-family="Nunito" font-weight="800">Somon Yo'li Galaktikasi</text>
+    </svg>`,
+
+    'bg-jupiter':`<svg viewBox="0 0 800 190" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="jupG" cx="38%" cy="32%"><stop offset="0%" stop-color="#ffe0b2"/><stop offset="100%" stop-color="#e65100"/></radialGradient></defs>
+      <circle cx="80" cy="28" r="1.5" fill="#fff" opacity=".7"/>
+      <circle cx="700" cy="30" r="1.5" fill="#fff" opacity=".6"/>
+      <circle cx="740" cy="155" r="1" fill="#fff" opacity=".5"/>
+      <!-- Jupiter -->
+      <circle cx="400" cy="95" r="82" fill="url(#jupG)"/>
+      <!-- Bands -->
+      <rect x="318" y="58" width="164" height="14" rx="4" fill="#bf360c" opacity=".4"/>
+      <rect x="318" y="78" width="164" height="10" rx="3" fill="#d84315" opacity=".35"/>
+      <rect x="318" y="95" width="164" height="12" rx="3" fill="#bf360c" opacity=".38"/>
+      <rect x="318" y="114" width="164" height="9" rx="3" fill="#e64a19" opacity=".3"/>
+      <rect x="318" y="130" width="164" height="8" rx="3" fill="#bf360c" opacity=".25"/>
+      <!-- Great Red Spot -->
+      <ellipse cx="368" cy="108" rx="22" ry="14" fill="#c62828" opacity=".7"/>
+      <ellipse cx="368" cy="108" rx="14" ry="9" fill="#b71c1c" opacity=".6"/>
+      <text x="345" y="97" text-anchor="middle" font-size="8" fill="#ffccbc" font-family="Nunito" font-weight="700">Qizil dog'</text>
+      <!-- Highlight -->
+      <ellipse cx="370" cy="68" rx="28" ry="15" fill="rgba(255,255,255,.15)" transform="rotate(-15,370,68)"/>
+      <!-- Io moon -->
+      <circle cx="540" cy="55" r="14" fill="#ffd54f"/>
+      <circle cx="534" cy="50" r="4" fill="#e65100" opacity=".7"/>
+      <text x="540" y="40" text-anchor="middle" font-size="8" fill="#ffe082" font-family="Nunito" font-weight="700">Io</text>
+      <!-- Label -->
+      <rect x="356" y="156" width="88" height="18" rx="8" fill="rgba(0,0,0,.3)"/>
+      <text x="400" y="169" text-anchor="middle" font-size="11" fill="#ffe0b2" font-family="Nunito" font-weight="800">Ulkan Yupiter</text>
+    </svg>`,
+
+    'bg-star':`<svg viewBox="0 0 800 190" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="starG" cx="50%" cy="50%"><stop offset="0%" stop-color="#fff9c4"/><stop offset="30%" stop-color="#ffca28"/><stop offset="100%" stop-color="#e65100"/></radialGradient></defs>
+      <!-- Background stars -->
+      <g fill="#fff">
+        <circle cx="80" cy="30" r="1.5" opacity=".8"/><circle cx="180" cy="55" r="1" opacity=".6"/>
+        <circle cx="280" cy="20" r="2" opacity=".7"/><circle cx="550" cy="25" r="1.5" opacity=".6"/>
+        <circle cx="660" cy="45" r="1" opacity=".7"/><circle cx="740" cy="22" r="1.8" opacity=".8"/>
+        <circle cx="730" cy="160" r="1.2" opacity=".6"/><circle cx="100" cy="155" r="1" opacity=".5"/>
+      </g>
+      <!-- Various stars different sizes -->
+      <!-- Big star (Proxima) -->
+      <circle cx="280" cy="95" r="35" fill="#ef5350" opacity=".9"/>
+      <circle cx="280" cy="95" r="42" fill="#e53935" opacity=".2"/>
+      <text x="280" y="148" text-anchor="middle" font-size="9" fill="#ffcdd2" font-family="Nunito" font-weight="800">Proxima Centauri</text>
+      <!-- Our sun -->
+      <circle cx="420" cy="85" r="48" fill="url(#starG)"/>
+      <circle cx="420" cy="85" r="58" fill="#ffca28" opacity=".1"/>
+      <text x="420" y="148" text-anchor="middle" font-size="9" fill="#fff9c4" font-family="Nunito" font-weight="800">Quyosh</text>
+      <!-- Giant star (Betelgeuse) -->
+      <circle cx="580" cy="80" r="65" fill="#b71c1c" opacity=".75"/>
+      <circle cx="580" cy="80" r="78" fill="#c62828" opacity=".1"/>
+      <text x="580" y="162" text-anchor="middle" font-size="9" fill="#ffcdd2" font-family="Nunito" font-weight="800">Betelgeuse (ulkan)</text>
+      <!-- Scale labels -->
+      <rect x="178" y="12" width="400" height="15" rx="6" fill="rgba(255,255,255,.08)"/>
+      <text x="378" y="23" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.6)" font-family="Nunito" font-weight="700">Yulduzlar hajmi taqqoslamasi</text>
+    </svg>`,
+
+    'bg-venus':`<svg viewBox="0 0 800 190" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="venG" cx="38%" cy="32%"><stop offset="0%" stop-color="#ffe0b2"/><stop offset="60%" stop-color="#ff8f00"/><stop offset="100%" stop-color="#e65100"/></radialGradient></defs>
+      <circle cx="90" cy="28" r="1.5" fill="#fff" opacity=".6"/>
+      <circle cx="700" cy="32" r="1.5" fill="#fff" opacity=".7"/>
+      <!-- Venus -->
+      <circle cx="400" cy="95" r="76" fill="url(#venG)"/>
+      <!-- Thick cloud layers -->
+      <ellipse cx="400" cy="62" rx="65" ry="12" fill="rgba(255,213,79,.35)" transform="rotate(-10,400,62)"/>
+      <ellipse cx="400" cy="80" rx="72" ry="10" fill="rgba(255,193,7,.3)" transform="rotate(5,400,80)"/>
+      <ellipse cx="400" cy="110" rx="70" ry="9" fill="rgba(255,213,79,.25)" transform="rotate(-5,400,110)"/>
+      <ellipse cx="400" cy="128" rx="62" ry="10" fill="rgba(255,193,7,.28)" transform="rotate(8,400,128)"/>
+      <!-- Highlight -->
+      <ellipse cx="368" cy="68" rx="24" ry="14" fill="rgba(255,255,255,.2)" transform="rotate(-20,368,68)"/>
+      <!-- Temp indicator -->
+      <rect x="505" y="65" width="90" height="60" rx="12" fill="rgba(0,0,0,.4)"/>
+      <text x="550" y="84" text-anchor="middle" font-size="11" fill="#ff8f00" font-family="Nunito" font-weight="800">🌡️ 462°C</text>
+      <text x="550" y="102" text-anchor="middle" font-size="9" fill="#ffcc80" font-family="Nunito" font-weight="700">Eng issiq!</text>
+      <text x="550" y="117" text-anchor="middle" font-size="9" fill="#ffcc80" font-family="Nunito" font-weight="700">Qo'rg'oshin eriydi</text>
+      <!-- Label -->
+      <rect x="356" y="154" width="88" height="18" rx="8" fill="rgba(0,0,0,.3)"/>
+      <text x="400" y="167" text-anchor="middle" font-size="11" fill="#ffe0b2" font-family="Nunito" font-weight="800">Venera</text>
+    </svg>`,
+
+    'bg-neptune':`<svg viewBox="0 0 800 190" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="nepG" cx="38%" cy="32%"><stop offset="0%" stop-color="#90caf9"/><stop offset="100%" stop-color="#0d47a1"/></radialGradient></defs>
+      <circle cx="90" cy="25" r="1.5" fill="#fff" opacity=".8"/>
+      <circle cx="200" cy="50" r="1" fill="#fff" opacity=".6"/>
+      <circle cx="650" cy="30" r="1.5" fill="#fff" opacity=".7"/>
+      <circle cx="730" cy="155" r="1" fill="#fff" opacity=".5"/>
+      <!-- Uranus for scale -->
+      <circle cx="180" cy="95" r="36" fill="#80cbc4" opacity=".7"/>
+      <ellipse cx="180" cy="95" rx="50" ry="8" fill="none" stroke="#4db6ac" stroke-width="3" opacity=".5" transform="rotate(-30,180,95)"/>
+      <text x="180" y="148" text-anchor="middle" font-size="9" fill="#b2dfdb" font-family="Nunito" font-weight="700">Uran</text>
+      <!-- Neptune -->
+      <circle cx="420" cy="95" r="68" fill="url(#nepG)"/>
+      <!-- Storm spot -->
+      <ellipse cx="400" cy="88" rx="18" ry="11" fill="#1565c0" opacity=".6"/>
+      <!-- Cloud bands -->
+      <ellipse cx="420" cy="72" rx="60" ry="7" fill="rgba(255,255,255,.18)" transform="rotate(-5,420,72)"/>
+      <ellipse cx="420" cy="115" rx="55" ry="6" fill="rgba(255,255,255,.12)" transform="rotate(3,420,115)"/>
+      <!-- Triton moon -->
+      <circle cx="560" cy="55" r="16" fill="#ce93d8" opacity=".85"/>
+      <circle cx="556" cy="50" r="4" fill="#ab47bc" opacity=".5"/>
+      <text x="560" y="38" text-anchor="middle" font-size="8" fill="#e1bee7" font-family="Nunito" font-weight="700">Triton</text>
+      <!-- Distance scale -->
+      <rect x="540" y="120" width="120" height="42" rx="10" fill="rgba(0,0,0,.4)"/>
+      <text x="600" y="137" text-anchor="middle" font-size="10" fill="#90caf9" font-family="Nunito" font-weight="800">Quyoshdan:</text>
+      <text x="600" y="153" text-anchor="middle" font-size="9" fill="#b3e5fc" font-family="Nunito" font-weight="700">4.5 mlrd km</text>
+      <!-- Label -->
+      <rect x="376" y="155" width="88" height="18" rx="8" fill="rgba(0,0,0,.3)"/>
+      <text x="420" y="168" text-anchor="middle" font-size="11" fill="#b3e5fc" font-family="Nunito" font-weight="800">Uzoq Neptun</text>
+    </svg>`,
+  };
+  return svgs[bg]||svgs['bg-galaxy'];
+}
+
+// ══════════════════════════════════════════
+//  GAME STATE
+// ══════════════════════════════════════════
+let state={
+  qIdx:0, score:0, lives:3, answered:false,
+  correctStreak:0, totalCorrect:0
+};
+
+const BG_COLORS={
+  'bg-earth':'rgba(13,71,161,.4)','bg-moon':'rgba(30,30,60,.5)',
+  'bg-sun':'rgba(100,40,0,.5)','bg-mars':'rgba(80,25,0,.5)',
+  'bg-saturn':'rgba(60,40,0,.5)','bg-galaxy':'rgba(40,0,80,.5)',
+  'bg-jupiter':'rgba(80,35,0,.5)','bg-star':'rgba(0,0,30,.5)',
+  'bg-venus':'rgba(90,40,0,.5)','bg-neptune':'rgba(5,20,70,.5)',
+};
+
+// Shuffle questions
+let shuffledQs=[];
+function shuffleArray(arr){return[...arr].sort(()=>Math.random()-.5);}
+
+function startGame(){
+  shuffledQs=shuffleArray(QUESTIONS);
+  state={qIdx:0,score:0,lives:3,answered:false,correctStreak:0,totalCorrect:0};
+  showScreen('s-game');
+  renderQuestion();
+}
+
+function showScreen(id){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderQuestion(){
+  const q=shuffledQs[state.qIdx];
+  if(!q){endGame();return;}
+
+  // HUD
+  document.getElementById('hudScore').textContent=`⭐ ${state.score} ball`;
+  document.getElementById('hudLives').textContent='❤️'.repeat(state.lives)+'🖤'.repeat(Math.max(0,3-state.lives));
+  document.getElementById('hudLevel').textContent=`Savol ${state.qIdx+1} / ${shuffledQs.length}`;
+
+  // Track
+  const pct=(state.qIdx/shuffledQs.length)*100;
+  document.getElementById('trackBar').style.width=pct+'%';
+  document.getElementById('trackRocket').style.left=`calc(${pct}% + 5px)`;
+
+  // Planet stage
+  const stage=document.getElementById('planetStage');
+  stage.className='planet-stage '+q.bg;
+  stage.innerHTML=getPlanetSVG(q.bg);
+
+  // Q card
+  document.getElementById('qCard').style.background=BG_COLORS[q.bg]||'rgba(13,31,110,.4)';
+  document.getElementById('qMeta').textContent=`📚 ${q.topic.toUpperCase()} · SAVOL ${state.qIdx+1}`;
+  document.getElementById('qText').textContent=q.q;
+
+  // Options
+  const letters=['A','B','C','D'];
+  const grid=document.getElementById('optsGrid');
+  grid.innerHTML='';
+  const shuffledOpts=[...q.opts.map((o,i)=>({o,i}))].sort(()=>Math.random()-.5);
+  shuffledOpts.forEach((item,si)=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn';
+    btn.innerHTML=`<span class="opt-letter">${letters[si]}</span>${item.o}`;
+    btn.onclick=()=>{if(!state.answered)checkAnswer(item.i,q,btn,grid);};
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('continueBtn').style.display='none';
+  state.answered=false;
+
+  // Beep
+  beep(440,.08,.05);
+}
+
+function checkAnswer(selectedIdx,q,btn,grid){
+  state.answered=true;
+  const isCorrect=(selectedIdx===q.ans);
+
+  // Highlight
+  const btns=grid.querySelectorAll('.opt-btn');
+  btns.forEach(b=>{
+    b.style.pointerEvents='none';
+    const txt=b.textContent.slice(1); // remove letter
+    if(q.opts[q.ans]===txt) b.classList.add('show-correct');
+  });
+
+  if(isCorrect){
+    btn.classList.add('correct');
+    btn.classList.remove('show-correct');
+    state.score+=100;
+    state.correctStreak++;
+    state.totalCorrect++;
+    if(state.correctStreak>=3) state.score+=50; // streak bonus
+    beep(660,.2,.12);
+    setTimeout(()=>beep(880,.15,.1),180);
+    showFeedback(true,`✅ Ajoyib! To'g'ri javob! ${state.correctStreak>=3?'🔥 Ketma-ketlik bonusi +50!':''}`,q.explain);
+  } else {
+    btn.classList.add('wrong');
+    state.lives--;
+    state.correctStreak=0;
+    beep(220,.3,.1);
+    document.getElementById('hudLives').textContent='❤️'.repeat(Math.max(0,state.lives))+'🖤'.repeat(3-Math.max(0,state.lives));
+    showFeedback(false,`❌ Xato! To'g'ri javob: ${q.opts[q.ans]}`,q.explain);
+    if(state.lives<=0){setTimeout(()=>endGame(),2000);return;}
+  }
+
+  const continueTxt=state.qIdx<shuffledQs.length-1?'Davom etish ➜':'🌌 Natijani Ko\'rish!';
+  const contBtn=document.getElementById('continueBtn');
+  contBtn.textContent=continueTxt;
+  contBtn.style.display='block';
+  contBtn.style.background=isCorrect?'linear-gradient(135deg,#43a047,#1b5e20)':'linear-gradient(135deg,#1565c0,#0d47a1)';
+  contBtn.style.color='#fff';
+}
+
+function showFeedback(isOk,title,explain){
+  const fb=document.getElementById('feedback');
+  fb.style.display='flex';
+  fb.className='feedback '+(isOk?'correct':'wrong');
+  document.getElementById('fbIco').textContent=isOk?'✅':'💡';
+  document.getElementById('fbText').innerHTML=`<b style="font-size:14px;">${title}</b><br>${explain}`;
+}
+
+function nextQuestion(){
+  state.qIdx++;
+  if(state.qIdx>=shuffledQs.length||state.lives<=0){endGame();}
+  else{renderQuestion();}
+}
+
+function beep(freq=440,dur=.15,vol=.08){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=freq;o.type='sine';
+    g.gain.setValueAtTime(vol,ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0,ctx.currentTime+dur);
+    o.start();o.stop(ctx.currentTime+dur+.02);
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════
+//  FINAL SCREEN
+// ══════════════════════════════════════════
+function endGame(){
+  showScreen('s-final');
+  document.getElementById('finalScore').textContent=state.score;
+
+  // Stars
+  const pct=state.totalCorrect/shuffledQs.length;
+  const stars=pct>=.8?'⭐⭐⭐':pct>=.5?'⭐⭐':'⭐';
+  document.getElementById('starsEarned').textContent=stars;
+
+  // Achievements
+  const achs=[];
+  if(state.totalCorrect===shuffledQs.length)achs.push({i:'🏆',n:'Mukammal!',f:'Barcha to\'g\'ri'});
+  if(state.lives===3)achs.push({i:'❤️',n:'Hayotli!',f:'Birorta xato yo\'q'});
+  if(state.score>=1200)achs.push({i:'🌟',n:'Ustoz!',f:'1200+ ball'});
+  if(state.correctStreak>=3)achs.push({i:'🔥',n:'Ketma-ketlik!',f:'3+ ketma-ket'});
+  achs.push({i:'🚀',n:'Kosmoschi!',f:'O\'yin yakunlandi'});
+  achs.push({i:'🌌',n:'Galaktika!',f:'Manzilga yetdi'});
+
+  const achRow=document.getElementById('achRow');
+  achRow.innerHTML='';
+  achs.forEach(a=>{
+    const d=document.createElement('div');d.className='ach';
+    d.innerHTML=`<span class="a-ico">${a.i}</span>${a.n}<br><span style="font-size:10px;opacity:.7">${a.f}</span>`;
+    achRow.appendChild(d);
+  });
+
+  // Grade message
+  const msgs=['🌟 AJOYIB! Siz haqiqiy kosmoschi bo\'ldingiz! Barcha savollarni bilasiz! Koinot sizniki!',
+    '🚀 ZO\'R! Kosmik bilimlaringiz juda kuchli! Yana mashq qiling — mukammal bo\'lasiz!',
+    '💫 YAXSHI! Koinot haqida ko\'p narsani bilasiz! Yana o\'rganib, yulduzlarga eting!',
+    '🌙 BOSHLANG\'ICH! Kosmik bilimlaringiz o\'sib bormoqda! Qayta o\'ynaing — ko\'proq o\'rganing!'];
+  const mIdx=pct>=.9?0:pct>=.7?1:pct>=.5?2:3;
+  document.getElementById('gradeMsg').innerHTML=msgs[mIdx]+`<br><br>📊 To'g'ri: ${state.totalCorrect}/${shuffledQs.length} · Ball: ${state.score} · Hayot: ${'❤️'.repeat(state.lives)}`;
+
+  confetti();
+}
+
+function restart(){
+  startGame();
+}
+
+function confetti(){
+  const cols=['#ffd700','#64b5f6','#f48fb1','#a5d6a7','#ce93d8','#80cbc4','#ffcc02','#ef9a9a'];
+  for(let i=0;i<90;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    const sz=7+Math.random()*8;
+    el.style.cssText=`left:${Math.random()*100}vw;width:${sz}px;height:${sz+4}px;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.6}s;border-radius:${Math.random()>.5?'50%':'3px'};`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),4000);
+  },i*28);
+}
+</script>
+</body>
+</html>

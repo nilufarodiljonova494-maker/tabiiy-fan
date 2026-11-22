@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Men Tadqiqotchiman - Hayvonlar Laboratoriyasi</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap');
+
+  :root {
+    --bg: #0f0c29;
+    --card: #1a1542;
+    --primary: #7c3aed;
+    --accent: #f59e0b;
+    --green: #10b981;
+    --pink: #ec4899;
+    --cyan: #06b6d4;
+    --red: #ef4444;
+    --white: #ffffff;
+    --text-soft: #c4b5fd;
+    --shadow: 0 8px 32px rgba(124,58,237,0.3);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    min-height: 100vh;
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* ─── STARS BACKGROUND ─── */
+  #stars-bg {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .star {
+    position: absolute; border-radius: 50%; background: white;
+    animation: twinkle 3s infinite alternate;
+  }
+  @keyframes twinkle { from{opacity:.2;transform:scale(1)} to{opacity:1;transform:scale(1.4)} }
+
+  /* ─── SCREENS ─── */
+  .screen {
+    display: none; position: relative; z-index: 1;
+    min-height: 100vh; padding: 20px;
+    animation: fadeIn .5s ease;
+  }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ─── TOP BAR ─── */
+  .top-bar {
+    position: fixed; top:0; left:0; right:0; z-index: 100;
+    background: rgba(15,12,41,0.95); backdrop-filter: blur(10px);
+    padding: 12px 20px; display: flex; align-items: center; gap: 16px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .xp-bar-wrap { flex:1; background: rgba(255,255,255,.1); border-radius:20px; height:12px; overflow:hidden; }
+  .xp-bar { height:100%; background: linear-gradient(90deg, var(--primary), var(--cyan)); border-radius:20px; transition: width .5s ease; }
+  .stat-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.08); border-radius: 20px;
+    padding: 6px 14px; font-weight: 700; font-size: .9rem;
+    border: 1px solid rgba(255,255,255,.15);
+  }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    font-family: 'Nunito', sans-serif; font-weight: 800;
+    border: none; border-radius: 16px; cursor: pointer;
+    transition: all .2s; text-transform: uppercase; letter-spacing: .5px;
+    position: relative; overflow: hidden;
+  }
+  .btn::after {
+    content:''; position:absolute; bottom:0; left:0; right:0;
+    height:4px; background: rgba(0,0,0,.2); border-radius:0 0 16px 16px;
+  }
+  .btn:active { transform: translateY(3px); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), #9333ea);
+    color: white; padding: 16px 36px; font-size: 1.1rem;
+    box-shadow: 0 6px 0 #4c1d95;
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 9px 0 #4c1d95; }
+  .btn-green {
+    background: linear-gradient(135deg, var(--green), #059669);
+    color: white; padding: 14px 28px; font-size: 1rem;
+    box-shadow: 0 6px 0 #065f46;
+  }
+  .btn-green:hover { transform: translateY(-2px); }
+  .btn-accent {
+    background: linear-gradient(135deg, var(--accent), #d97706);
+    color: white; padding: 14px 28px; font-size: 1rem;
+    box-shadow: 0 6px 0 #92400e;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: rgba(26,21,66,.8); backdrop-filter: blur(20px);
+    border: 1px solid rgba(124,58,237,.3); border-radius: 24px;
+    padding: 32px; box-shadow: var(--shadow);
+  }
+
+  /* ─── TITLE STYLES ─── */
+  h1.game-title {
+    font-family: 'Fredoka One', cursive; font-size: clamp(2rem,5vw,3.5rem);
+    background: linear-gradient(135deg, #f59e0b, #ec4899, #7c3aed);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-align: center; line-height: 1.2;
+  }
+  h2.section-title {
+    font-family: 'Fredoka One', cursive; font-size: clamp(1.4rem,3vw,2rem);
+    color: var(--accent); text-align: center; margin-bottom: 20px;
+  }
+
+  /* ─── PROFESSOR CHARACTER ─── */
+  .professor-wrap { text-align: center; margin-bottom: 20px; }
+  .professor-svg { width: 140px; height: 140px; animation: professorFloat 3s ease-in-out infinite; }
+  @keyframes professorFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+  .speech-bubble {
+    position: relative; background: white; color: #1f2937;
+    border-radius: 20px; padding: 16px 20px;
+    font-size: 1rem; font-weight: 600; max-width: 480px; text-align: center;
+    margin: 0 auto 24px; line-height: 1.5;
+  }
+  .speech-bubble::before {
+    content:''; position:absolute; top:-16px; left:50%; transform:translateX(-50%);
+    border:8px solid transparent; border-bottom-color:white;
+  }
+
+  /* ─── PROGRESS STEPS ─── */
+  .steps-nav {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .step-dot {
+    width: 36px; height: 36px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-weight: 800; font-size: .85rem;
+    border: 3px solid rgba(255,255,255,.2); color: rgba(255,255,255,.4);
+    transition: all .3s;
+  }
+  .step-dot.done { background: var(--green); border-color: var(--green); color: white; }
+  .step-dot.active { background: var(--primary); border-color: var(--accent); color: white; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.5)} 50%{box-shadow:0 0 0 8px rgba(124,58,237,0)} }
+
+  /* ─── STAGE 2: ANIMALS GALLERY ─── */
+  .animals-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr));
+    gap: 16px; max-width: 700px; width: 100%;
+  }
+  .animal-card-3d {
+    perspective: 600px; cursor: pointer;
+  }
+  .animal-card-inner {
+    width: 100%; aspect-ratio:1; position: relative;
+    transform-style: preserve-3d; transition: transform .6s;
+  }
+  .animal-card-3d:hover .animal-card-inner { transform: rotateY(20deg) rotateX(-10deg) scale(1.05); }
+  .animal-face, .animal-back {
+    position: absolute; width:100%; height:100%;
+    backface-visibility: hidden; border-radius: 20px; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border: 2px solid rgba(255,255,255,.1);
+  }
+  .animal-face { background: rgba(124,58,237,.2); font-size: 3.5rem; gap: 8px; }
+  .animal-face span { font-size: .8rem; font-weight: 700; color: var(--text-soft); }
+  .animal-back { background: rgba(16,185,129,.2); transform: rotateY(180deg); font-size:.75rem; padding:10px; text-align:center; }
+
+  /* ─── STAGE 3: DRAG & DROP ─── */
+  .habitats-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; max-width: 800px; width: 100%;
+  }
+  .habitat-zone {
+    border: 3px dashed rgba(255,255,255,.25); border-radius: 20px;
+    min-height: 130px; padding: 12px; text-align: center;
+    transition: all .3s; position: relative; display: flex; flex-direction: column;
+    align-items: center; gap: 8px;
+  }
+  .habitat-zone.drag-over { border-color: var(--accent); background: rgba(245,158,11,.1); transform: scale(1.03); }
+  .habitat-zone.correct-drop { border-color: var(--green); background: rgba(16,185,129,.1); }
+  .habitat-label { font-weight: 800; font-size: .85rem; color: var(--accent); }
+  .habitat-emoji { font-size: 2rem; }
+
+  .draggable-animals { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 700px; margin-top: 16px; }
+  .drag-animal {
+    background: rgba(124,58,237,.3); border: 2px solid var(--primary);
+    border-radius: 16px; padding: 10px 16px; cursor: grab; font-size: 1.5rem;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    transition: all .2s; user-select: none;
+  }
+  .drag-animal:hover { transform: scale(1.1) rotate(-3deg); background: rgba(124,58,237,.6); }
+  .drag-animal.dragging { opacity: .5; cursor: grabbing; }
+  .drag-animal span { font-size: .7rem; font-weight: 700; }
+
+  /* ─── STAGE 4: MAGNIFIER ─── */
+  .magnifier-scene {
+    position: relative; width: 500px; max-width: 100%;
+    aspect-ratio: 1.5; border-radius: 24px; overflow: hidden;
+    background: linear-gradient(135deg, #1e3a1e, #2d5a27); cursor: none;
+    border: 3px solid var(--primary);
+  }
+  .hidden-animal {
+    position: absolute; font-size: 2.5rem; opacity: 0;
+    transition: opacity .3s; pointer-events: none; transform: translate(-50%,-50%);
+  }
+  .magnifier {
+    position: absolute; width: 120px; height: 120px; border-radius: 50%;
+    border: 4px solid rgba(255,255,255,.7);
+    box-shadow: 0 0 0 2px rgba(0,0,0,.5), inset 0 0 30px rgba(255,255,255,.15);
+    pointer-events: none; transform: translate(-50%,-50%);
+    background: radial-gradient(circle, rgba(255,255,255,.1) 0%, rgba(100,200,100,.05) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+  }
+  .found-tag {
+    position: absolute; background: var(--green); color: white;
+    padding: 4px 10px; border-radius: 20px; font-size: .75rem; font-weight: 700;
+    transform: translate(-50%, -130%); white-space: nowrap;
+    animation: popIn .3s ease;
+  }
+  @keyframes popIn { from{transform:translate(-50%,-130%) scale(0)} to{transform:translate(-50%,-130%) scale(1)} }
+
+  /* ─── STAGE 5: FOOTPRINTS ─── */
+  .footprints-grid { display: flex; flex-direction: column; gap: 24px; max-width: 600px; width: 100%; }
+  .footprint-row { display: flex; align-items: center; gap: 16px; }
+  .footprint-img { font-size: 2.5rem; filter: drop-shadow(0 0 8px rgba(255,255,255,.3)); }
+  .answer-choices { display: flex; gap: 10px; flex-wrap: wrap; }
+  .choice-btn {
+    background: rgba(124,58,237,.2); border: 2px solid var(--primary);
+    color: white; border-radius: 14px; padding: 10px 16px; cursor: pointer;
+    font-family: 'Nunito',sans-serif; font-weight: 700; font-size: 1.2rem;
+    transition: all .2s;
+  }
+  .choice-btn:hover { background: rgba(124,58,237,.5); transform: scale(1.08); }
+  .choice-btn.correct { background: var(--green); border-color: var(--green); animation: bounce .4s; }
+  .choice-btn.wrong { background: var(--red); border-color: var(--red); animation: shake .4s; }
+  @keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+
+  /* ─── STAGE 6: MYSTERY BOX ─── */
+  .mystery-container { text-align: center; }
+  .mystery-clip {
+    width: 200px; height: 200px; border-radius: 24px; overflow: hidden;
+    margin: 0 auto 24px; border: 4px solid var(--accent);
+    box-shadow: 0 0 40px rgba(245,158,11,.4);
+    position: relative; background: #1a1542;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mystery-clip-inner {
+    font-size: 8rem; filter: blur(0px);
+    clip-path: polygon(30% 0%, 70% 0%, 70% 35%, 100% 35%, 100% 70%, 70% 70%, 70% 100%, 30% 100%, 30% 70%, 0% 70%, 0% 35%, 30% 35%);
+  }
+  .mystery-choices { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; max-width: 360px; margin: 0 auto; }
+  .mystery-choice {
+    background: rgba(124,58,237,.2); border: 2px solid var(--primary);
+    color: white; border-radius: 16px; padding: 14px;
+    cursor: pointer; font-size: 1.8rem; font-family: 'Nunito',sans-serif;
+    transition: all .2s; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .mystery-choice:hover { background: rgba(124,58,237,.5); transform: scale(1.05); }
+  .mystery-choice small { font-size: .75rem; font-weight: 700; }
+
+  /* ─── STAGE 7: SOUND ─── */
+  .sound-stage { text-align: center; }
+  .sound-btn {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--pink));
+    border: none; font-size: 3rem; cursor: pointer;
+    box-shadow: 0 0 30px rgba(124,58,237,.5); margin: 24px auto;
+    display: flex; align-items: center; justify-content: center;
+    animation: soundPulse 2s infinite; transition: all .2s;
+  }
+  .sound-btn:hover { transform: scale(1.1); }
+  .sound-btn.playing { animation: soundPulse .5s infinite; }
+  @keyframes soundPulse { 0%,100%{box-shadow:0 0 20px rgba(124,58,237,.4)} 50%{box-shadow:0 0 50px rgba(124,58,237,.8)} }
+  .sound-choices { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; max-width: 500px; }
+  .sound-choice {
+    background: rgba(124,58,237,.2); border: 2px solid var(--primary);
+    color: white; border-radius: 18px; padding: 14px 20px;
+    cursor: pointer; font-size: 1.6rem; font-weight: 700;
+    font-family: 'Nunito',sans-serif; transition: all .2s;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .sound-choice:hover { background: rgba(124,58,237,.5); transform: scale(1.08); }
+  .sound-choice small { font-size: .75rem; }
+
+  /* ─── STAGE 8: QUIZ ─── */
+  .quiz-question {
+    font-size: 1.15rem; font-weight: 700; text-align: center;
+    margin-bottom: 20px; color: var(--white); line-height: 1.5;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 12px; max-width: 560px; width: 100%; }
+  .quiz-opt {
+    background: rgba(124,58,237,.2); border: 2px solid rgba(124,58,237,.4);
+    color: white; border-radius: 16px; padding: 14px 20px;
+    cursor: pointer; font-family: 'Nunito',sans-serif; font-weight: 700;
+    font-size: 1rem; text-align: left; transition: all .2s;
+  }
+  .quiz-opt:hover { background: rgba(124,58,237,.45); border-color: var(--primary); transform: translateX(6px); }
+  .quiz-opt.correct { background: rgba(16,185,129,.3); border-color: var(--green); }
+  .quiz-opt.wrong { background: rgba(239,68,68,.3); border-color: var(--red); }
+
+  .timer-ring {
+    width: 70px; height: 70px; position: relative; margin: 0 auto 16px;
+  }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .timer-ring-circle {
+    fill: none; stroke: var(--accent); stroke-width: 6;
+    stroke-dasharray: 188; stroke-dashoffset: 0;
+    transition: stroke-dashoffset .1s linear;
+    stroke-linecap: round;
+  }
+  .timer-ring-bg { fill: none; stroke: rgba(255,255,255,.1); stroke-width: 6; }
+  .timer-text {
+    position: absolute; top:50%; left:50%; transform: translate(-50%,-50%);
+    font-weight: 900; font-size: 1.3rem; color: var(--accent);
+  }
+
+  /* ─── STAGE 9: JOURNAL ─── */
+  .journal-wrap { max-width: 560px; width: 100%; }
+  .journal-input {
+    width: 100%; background: rgba(255,255,255,.08); border: 2px solid rgba(124,58,237,.4);
+    border-radius: 16px; padding: 16px; color: white; font-family: 'Nunito',sans-serif;
+    font-size: 1rem; resize: none; height: 180px; outline: none; transition: border .2s;
+  }
+  .journal-input:focus { border-color: var(--primary); }
+  .journal-prompts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .prompt-chip {
+    background: rgba(124,58,237,.25); border: 1px solid var(--primary);
+    border-radius: 20px; padding: 6px 14px; font-size: .8rem; font-weight: 700;
+    cursor: pointer; transition: all .2s;
+  }
+  .prompt-chip:hover { background: rgba(124,58,237,.5); }
+
+  /* ─── STAGE 10: FINAL MISSION ─── */
+  .final-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; max-width: 700px; }
+  .final-zone {
+    border: 3px dashed rgba(255,255,255,.2); border-radius: 20px;
+    min-height: 120px; padding: 10px; display: flex; flex-direction: column;
+    align-items: center; gap: 6px;
+  }
+  .final-zone.complete { border-color: var(--green); background: rgba(16,185,129,.1); }
+  .final-zone-label { font-size: .75rem; font-weight: 800; color: var(--accent); text-align: center; }
+
+  /* ─── NOTIFICATIONS ─── */
+  .notification {
+    position: fixed; top: 80px; right: 20px; z-index: 999;
+    padding: 14px 20px; border-radius: 16px; font-weight: 700;
+    font-size: .95rem; animation: slideIn .4s ease;
+    max-width: 300px; box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  }
+  .notification.success { background: linear-gradient(135deg, var(--green), #059669); }
+  .notification.error { background: linear-gradient(135deg, var(--red), #b91c1c); }
+  .notification.info { background: linear-gradient(135deg, var(--primary), #6d28d9); }
+  @keyframes slideIn { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
+
+  /* ─── CONFETTI ─── */
+  .confetti-piece {
+    position: fixed; width: 12px; height: 12px;
+    pointer-events: none; z-index: 9999;
+    animation: confettiFall 3s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg) scale(.5); opacity: 0; }
+  }
+
+  /* ─── CERTIFICATE ─── */
+  #cert-screen {
+    background: linear-gradient(135deg, #0f0c29, #302b63);
+  }
+  .certificate {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    color: #1f2937; border-radius: 32px; padding: 48px 40px;
+    max-width: 600px; width: 100%; text-align: center;
+    border: 6px solid var(--accent); position: relative; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(245,158,11,.4);
+  }
+  .cert-title { font-family: 'Fredoka One',cursive; font-size: 1.2rem; color: #92400e; margin-bottom: 8px; }
+  .cert-name { font-family: 'Fredoka One',cursive; font-size: 2.2rem; color: var(--primary); margin: 16px 0; }
+  .cert-text { font-size: .95rem; color: #374151; line-height: 1.6; }
+  .cert-medal { font-size: 5rem; margin: 16px 0; animation: medalSpin 3s ease-in-out infinite; }
+  @keyframes medalSpin { 0%,100%{transform:rotate(-5deg) scale(1)} 50%{transform:rotate(5deg) scale(1.1)} }
+  .cert-stars { font-size: 2rem; letter-spacing: 8px; }
+  .cert-seal { 
+    position: absolute; bottom: 24px; right: 24px;
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--pink));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; color: white; font-weight: 900;
+    border: 4px solid white; box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  }
+
+  /* ─── XURSHID PROFESSOR SVG ─── */
+  .lab-scene {
+    display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+    justify-content: center; margin-bottom: 20px;
+  }
+
+  /* ─── HABITAT DROPPED ANIMALS ─── */
+  .dropped-animal { font-size: 1.4rem; }
+
+  /* ─── SCORE POPUP ─── */
+  .score-popup {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-family: 'Fredoka One',cursive; font-size: 3rem; z-index: 9998;
+    pointer-events: none; animation: scoreFloat 1s ease-out forwards;
+  }
+  @keyframes scoreFloat { 0%{opacity:1;transform:translate(-50%,-50%)} 100%{opacity:0;transform:translate(-50%,-120%)} }
+
+  /* ─── RESPONSIVE ─── */
+  @media(max-width:600px) {
+    .habitats-grid { grid-template-columns: repeat(2,1fr); }
+    .final-grid { grid-template-columns: repeat(2,1fr); }
+    .mystery-choices { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- STARS -->
+<div id="stars-bg"></div>
+
+<!-- TOP BAR -->
+<div class="top-bar" id="top-bar" style="display:none;">
+  <div class="stat-badge">⭐ <span id="stars-count">0</span></div>
+  <div class="xp-bar-wrap"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
+  <div class="stat-badge">🏅 <span id="score-count">0</span></div>
+  <div class="stat-badge" id="level-badge">🔬 1-daraja</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 0: INTRO / WELCOME
+═══════════════════════════════════════ -->
+<div class="screen active" id="screen-0">
+  <div class="professor-wrap">
+    <svg class="professor-svg" viewBox="0 0 140 140">
+      <!-- Body -->
+      <circle cx="70" cy="55" r="30" fill="#FBBF24"/>
+      <!-- Lab coat -->
+      <rect x="40" y="82" width="60" height="50" rx="8" fill="white"/>
+      <rect x="38" y="82" width="22" height="50" rx="6" fill="white"/>
+      <rect x="80" y="82" width="22" height="50" rx="6" fill="white"/>
+      <!-- Lapels -->
+      <path d="M60,82 L70,100 L80,82" fill="#e5e7eb"/>
+      <!-- Face -->
+      <circle cx="58" cy="50" r="5" fill="#1f2937"/>
+      <circle cx="82" cy="50" r="5" fill="#1f2937"/>
+      <circle cx="59" cy="49" r="2" fill="white"/>
+      <circle cx="83" cy="49" r="2" fill="white"/>
+      <!-- Glasses -->
+      <rect x="49" y="43" width="14" height="10" rx="5" fill="none" stroke="#374151" stroke-width="2.5"/>
+      <rect x="77" y="43" width="14" height="10" rx="5" fill="none" stroke="#374151" stroke-width="2.5"/>
+      <line x1="63" y1="48" x2="77" y2="48" stroke="#374151" stroke-width="2"/>
+      <!-- Smile -->
+      <path d="M62,62 Q70,70 78,62" fill="none" stroke="#1f2937" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Bow tie -->
+      <path d="M60,82 L70,90 L80,82 L70,88 Z" fill="#7c3aed"/>
+      <!-- Mustache -->
+      <path d="M62,59 Q66,63 70,60 Q74,63 78,59" fill="#92400e" opacity=".7"/>
+      <!-- Hat -->
+      <rect x="45" y="18" width="50" height="12" rx="4" fill="#1f2937"/>
+      <rect x="52" y="6" width="36" height="18" rx="6" fill="#1f2937"/>
+      <circle cx="70" cy="6" r="4" fill="#7c3aed"/>
+      <!-- Flask -->
+      <g transform="translate(105,90)">
+        <rect x="3" y="-5" width="14" height="3" rx="1.5" fill="#9ca3af"/>
+        <path d="M5,0 L5,12 L0,24 L20,24 L15,12 L15,0 Z" fill="#06b6d4" opacity=".7"/>
+        <circle cx="10" cy="20" r="3" fill="#10b981" opacity=".8"/>
+      </g>
+    </svg>
+  </div>
+
+  <h1 class="game-title">🔬 Men Tadqiqotchiman!</h1>
+  <p style="color:var(--text-soft);text-align:center;margin:8px 0 20px;font-size:1.05rem">Hayvonlar Virtual Laboratoriyasi · 4-sinf Tabiiy fan</p>
+
+  <div class="speech-bubble">
+    🎓 Salom, yosh tadqiqotchi! Men Professor Zokirov. Bugun biz hayvonlar dunyosini birgalikda o'rganamiz. Tayyor bo'lsang — kiyik, lab kiyimini ki! 🥼
+  </div>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:12px">
+    <button class="btn btn-primary" onclick="startGame()">🚀 Laboratoriyaga Kir!</button>
+  </div>
+
+  <div style="display:flex;gap:24px;margin-top:32px;flex-wrap:wrap;justify-content:center">
+    <div style="text-align:center;color:var(--text-soft)">
+      <div style="font-size:2rem">🏆</div>
+      <div style="font-size:.8rem;margin-top:4px">10 topshiriq</div>
+    </div>
+    <div style="text-align:center;color:var(--text-soft)">
+      <div style="font-size:2rem">⭐</div>
+      <div style="font-size:.8rem;margin-top:4px">Yulduz yig'</div>
+    </div>
+    <div style="text-align:center;color:var(--text-soft)">
+      <div style="font-size:2rem">📜</div>
+      <div style="font-size:.8rem;margin-top:4px">Sertifikat ol</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 1: OBSERVE ANIMALS
+═══════════════════════════════════════ -->
+<div class="screen" id="screen-1" style="padding-top:80px">
+  <div class="steps-nav" id="steps-nav-1"></div>
+  <h2 class="section-title">🔭 1-topshiriq: Kuzatish</h2>
+  <div class="speech-bubble">
+    Yaxshilab qarang! Har bir kartochkani bosib, hayvon haqida ma'lumot oling. Hammasini ko'rganingizdan keyin davom eting!
+  </div>
+
+  <div class="animals-grid" id="observe-grid"></div>
+
+  <div style="margin-top:24px;text-align:center">
+    <div id="observe-progress" style="color:var(--text-soft);margin-bottom:12px;font-weight:700">0 / 10 ko'rildi</div>
+    <button class="btn btn-green" id="observe-next" style="display:none" onclick="goToScreen(2)">
+      Keyingi bosqich ➡️
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 2: DRAG & DROP HABITATS
+═══════════════════════════════════════ -->
+<div class="screen" id="screen-2" style="padding-top:80px">
+  <div class="steps-nav" id="steps-nav-2"></div>
+  <h2 class="section-title">🏕️ 2-topshiriq: Yashash Muhiti</h2>
+  <div class="speech-bubble">
+    Hayvonlarni to'g'ri yashash muhitiga sudrab tashlang! Birini ko'p joyga joylashtirib bo'lmaydi.
+  </div>
+
+  <div class="habitats-grid" id="habitats-grid"></div>
+
+  <div class="draggable-animals" id="drag-pool"></div>
+
+  <div style="margin-top:20px;text-align:center">
+    <div id="drag-score-msg" style="color:var(--text-soft);font-weight:700;margin-bottom:12px"></div>
+    <button class="btn btn-green" id="drag-next" style="display:none" onclick="goToScreen(3)">
+      Keyingi bosqich ➡️
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 3: MAGNIFIER
+═══════════════════════════════════════ -->
+<div class="screen" id="screen-3" style="padding-top:80px">
+  <div class="steps-nav" id="steps-nav-3"></div>
+  <h2 class="section-title">🔍 3-topshiriq: Lupa bilan Izlash</h2>
+  <div class="speech-bubble">
+    Sichqoncha yoki barmog'ingizni o'tkazar ekan, yashirin hayvonlarni toping! <span id="mag-found-count">0</span>/6 topildi
+  </div>
+
+  <div class="magnifier-scene" id="mag-scene">
+    <div class="magnifier" id="magnifier">🔍</div>
+  </div>
+
+  <div style="margin-top:20px;text-align:center">
+    <button class="btn btn-green" id="mag-next" style="display:none" onclick="goToScreen(4)">
+      Keyingi bosqich ➡️
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 4: FOOTPRINTS
+═══════════════════════════════════════ -->
+<div class="screen" id="screen-4" style="padding-top:80px">
+  <div class="steps-nav" id="steps-nav-4"></div>
+  <h2 class="section-title">👣 4-topshiriq: Izlarni Aniqlash</h2>
+  <div class="speech-bubble">
+    Iz va belgilar ko'rsatilgan. Qaysi hayvonga tegishli ekanini toping!
+  </div>
+  <div class="footprints-grid" id="footprints-grid"></div>
+  <div style="margin-top:20px;text-align:center">
+    <button class="btn btn-green" id="fp-next" style="display:none" onclick="goToScreen(5)">
+      Keyingi bosqich ➡️
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 5: MYSTERY BOX
+═══════════════════════════════════════ -->
+<div class="screen" id="screen-5" style="padding-top:80px">
+  <div class="steps-nav" id="steps-nav-5"></div>
+  <h2 class="section-title">📦 5-topshiriq: Sirli Quti</h2>
+  <div class="speech-bubble" id="mystery-msg">
+    Hayvonning faqat bir qismini ko'ryapsiz! Kim ekanini toping!
+  </div>
+  <div class="mystery-container">
+    <div class="mystery-clip">
+      <div class="mystery-clip-inner" id="mystery-emoji"></div>
+    </div>
+    <div class="mystery-choices" id="mystery-choices"></div>
+  </div>
+  <div style="margin-top:20px;text-align:center">
+    <div id="mystery-counter" style="color:var(--text-soft);font-weight:700;margin-bottom:12px"></div>
+    <button class="btn btn-green" id="mystery-next" style="display:none" onclick="goToScreen(6)">
+      Keyingi bosqich ➡️
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 6: SOUND GUESS
+═══════════════════════════════════════ -->
+<div class="screen" id="screen-6" style="padding-top:80px">
+  <div class="steps-nav" id="steps-nav-6"></div>
+  <h2 class="section-title">🔊 6-topshiriq: Ovozdan Top</h2>
+  <div class="speech-bubble">
+    Tugmani bosib, hayvon ovozini eshiting va to'g'ri hayvonni tanlang!
+  </div>
+  <div class="sound-stage">
+    <button class="sound-btn" id="sound-play-btn" onclick="playAnimalSound()">🔊</button>
+    <div style="color:var(--text-soft);font-weight:700;margin-bottom:16px" id="sound-hint"></div>
+    <div class="sound-choices" id="sound-choices"></div>
+  </div>
+  <div style="margin-top:20px;text-align:center">
+    <div id="sound-counter" style="color:var(--text-soft);font-weight:700;margin-bottom:12px"></div>
+    <button class="btn btn-green" id="sound-next" style="display:none" onclick="goToScreen(7)">
+      Keyingi bosqich ➡️
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 7: QUICK QUIZ
+═══════════════════════════════════════ -->
+<div class="screen" id="screen-7" style="padding-top:80px">
+  <div class="steps-nav" id="steps-nav-7"></div>
+  <h2 class="section-title">⚡ 7-topshiriq: Tezkor Viktorina</h2>
+
+  <div class="timer-ring">
+    <svg width="70" height="70">
+      <circle class="timer-ring-bg" cx="35" cy="35" r="30"/>
+      <circle class="timer-ring-circle" id="timer-circle" cx="35" cy="35" r="30"/>
+    </svg>
+    <div class="timer-text" id="timer-text">30</div>
+  </div>
+
+  <div style="color:var(--text-soft);font-weight:700;margin-bottom:16px;text-align:center">
+    Savol <span id="quiz-q-num">1</span>/10 &nbsp;|&nbsp; Ball: <span id="quiz-score-live">0</span>
+  </div>
+
+  <div class="card quiz-question" id="quiz-question">...</div>
+  <div class="quiz-options" id="quiz-options"></div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 8: JOURNAL
+═══════════════════════════════════════ -->
+<div class="screen" id="screen-8" style="padding-top:80px">
+  <div class="steps-nav" id="steps-nav-8"></div>
+  <h2 class="section-title">📓 8-topshiriq: Tadqiqot Kundaligi</h2>
+  <div class="speech-bubble">
+    Bugun o'rgangan narsalaringizni yozing! Qancha ko'p yozsangiz — shuncha ko'p ball olasiz!
+  </div>
+
+  <div class="journal-wrap card">
+    <div style="color:var(--accent);font-weight:800;margin-bottom:12px">✍️ Fikr va kuzatuvlaringiz:</div>
+    <div class="journal-prompts" id="journal-prompts"></div>
+    <textarea class="journal-input" id="journal-text" placeholder="Bu yerga yozing..."></textarea>
+    <div style="display:flex;justify-content:space-between;margin-top:12px;color:var(--text-soft);font-size:.85rem">
+      <span id="word-count">0 so'z</span>
+      <span>⭐ Ko'p yozsang — ko'p ball!</span>
+    </div>
+  </div>
+
+  <button class="btn btn-green" style="margin-top:20px" onclick="submitJournal()">✅ Kundafikni Saqlash</button>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 9: FINAL MISSION
+═══════════════════════════════════════ -->
+<div class="screen" id="screen-9" style="padding-top:80px">
+  <div class="steps-nav" id="steps-nav-9"></div>
+  <h2 class="section-title">🏁 Yakuniy Missiya!</h2>
+  <div class="speech-bubble">
+    Oxirgi sinov! Barcha hayvonlarni to'g'ri yashash muhitiga joylashtiring!
+  </div>
+
+  <div class="final-grid" id="final-grid"></div>
+  <div class="draggable-animals" id="final-pool" style="margin-top:20px"></div>
+
+  <div style="margin-top:20px;text-align:center">
+    <div id="final-score-msg" style="color:var(--text-soft);font-weight:700;margin-bottom:12px"></div>
+    <button class="btn btn-accent" id="final-submit" onclick="submitFinalMission()">🎯 Missiyani Yakunla!</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 10: CERTIFICATE
+═══════════════════════════════════════ -->
+<div class="screen" id="screen-10" style="padding-top:80px">
+  <div class="certificate">
+    <div class="cert-title">📜 GULISTON DAVLAT PEDAGOGIKA INSTITUTI</div>
+    <div class="cert-title" style="color:#b45309">4-SINF TABIIY FAN LABORATORIYASI</div>
+    <div class="cert-medal">🏅</div>
+    <div style="color:#6b7280;font-size:.9rem">Ushbu sertifikat taqdim etiladi</div>
+    <div class="cert-name" id="cert-student-name">Yosh Tadqiqotchi</div>
+    <div class="cert-text">
+      "Hayvonlar" mavzusidagi barcha 10 ta laboratoriya topshiriqlarini<br>
+      muvaffaqiyatli bajarganingiz uchun<br><br>
+      <strong style="color:#7c3aed">🔬 HAQIQIY TADQIQOTCHI 🔬</strong><br>
+      unvoni berildi!
+    </div>
+    <div class="cert-stars" style="margin-top:16px">⭐⭐⭐</div>
+    <div style="margin-top:12px;color:#6b7280;font-size:.85rem">
+      Yig'ilgan ball: <strong id="cert-total-score">0</strong> &nbsp;|&nbsp;
+      Sana: <strong id="cert-date"></strong>
+    </div>
+    <div class="cert-seal">🔬</div>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;justify-content:center">
+    <button class="btn btn-primary" onclick="printCert()">🖨️ Chop Etish</button>
+    <button class="btn btn-accent" onclick="restartGame()">🔄 Qaytadan O'ynash</button>
+  </div>
+
+  <div style="margin-top:24px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center" id="badges-display"></div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notification" id="notification" style="display:none"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════
+const ANIMALS = [
+  {id:'lion',   emoji:'🦁', name:'Sher',      habitat:'cho\'l',  food:'go\'sht',  fact:'Sherlar 16 soat uxlaydi!'},
+  {id:'wolf',   emoji:'🐺', name:'Bo\'ri',     habitat:'o\'rmon', food:'go\'sht',  fact:'Bo\'rilar to\'da bo\'lib yashaydi.'},
+  {id:'bear',   emoji:'🐻', name:'Ayiq',       habitat:'o\'rmon', food:'aralash',  fact:'Ayiqlar qishda uxlab yotadi.'},
+  {id:'eagle',  emoji:'🦅', name:'Burgut',     habitat:'tog\'',   food:'go\'sht',  fact:'Burgut 3 km dan o\'ljasini ko\'radi!'},
+  {id:'fish',   emoji:'🐟', name:'Baliq',      habitat:'suv',     food:'o\'simlik', fact:'Baliqlar suv ostida nafas oladi.'},
+  {id:'camel',  emoji:'🐪', name:'Tuya',       habitat:'cho\'l',  food:'o\'simlik', fact:'Tuya 2 haftada suv ichmaydi.'},
+  {id:'penguin',emoji:'🐧', name:'Pingvin',    habitat:'muzlik',  food:'baliq',    fact:'Pingvinlar uchib, suzib yuradi!'},
+  {id:'deer',   emoji:'🦌', name:'Bug\'u',     habitat:'o\'rmon', food:'o\'simlik', fact:'Bug\'ular juda tez yuguradi.'},
+  {id:'fox',    emoji:'🦊', name:'Tulki',      habitat:'o\'rmon', food:'aralash',  fact:'Tulkilar juda aqlli hayvon.'},
+  {id:'dolphin',emoji:'🐬', name:'Delfin',     habitat:'suv',     food:'baliq',    fact:'Delfin aql jihatdan eng aqlli.'},
+];
+
+const HABITATS = [
+  {id:'cho\'l',   label:"🏜️ Cho'l",   emoji:'🏜️', color:'#f59e0b'},
+  {id:'o\'rmon',  label:"🌲 O'rmon",   emoji:'🌲', color:'#10b981'},
+  {id:'tog\'',    label:"⛰️ Tog'",     emoji:'⛰️', color:'#6b7280'},
+  {id:'suv',      label:"🌊 Suv",      emoji:'🌊', color:'#06b6d4'},
+  {id:'muzlik',   label:"🧊 Muzlik",   emoji:'🧊', color:'#93c5fd'},
+];
+
+const FOOTPRINTS = [
+  {emoji:'🐾', desc:'Katta do\'mboq izlar — 4 ta to\'mtoq tirnoq', answer:'Ayiq', choices:['Ayiq','Baliq','Pingvin','Sher']},
+  {emoji:'🦶', desc:'Qanotli, uch barmoqli iz — suv qushiday', answer:'Pingvin', choices:['Burgut','Pingvin','Delfin','Tuya']},
+  {emoji:'👣', desc:'Ingichka panjali, kichik iz', answer:'Tulki', choices:['Sher','Tulki','Bo\'ri','Bug\'u']},
+  {emoji:'🐾', desc:'Yirik, dumaloq, tirnoqsiz iz', answer:'Sher', choices:['Sher','Ayiq','Bo\'ri','Tuya']},
+];
+
+const MYSTERY_Q = [
+  {emoji:'🦁', show:'mane', choices:['Sher','Ayiq','Tuya','Burgut']},
+  {emoji:'🐧', show:'klapan',choices:['Delfin','Pingvin','Baliq','Tulki']},
+  {emoji:'🐪', show:'o\'rnak', choices:['Tuya','Sher','Bo\'ri','Bug\'u']},
+  {emoji:'🦅', show:'par', choices:['Burgut','Pingvin','Delfin','Baliq']},
+  {emoji:'🐬', show:'fin', choices:['Baliq','Delfin','Pingvin','Sher']},
+];
+
+const SOUND_Q = [
+  {sound:'ROAR',    hint:'G\'u-g\'u ovoz, cho\'l podshosi...', answer:'Sher',   choices:['Sher','Ayiq','Bo\'ri','Tuya'],  emoji:'🦁'},
+  {sound:'HOWL',    hint:'Tungi uvillash, to\'da ovozi...', answer:'Bo\'ri', choices:['Tulki','Bo\'ri','Ayiq','Sher'],   emoji:'🐺'},
+  {sound:'CLICK',   hint:'Ultratovush signali, dengiz...', answer:'Delfin', choices:['Baliq','Delfin','Pingvin','Tuya'], emoji:'🐬'},
+  {sound:'SCREECH', hint:'Baland, keskin qichqiriq, osmon podshosi...', answer:'Burgut', choices:['Burgut','Pingvin','Tulki','Bo\'ri'], emoji:'🦅'},
+  {sound:'BRAY',    hint:'Qo\'ng\'iroq ovoz, cho\'l kemasi...', answer:'Tuya', choices:['Tuya','Sher','Ayiq','Delfin'], emoji:'🐪'},
+];
+
+const QUIZ_Q = [
+  {q:'Qaysi hayvon qishda uyquga ketadi?',         a:'Ayiq',     opts:['Sher','Ayiq','Tuya','Baliq']},
+  {q:'Eng chuqur sho\'ng\'iy oluvchi hayvon?',     a:'Delfin',   opts:['Baliq','Pingvin','Delfin','Tuya']},
+  {q:'Qaysi hayvon 2 haftada suv ichmaydi?',       a:'Tuya',     opts:['Sher','Tuya','Ayiq','Bo\'ri']},
+  {q:'Bug\'ular qayerda yashaydi?',                 a:'O\'rmon',  opts:['Cho\'l','Muzlik','O\'rmon','Suv']},
+  {q:'Pingvinlar qaysi muhitda yashaydi?',          a:'Muzlik',   opts:['Cho\'l','Suv','O\'rmon','Muzlik']},
+  {q:'Burgut qaysi muhitda yashaydi?',              a:'Tog\'',    opts:['Cho\'l','O\'rmon','Tog\'','Suv']},
+  {q:'Qaysi hayvon to\'da bo\'lib yashaydi?',       a:'Bo\'ri',   opts:['Sher','Bo\'ri','Tulki','Ayiq']},
+  {q:'Baliqlar qanday nafas oladi?',                a:'Jabra',    opts:['O\'pka','Jabra','Teri','Burun']},
+  {q:'Qaysi hayvon umurtqasiz hisoblanadi?',        a:'Baliq emas — barchasi umurtqali', opts:['Sher','Baliq emas — barchasi umurtqali','Delfin','Pingvin']},
+  {q:'Tulkilar qaysi turdagi hayvon?',              a:'Sut emizuvchi', opts:['Qush','Sut emizuvchi','Sudralib yuruvchi','Baliq']},
+];
+
+const JOURNAL_PROMPTS = [
+  'Eng yoqtirgan hayvon...', 'Cho\'lda yashaydigan hayvonlar...', 'Suv hayvonlari...', 'Qiziq fakt...'
+];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let state = {
+  score: 0, stars: 0, xp: 0,
+  observedCount: 0,
+  dragCorrect: 0,
+  magFound: 0,
+  fpCorrect: 0, fpDone: 0,
+  mysteryCorrect: 0, mysteryIdx: 0,
+  soundCorrect: 0, soundIdx: 0,
+  quizScore: 0, quizIdx: 0, quizTimer: null,
+  currentScreen: 0,
+  badges: [],
+};
+
+// ═══════════════════════════════════════════════════════
+//  STARS BACKGROUND
+// ═══════════════════════════════════════════════════════
+(function createStars(){
+  const bg = document.getElementById('stars-bg');
+  for(let i=0;i<60;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    s.style.cssText=`
+      width:${1+Math.random()*3}px; height:${1+Math.random()*3}px;
+      left:${Math.random()*100}%; top:${Math.random()*100}%;
+      animation-delay:${Math.random()*3}s; animation-duration:${2+Math.random()*3}s;
+    `;
+    bg.appendChild(s);
+  }
+})();
+
+// ═══════════════════════════════════════════════════════
+//  AUDIO (Web Audio API)
+// ═══════════════════════════════════════════════════════
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playTone(freq, dur=0.3, type='sine', vol=0.3){
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(vol, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+dur);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime+dur);
+}
+
+function playSuccess(){
+  [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,.3,'sine',.25),i*80));
+}
+
+function playError(){
+  playTone(200,.4,'sawtooth',.2);
+}
+
+function playClick(){
+  playTone(880,.1,'sine',.15);
+}
+
+function playFanfare(){
+  const notes=[523,659,784,1047,1319,1047,784,1047];
+  notes.forEach((f,i)=>setTimeout(()=>playTone(f,.25,'sine',.2),i*100));
+}
+
+function playAnimalSoundEffect(type){
+  switch(type){
+    case 'ROAR': [100,80,120,90].forEach((f,i)=>setTimeout(()=>playTone(f,.3,'sawtooth',.3),i*150)); break;
+    case 'HOWL': [300,400,600,500,300].forEach((f,i)=>setTimeout(()=>playTone(f,.4,'sine',.25),i*200)); break;
+    case 'CLICK': [2000,1500,2000].forEach((f,i)=>setTimeout(()=>playTone(f,.05,'square',.2),i*80)); break;
+    case 'SCREECH': [800,1200,900,1100].forEach((f,i)=>setTimeout(()=>playTone(f,.25,'sawtooth',.2),i*100)); break;
+    case 'BRAY': [200,300,200,250,200].forEach((f,i)=>setTimeout(()=>playTone(f,.35,'sawtooth',.25),i*180)); break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  NOTIFICATIONS & POPUPS
+// ═══════════════════════════════════════════════════════
+let notifTimeout;
+function showNotif(msg, type='info'){
+  const n=document.getElementById('notification');
+  n.textContent=msg; n.className=`notification ${type}`;
+  n.style.display='block';
+  clearTimeout(notifTimeout);
+  notifTimeout=setTimeout(()=>n.style.display='none', 3000);
+}
+
+function showScorePopup(txt){
+  const el=document.createElement('div');
+  el.className='score-popup'; el.textContent=txt;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 1000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════════════════════════
+function launchConfetti(count=60){
+  const colors=['#7c3aed','#f59e0b','#10b981','#ec4899','#06b6d4','#ef4444','#fff'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`
+      left:${Math.random()*100}vw; top:-20px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>.5?'50%':'2px'};
+      animation-delay:${Math.random()*1}s;
+      animation-duration:${2+Math.random()*1.5}s;
+      transform:rotate(${Math.random()*360}deg);
+    `;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),4000);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCORE & XP
+// ═══════════════════════════════════════════════════════
+function addScore(pts){
+  state.score+=pts;
+  document.getElementById('score-count').textContent=state.score;
+  state.xp=Math.min(100,state.xp+pts*2);
+  document.getElementById('xp-bar').style.width=state.xp+'%';
+  if(state.xp>=100){ state.xp=0; addStar(); }
+  showScorePopup(`+${pts} 🏅`);
+}
+
+function addStar(){
+  state.stars++;
+  document.getElementById('stars-count').textContent=state.stars;
+  showNotif('⭐ Yangi yulduz qo\'shildi!','success');
+}
+
+// ═══════════════════════════════════════════════════════
+//  STEPS NAV
+// ═══════════════════════════════════════════════════════
+function buildStepsNav(elId, current){
+  const el=document.getElementById(elId);
+  if(!el) return;
+  const labels=['🔭','🏕️','🔍','👣','📦','🔊','⚡','📓','🏁'];
+  el.innerHTML='';
+  labels.forEach((l,i)=>{
+    const d=document.createElement('div');
+    d.className='step-dot'+(i<current?' done':i===current?' active':'');
+    d.textContent=l;
+    el.appendChild(d);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN NAVIGATION
+// ═══════════════════════════════════════════════════════
+function goToScreen(n){
+  playClick();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`screen-${n}`).classList.add('active');
+  state.currentScreen=n;
+  document.getElementById('top-bar').style.display=n===0?'none':'flex';
+  window.scrollTo(0,0);
+  initScreen(n);
+}
+
+function startGame(){
+  playClick();
+  goToScreen(1);
+}
+
+function initScreen(n){
+  switch(n){
+    case 1: initObserve(); break;
+    case 2: initDrag(); break;
+    case 3: initMagnifier(); break;
+    case 4: initFootprints(); break;
+    case 5: initMystery(); break;
+    case 6: initSound(); break;
+    case 7: initQuiz(); break;
+    case 8: initJournal(); break;
+    case 9: initFinal(); break;
+    case 10: initCertificate(); break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN 1: OBSERVE
+// ═══════════════════════════════════════════════════════
+function initObserve(){
+  buildStepsNav('steps-nav-1',0);
+  const grid=document.getElementById('observe-grid');
+  grid.innerHTML='';
+  state.observedCount=0;
+  document.getElementById('observe-next').style.display='none';
+
+  ANIMALS.forEach((a,i)=>{
+    const wrap=document.createElement('div'); wrap.className='animal-card-3d';
+    wrap.innerHTML=`
+      <div class="animal-card-inner" id="acard-${i}">
+        <div class="animal-face">${a.emoji}<span>${a.name}</span></div>
+        <div class="animal-back">
+          <div style="font-size:1.4rem">${a.emoji}</div>
+          <strong>${a.name}</strong><br>
+          🏠 ${a.habitat}<br>🍽️ ${a.food}<br>
+          <small style="color:#86efac">💡 ${a.fact}</small>
+        </div>
+      </div>`;
+    const inner=wrap.querySelector('.animal-card-inner');
+    let flipped=false;
+    wrap.addEventListener('click',()=>{
+      playClick();
+      flipped=!flipped;
+      inner.style.transform=flipped?'rotateY(180deg)':'';
+      if(!inner.dataset.counted){
+        inner.dataset.counted='1';
+        state.observedCount++;
+        document.getElementById('observe-progress').textContent=`${state.observedCount} / 10 ko'rildi`;
+        addScore(5);
+        if(state.observedCount>=5){
+          document.getElementById('observe-next').style.display='inline-flex';
+        }
+        if(state.observedCount===10){
+          showNotif('🎉 Barcha hayvonlarni ko\'rdingiz!','success');
+          playSuccess();
+          launchConfetti(20);
+        }
+      }
+    });
+    grid.appendChild(wrap);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN 2: DRAG & DROP
+// ═══════════════════════════════════════════════════════
+let dragItem=null;
+
+function initDrag(){
+  buildStepsNav('steps-nav-2',1);
+  state.dragCorrect=0;
+  document.getElementById('drag-next').style.display='none';
+  document.getElementById('drag-score-msg').textContent='';
+  const grid=document.getElementById('habitats-grid');
+  grid.innerHTML='';
+
+  function tryPlaceAnimal(zone, h) {
+    if(!dragItem) return;
+    const animalId=dragItem.dataset.id;
+    const animal=ANIMALS.find(a=>a.id===animalId);
+    if(animal && animal.habitat===h.id){
+      const dropped=document.createElement('div');
+      dropped.className='dropped-animal'; dropped.title=animal.name;
+      dropped.textContent=animal.emoji;
+      zone.appendChild(dropped);
+      dragItem.remove(); dragItem=null;
+      state.dragCorrect++;
+      addScore(15);
+      playSuccess();
+      showNotif(`✅ To'g'ri! ${animal.name} → ${h.label}`,'success');
+      zone.classList.add('correct-drop');
+      if(state.dragCorrect>=ANIMALS.length){
+        document.getElementById('drag-next').style.display='inline-flex';
+        document.getElementById('drag-score-msg').textContent='🏆 Ajoyib! Barcha hayvonlar to\'g\'ri joylashtirildi!';
+        launchConfetti(30); playFanfare();
+      }
+    } else {
+      playError();
+      showNotif(`❌ Noto'g'ri! ${animal?.name||''} bu yerda yashamaydi.`,'error');
+      dragItem?.classList.remove('dragging'); dragItem.style.outline=''; dragItem=null;
+    }
+  }
+
+  HABITATS.forEach(h=>{
+    const zone=document.createElement('div');
+    zone.className='habitat-zone';
+    zone.dataset.habitat=h.id;
+    zone.innerHTML=`<div class="habitat-emoji">${h.emoji}</div><div class="habitat-label">${h.label}</div>`;
+    zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
+    zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+    zone.addEventListener('drop',e=>{
+      e.preventDefault(); zone.classList.remove('drag-over');
+      tryPlaceAnimal(zone, h);
+    });
+    zone.addEventListener('click',()=>tryPlaceAnimal(zone, h));
+    grid.appendChild(zone);
+  });
+
+  const pool=document.getElementById('drag-pool');
+  pool.innerHTML='';
+  ANIMALS.forEach(a=>{
+    const el=document.createElement('div');
+    el.className='drag-animal'; el.draggable=true;
+    el.dataset.id=a.id;
+    el.innerHTML=`${a.emoji}<span>${a.name}</span>`;
+    el.addEventListener('dragstart',()=>{dragItem=el;el.classList.add('dragging');});
+    el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+    el.addEventListener('click',()=>{
+      document.querySelectorAll('.drag-animal').forEach(x=>x.style.outline='');
+      dragItem=el;
+      el.style.outline='3px solid #f59e0b';
+    });
+    // Touch support
+    el.addEventListener('touchstart',()=>{
+      document.querySelectorAll('.drag-animal').forEach(x=>x.style.outline='');
+      dragItem=el; el.classList.add('dragging'); el.style.outline='3px solid #f59e0b';
+    },{passive:true});
+    pool.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN 3: MAGNIFIER
+// ═══════════════════════════════════════════════════════
+function initMagnifier(){
+  buildStepsNav('steps-nav-3',2);
+  state.magFound=0;
+  document.getElementById('mag-found-count').textContent='0';
+  document.getElementById('mag-next').style.display='none';
+
+  const scene=document.getElementById('mag-scene');
+  const magEl=document.getElementById('magnifier');
+
+  // Clear old hidden animals
+  scene.querySelectorAll('.hidden-animal,.found-tag').forEach(e=>e.remove());
+
+  // Place hidden animals
+  const spots=[
+    {x:15,y:20},{x:70,y:60},{x:40,y:75},{x:85,y:25},{x:55,y:40},{x:25,y:65}
+  ];
+  const magAnimals=['🦎','🐛','🦋','🕷️','🦔','🐝'];
+  const foundSet=new Set();
+
+  spots.forEach((pos,i)=>{
+    const el=document.createElement('div');
+    el.className='hidden-animal';
+    el.style.left=pos.x+'%'; el.style.top=pos.y+'%';
+    el.textContent=magAnimals[i];
+    el.id=`hidden-${i}`;
+    scene.appendChild(el);
+  });
+
+  function moveMag(x,y){
+    const rect=scene.getBoundingClientRect();
+    const relX=((x-rect.left)/rect.width*100);
+    const relY=((y-rect.top)/rect.height*100);
+    magEl.style.left=relX+'%';
+    magEl.style.top=relY+'%';
+
+    // Check proximity to hidden animals
+    spots.forEach((pos,i)=>{
+      const dist=Math.hypot(relX-pos.x, relY-pos.y);
+      const hidEl=document.getElementById(`hidden-${i}`);
+      if(dist<12){
+        hidEl.style.opacity='1';
+        if(!foundSet.has(i)){
+          foundSet.add(i);
+          state.magFound++;
+          document.getElementById('mag-found-count').textContent=state.magFound;
+          addScore(10);
+          playSuccess();
+          const tag=document.createElement('div');
+          tag.className='found-tag';
+          tag.textContent='✅ Topildi!';
+          tag.style.left=pos.x+'%'; tag.style.top=pos.y+'%';
+          scene.appendChild(tag);
+          showNotif(`🔍 ${magAnimals[i]} topildi!`,'success');
+          if(state.magFound>=6){
+            document.getElementById('mag-next').style.display='inline-flex';
+            launchConfetti(20);
+          }
+        }
+      } else {
+        hidEl.style.opacity='0';
+      }
+    });
+  }
+
+  scene.addEventListener('mousemove',e=>moveMag(e.clientX,e.clientY));
+  scene.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const t=e.touches[0];
+    moveMag(t.clientX,t.clientY);
+  },{passive:false});
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN 4: FOOTPRINTS
+// ═══════════════════════════════════════════════════════
+function initFootprints(){
+  buildStepsNav('steps-nav-4',3);
+  state.fpCorrect=0; state.fpDone=0;
+  document.getElementById('fp-next').style.display='none';
+  const grid=document.getElementById('footprints-grid');
+  grid.innerHTML='';
+
+  FOOTPRINTS.forEach((fp,fi)=>{
+    const row=document.createElement('div'); row.className='footprint-row';
+    row.innerHTML=`<div class="footprint-img">${fp.emoji} <small style="font-size:.6rem;display:block;color:var(--text-soft)">${fp.desc}</small></div>`;
+    const choices=document.createElement('div'); choices.className='answer-choices';
+
+    fp.choices.forEach(c=>{
+      const btn=document.createElement('button'); btn.className='choice-btn';
+      btn.textContent=c;
+      btn.addEventListener('click',()=>{
+        if(btn.dataset.done) return;
+        row.querySelectorAll('.choice-btn').forEach(b=>b.dataset.done='1');
+        state.fpDone++;
+        if(c===fp.answer){
+          btn.classList.add('correct');
+          state.fpCorrect++;
+          addScore(20);
+          playSuccess();
+          showNotif(`✅ To'g'ri! Bu ${fp.answer} izi!`,'success');
+        } else {
+          btn.classList.add('wrong');
+          row.querySelectorAll('.choice-btn').forEach(b=>{if(b.textContent===fp.answer)b.classList.add('correct');});
+          playError();
+          showNotif(`❌ Noto'g'ri! Bu ${fp.answer} izi edi.`,'error');
+        }
+        if(state.fpDone===FOOTPRINTS.length){
+          document.getElementById('fp-next').style.display='inline-flex';
+          if(state.fpCorrect===FOOTPRINTS.length) launchConfetti(25);
+        }
+      });
+      choices.appendChild(btn);
+    });
+    row.appendChild(choices);
+    grid.appendChild(row);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN 5: MYSTERY BOX
+// ═══════════════════════════════════════════════════════
+let mysteryData=null;
+
+function initMystery(){
+  buildStepsNav('steps-nav-5',4);
+  state.mysteryCorrect=0; state.mysteryIdx=0;
+  document.getElementById('mystery-next').style.display='none';
+  loadMysteryQ();
+}
+
+function loadMysteryQ(){
+  if(state.mysteryIdx>=MYSTERY_Q.length){
+    document.getElementById('mystery-next').style.display='inline-flex';
+    document.getElementById('mystery-counter').textContent=`✅ ${state.mysteryCorrect}/${MYSTERY_Q.length} to'g'ri!`;
+    return;
+  }
+  mysteryData=MYSTERY_Q[state.mysteryIdx];
+  document.getElementById('mystery-emoji').textContent=mysteryData.emoji;
+  document.getElementById('mystery-counter').textContent=`${state.mysteryIdx+1} / ${MYSTERY_Q.length}`;
+  document.getElementById('mystery-msg').textContent=`Hayvonning faqat bir qismini ko'ryapsiz (${mysteryData.show})! Kim ekanini toping!`;
+
+  const ch=document.getElementById('mystery-choices');
+  ch.innerHTML='';
+  mysteryData.choices.forEach(c=>{
+    const a=ANIMALS.find(x=>x.name===c)||{emoji:'❓'};
+    const btn=document.createElement('div'); btn.className='mystery-choice';
+    btn.innerHTML=`${a.emoji}<small>${c}</small>`;
+    btn.addEventListener('click',()=>{
+      if(btn.dataset.done) return;
+      ch.querySelectorAll('.mystery-choice').forEach(b=>b.dataset.done='1');
+      state.mysteryIdx++;
+      const correctAnimal=ANIMALS.find(x=>x.name===mysteryData.choices.find(n=>n===c)||x.emoji===mysteryData.emoji);
+      // Find the answer name matching emoji
+      const ansName=ANIMALS.find(x=>x.emoji===mysteryData.emoji)?.name;
+      if(c===ansName){
+        btn.style.background='rgba(16,185,129,.4)';
+        btn.style.borderColor='var(--green)';
+        state.mysteryCorrect++;
+        addScore(20);
+        playSuccess();
+        showNotif(`✅ To'g'ri! Bu ${ansName}!`,'success');
+      } else {
+        btn.style.background='rgba(239,68,68,.4)';
+        btn.style.borderColor='var(--red)';
+        playError();
+        showNotif(`❌ Noto'g'ri! Bu ${ansName} edi!`,'error');
+      }
+      setTimeout(loadMysteryQ, 1000);
+    });
+    ch.appendChild(btn);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN 6: SOUND
+// ═══════════════════════════════════════════════════════
+let currentSoundQ=null;
+
+function initSound(){
+  buildStepsNav('steps-nav-6',5);
+  state.soundCorrect=0; state.soundIdx=0;
+  document.getElementById('sound-next').style.display='none';
+  loadSoundQ();
+}
+
+function loadSoundQ(){
+  if(state.soundIdx>=SOUND_Q.length){
+    document.getElementById('sound-next').style.display='inline-flex';
+    document.getElementById('sound-counter').textContent=`✅ ${state.soundCorrect}/${SOUND_Q.length} to'g'ri!`;
+    return;
+  }
+  currentSoundQ=SOUND_Q[state.soundIdx];
+  document.getElementById('sound-hint').textContent=`💡 Maslahat: ${currentSoundQ.hint}`;
+  document.getElementById('sound-counter').textContent=`${state.soundIdx+1} / ${SOUND_Q.length}`;
+
+  const ch=document.getElementById('sound-choices');
+  ch.innerHTML='';
+  currentSoundQ.choices.forEach(c=>{
+    const a=ANIMALS.find(x=>x.name===c)||{emoji:'❓'};
+    const btn=document.createElement('div'); btn.className='sound-choice';
+    btn.innerHTML=`${a.emoji}<small>${c}</small>`;
+    btn.addEventListener('click',()=>{
+      if(btn.dataset.done) return;
+      ch.querySelectorAll('.sound-choice').forEach(b=>b.dataset.done='1');
+      state.soundIdx++;
+      if(c===currentSoundQ.answer){
+        btn.style.background='rgba(16,185,129,.4)';
+        state.soundCorrect++;
+        addScore(20);
+        playSuccess();
+        showNotif(`✅ To'g'ri! Bu ${currentSoundQ.answer}!`,'success');
+      } else {
+        btn.style.background='rgba(239,68,68,.4)';
+        playError();
+        showNotif(`❌ Noto'g'ri! Bu ${currentSoundQ.answer} edi!`,'error');
+      }
+      setTimeout(loadSoundQ,1000);
+    });
+    ch.appendChild(btn);
+  });
+}
+
+function playAnimalSound(){
+  if(!currentSoundQ) return;
+  const btn=document.getElementById('sound-play-btn');
+  btn.classList.add('playing');
+  playAnimalSoundEffect(currentSoundQ.sound);
+  setTimeout(()=>btn.classList.remove('playing'),1000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN 7: QUIZ
+// ═══════════════════════════════════════════════════════
+let quizTimer=null;
+let quizTimeLeft=30;
+
+function initQuiz(){
+  buildStepsNav('steps-nav-7',6);
+  state.quizScore=0; state.quizIdx=0;
+  loadQuizQ();
+}
+
+function loadQuizQ(){
+  if(state.quizIdx>=QUIZ_Q.length){
+    clearInterval(quizTimer);
+    addScore(state.quizScore);
+    if(state.quizScore>=200) launchConfetti(40);
+    goToScreen(8);
+    return;
+  }
+  const q=QUIZ_Q[state.quizIdx];
+  document.getElementById('quiz-q-num').textContent=state.quizIdx+1;
+  document.getElementById('quiz-score-live').textContent=state.quizScore;
+  document.getElementById('quiz-question').textContent=q.q;
+  document.getElementById('quiz-question').style.animation='none';
+  void document.getElementById('quiz-question').offsetWidth;
+  document.getElementById('quiz-question').style.animation='fadeIn .3s ease';
+
+  const opts=document.getElementById('quiz-options');
+  opts.innerHTML='';
+  q.opts.forEach(o=>{
+    const btn=document.createElement('button'); btn.className='quiz-opt btn';
+    btn.textContent=o;
+    btn.addEventListener('click',()=>{
+      clearInterval(quizTimer);
+      opts.querySelectorAll('.quiz-opt').forEach(b=>{
+        b.style.pointerEvents='none';
+        if(b.textContent===q.a) b.classList.add('correct');
+      });
+      if(o===q.a){
+        btn.classList.add('correct');
+        state.quizScore+=20+(quizTimeLeft*2);
+        playSuccess();
+        showNotif(`✅ To'g'ri! +${20+quizTimeLeft*2} ball`,'success');
+      } else {
+        btn.classList.add('wrong');
+        playError();
+        showNotif(`❌ Noto'g'ri! To'g'ri: ${q.a}`,'error');
+      }
+      document.getElementById('quiz-score-live').textContent=state.quizScore;
+      state.quizIdx++;
+      setTimeout(loadQuizQ,1500);
+    });
+    opts.appendChild(btn);
+  });
+
+  // Timer
+  quizTimeLeft=30;
+  const circle=document.getElementById('timer-circle');
+  const timerText=document.getElementById('timer-text');
+  clearInterval(quizTimer);
+  circle.style.stroke='var(--accent)';
+
+  quizTimer=setInterval(()=>{
+    quizTimeLeft--;
+    timerText.textContent=quizTimeLeft;
+    circle.style.strokeDashoffset=(188*(1-quizTimeLeft/30));
+    if(quizTimeLeft<=10) circle.style.stroke=`var(--red)`;
+    if(quizTimeLeft<=0){
+      clearInterval(quizTimer);
+      playError();
+      opts.querySelectorAll('.quiz-opt').forEach(b=>{
+        b.style.pointerEvents='none';
+        if(b.textContent===q.a) b.classList.add('correct');
+      });
+      showNotif(`⏰ Vaqt tugadi! To'g'ri: ${q.a}`,'error');
+      state.quizIdx++;
+      setTimeout(loadQuizQ,1500);
+    }
+  },1000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN 8: JOURNAL
+// ═══════════════════════════════════════════════════════
+function initJournal(){
+  buildStepsNav('steps-nav-8',7);
+  const prompts=document.getElementById('journal-prompts');
+  prompts.innerHTML='';
+  JOURNAL_PROMPTS.forEach(p=>{
+    const chip=document.createElement('div'); chip.className='prompt-chip';
+    chip.textContent=p;
+    chip.addEventListener('click',()=>{
+      const ta=document.getElementById('journal-text');
+      ta.value+=(ta.value?'\n':'')+p+' ';
+      ta.focus(); updateWordCount();
+    });
+    prompts.appendChild(chip);
+  });
+
+  document.getElementById('journal-text').addEventListener('input',updateWordCount);
+  document.getElementById('journal-text').value='';
+  document.getElementById('word-count').textContent='0 so\'z';
+}
+
+function updateWordCount(){
+  const words=document.getElementById('journal-text').value.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('word-count').textContent=`${words} so'z`;
+}
+
+function submitJournal(){
+  const words=document.getElementById('journal-text').value.trim().split(/\s+/).filter(Boolean).length;
+  const pts=Math.min(100,words*5);
+  addScore(pts);
+  playSuccess();
+  showNotif(`📓 Kundalik saqlandi! +${pts} ball`,'success');
+  launchConfetti(15);
+  setTimeout(()=>goToScreen(9),1200);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN 9: FINAL MISSION
+// ═══════════════════════════════════════════════════════
+let finalDragItem=null;
+let finalCorrect=0;
+
+function initFinal(){
+  buildStepsNav('steps-nav-9',8);
+  finalCorrect=0;
+  document.getElementById('final-score-msg').textContent='';
+
+  const grid=document.getElementById('final-grid');
+  grid.innerHTML='';
+  HABITATS.forEach(h=>{
+    const zone=document.createElement('div'); zone.className='final-zone';
+    zone.dataset.habitat=h.id;
+    zone.innerHTML=`<div class="final-zone-label">${h.emoji} ${h.label}</div>`;
+    zone.addEventListener('dragover',e=>{e.preventDefault();zone.style.borderColor='var(--accent)';});
+    zone.addEventListener('dragleave',()=>zone.style.borderColor='');
+    zone.addEventListener('drop',e=>{
+      e.preventDefault(); zone.style.borderColor='';
+      if(!finalDragItem) return;
+      const animal=ANIMALS.find(a=>a.id===finalDragItem.dataset.id);
+      if(animal && animal.habitat===h.id){
+        const d=document.createElement('div'); d.className='dropped-animal'; d.title=animal.name;
+        d.textContent=animal.emoji; zone.appendChild(d);
+        finalDragItem.remove(); finalDragItem=null;
+        zone.classList.add('complete');
+        finalCorrect++;
+        addScore(20); playSuccess();
+        showNotif(`✅ ${animal.name} → ${h.label}`,'success');
+      } else {
+        playError();
+        showNotif(`❌ ${animal?.name||''} bu yerda yashamaydi!`,'error');
+        finalDragItem?.classList.remove('dragging'); finalDragItem=null;
+      }
+    });
+    grid.appendChild(zone);
+  });
+
+  const pool=document.getElementById('final-pool');
+  pool.innerHTML='';
+  ANIMALS.forEach(a=>{
+    const el=document.createElement('div'); el.className='drag-animal'; el.draggable=true;
+    el.dataset.id=a.id;
+    el.innerHTML=`${a.emoji}<span>${a.name}</span>`;
+    el.addEventListener('dragstart',()=>{finalDragItem=el;el.classList.add('dragging');});
+    el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+    pool.appendChild(el);
+  });
+}
+
+function submitFinalMission(){
+  playFanfare();
+  launchConfetti(80);
+  state.badges.push('🔬','🏆','⭐','🦁');
+  document.getElementById('level-badge').textContent=`🎓 TADQIQOTCHI`;
+  showNotif('🎉 MISSIYA YAKUNLANDI! Sertifikat tayyorlanmoqda...','success');
+  setTimeout(()=>goToScreen(10),2000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREEN 10: CERTIFICATE
+// ═══════════════════════════════════════════════════════
+function initCertificate(){
+  document.getElementById('cert-total-score').textContent=state.score;
+  const now=new Date();
+  document.getElementById('cert-date').textContent=now.toLocaleDateString('uz-UZ');
+
+  // Badges
+  const bd=document.getElementById('badges-display');
+  bd.innerHTML='';
+  const badges=[
+    {e:'🔬',l:'Tadqiqotchi'},{e:'🏅',l:'Musobaqa g\'olibi'},
+    {e:'⭐',l:'Yulduz oluvchi'},{e:'🦁',l:'Hayvon biluvchi'},
+    {e:'📓',l:'Kundalikchi'},{e:'🏆',l:'Chempion'},
+  ];
+  badges.forEach(b=>{
+    const el=document.createElement('div');
+    el.style.cssText='text-align:center;color:var(--text-soft)';
+    el.innerHTML=`<div style="font-size:2.5rem;background:rgba(124,58,237,.2);border-radius:50%;width:60px;height:60px;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;border:2px solid var(--primary)">${b.e}</div><small style="font-size:.7rem">${b.l}</small>`;
+    bd.appendChild(el);
+  });
+
+  launchConfetti(100);
+  playFanfare();
+}
+
+function printCert(){
+  window.print();
+}
+
+function restartGame(){
+  state={ score:0, stars:0, xp:0, observedCount:0, dragCorrect:0,
+    magFound:0, fpCorrect:0, fpDone:0, mysteryCorrect:0, mysteryIdx:0,
+    soundCorrect:0, soundIdx:0, quizScore:0, quizIdx:0, quizTimer:null,
+    currentScreen:0, badges:[] };
+  document.getElementById('score-count').textContent='0';
+  document.getElementById('stars-count').textContent='0';
+  document.getElementById('xp-bar').style.width='0%';
+  document.getElementById('level-badge').textContent='🔬 1-daraja';
+  goToScreen(0);
+  document.getElementById('top-bar').style.display='none';
+}
+
+// Init
+document.addEventListener('DOMContentLoaded',()=>{
+  // Ensure screen-0 is visible
+  document.getElementById('screen-0').classList.add('active');
+});
+</script>
+</body>
+</html>

@@ -3,5 +3,8 @@
   "description": "Tabiiy fanlarni o'rganish uchun interaktiv ta'lim platformasi. Biologiya, fizika, kimyo va astronomiya olamiga sayohat qiling.",
   "requestFramePermissions": [
     "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]
 }

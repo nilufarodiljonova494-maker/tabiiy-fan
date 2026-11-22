@@ -1,27 +1,35 @@
+export interface TutorOptions {
+  grade?: string;
+  mode?: string;
+}
 
-import { GoogleGenAI } from "@google/genai";
+export interface TutorResult {
+  text: string;
+  error?: string;
+}
 
-// Always initialize the client with process.env.API_KEY directly as per guidelines.
-export const askScienceTutor = async (prompt: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]): Promise<string> => {
-  // Initialize right before call to ensure the latest API key is used.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: [
-        ...history.map(h => ({ role: h.role, parts: h.parts })),
-        { role: 'user', parts: [{ text: prompt }] }
-      ],
-      config: {
-        systemInstruction: "Siz tabiiy fanlar (Biologiya, Fizika, Kimyo, Geografiya) bo'yicha mutaxassis o'qituvchisiz. Savollarga o'zbek tilida, sodda va tushunarli tilda javob bering. Murakkab tushunchalarni o'quvchilar tushunishi uchun misollar bilan tushuntiring.",
-        temperature: 0.7,
-      },
-    });
+export const askScienceTutor = async (
+  prompt: string,
+  history: { role: 'user' | 'model'; parts: { text: string }[] }[],
+  options?: TutorOptions
+): Promise<string> => {
+  const response = await fetch('/api/tutor', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      prompt,
+      history,
+      grade: options?.grade,
+      mode: options?.mode,
+    }),
+  });
 
-    // Access .text property directly (not as a function call).
-    return response.text || "Kechirasiz, javob topilmadi.";
-  } catch (error) {
-    console.error("Gemini API xatosi:", error);
-    return "Tizimda xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.";
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || "AI xizmatiga ulanishda xatolik yuz berdi.");
   }
+
+  return data.text || "Kechirasiz, javob topilmadi.";
 };

@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tabiat Tadqiqotchisi — Hayvonlar Olami</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   TABIAT TADQIQOTCHISI — STIL FAYLI
+   Dizayn: issiq daftar foni + o'rmon yashil/apelsin/ko'k aksentlar
+=================================================================== */
+
+:root {
+  --cream: #FFF8E7;
+  --cream-dark: #FCEFD0;
+  --forest: #2D5F3E;
+  --forest-light: #4A8B5F;
+  --orange: #E8743B;
+  --orange-light: #FFA868;
+  --blue: #3B82C4;
+  --blue-light: #6FB3E0;
+  --gold: #F4C430;
+  --ink: #1A1A2E;
+  --white: #FFFFFF;
+  --red: #E0533D;
+  --green-ok: #3FA34D;
+
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+
+  --shadow-card: 0 10px 30px rgba(45, 95, 62, 0.12), 0 2px 6px rgba(0,0,0,0.04);
+  --shadow-btn: 0 6px 0 rgba(0,0,0,0.12);
+
+  --font-display: "Baloo 2", "Nunito", sans-serif;
+  --font-body: "Nunito", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(244, 196, 48, 0.12) 0%, transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(59, 130, 196, 0.10) 0%, transparent 35%),
+    radial-gradient(circle at 50% 90%, rgba(232, 116, 59, 0.10) 0%, transparent 40%);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  margin: 0;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Fon bezaklari ---------- */
+.bg-decor {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.cloud {
+  position: absolute;
+  font-size: 48px;
+  opacity: 0.5;
+  animation: drift 60s linear infinite;
+}
+.cloud1 { top: 6%; left: -10%; animation-duration: 70s; }
+.cloud2 { top: 16%; left: -20%; animation-duration: 95s; animation-delay: -30s; font-size: 36px; }
+@keyframes drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(130vw); }
+}
+.leaf {
+  position: absolute;
+  font-size: 28px;
+  opacity: 0.35;
+  animation: sway 6s ease-in-out infinite;
+}
+.leaf1 { top: 70%; left: 4%; animation-delay: 0s; }
+.leaf2 { top: 30%; right: 6%; animation-delay: 2s; }
+@keyframes sway {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-15px) rotate(8deg); }
+}
+
+/* ---------- Ovoz tugmasi ---------- */
+.sound-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 200;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--white);
+  font-size: 20px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.15s ease;
+}
+.sound-toggle:hover { transform: scale(1.08); }
+.sound-toggle:active { transform: scale(0.94); }
+
+/* ---------- App container ---------- */
+#app {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  animation: fadeIn 0.45s ease;
+}
+.screen.active { display: flex; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===================== KIRISH EKRANI ===================== */
+#screen-welcome {
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.welcome-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 40px 32px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+.welcome-mascot {
+  font-size: 72px;
+  animation: bounce 2.4s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.game-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--forest);
+  margin-top: 8px;
+}
+.game-subtitle {
+  font-size: 16px;
+  color: #5b5b6e;
+  margin: 8px 0 24px;
+  font-weight: 600;
+}
+.welcome-input {
+  text-align: left;
+  margin-bottom: 20px;
+}
+.welcome-input label {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--forest);
+  margin-bottom: 8px;
+}
+.welcome-input input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 2px solid #E5DCC3;
+  font-size: 16px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  background: var(--cream);
+  color: var(--ink);
+}
+.welcome-input input:focus {
+  outline: none;
+  border-color: var(--orange);
+}
+.welcome-info {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.info-pill {
+  background: var(--cream-dark);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+/* ---------- Tugmalar ---------- */
+.btn-primary, .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 16px;
+  border-radius: var(--radius-md);
+  padding: 16px 28px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  width: 100%;
+}
+.btn-primary {
+  background: var(--orange);
+  color: var(--white);
+  box-shadow: 0 6px 0 #C25A26;
+}
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-primary:active { transform: translateY(3px); box-shadow: 0 2px 0 #C25A26; }
+.btn-primary:disabled {
+  background: #D8D2C0;
+  box-shadow: 0 6px 0 #BEB89F;
+  color: #8b8b7a;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: var(--white);
+  color: var(--forest);
+  border: 2px solid var(--forest-light);
+  box-shadow: 0 6px 0 #c8e0cd;
+}
+.btn-secondary:hover { transform: translateY(-2px); }
+.btn-secondary:active { transform: translateY(3px); box-shadow: 0 2px 0 #c8e0cd; }
+.btn-large { font-size: 18px; padding: 18px 28px; }
+
+/* ===================== TADQIQOT XARITASI (HEADER) ===================== */
+.map-header { margin-bottom: 18px; }
+.map-header.hidden { display: none; }
+
+.map-track {
+  display: flex;
+  align-items: center;
+  background: var(--white);
+  border-radius: 999px;
+  padding: 10px 16px;
+  box-shadow: var(--shadow-card);
+  overflow-x: auto;
+  gap: 4px;
+  scrollbar-width: none;
+}
+.map-track::-webkit-scrollbar { display: none; }
+
+.map-node {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 44px;
+  position: relative;
+}
+.map-node-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  background: #EDEAE0;
+  color: #999;
+  font-weight: 800;
+  transition: all 0.25s ease;
+}
+.map-node.done .map-node-icon {
+  background: var(--green-ok);
+  color: white;
+}
+.map-node.current .map-node-icon {
+  background: var(--orange);
+  color: white;
+  transform: scale(1.18);
+  box-shadow: 0 0 0 4px rgba(232,116,59,0.25);
+}
+.map-node-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #999;
+  white-space: nowrap;
+}
+.map-node.done .map-node-label, .map-node.current .map-node-label { color: var(--forest); }
+.map-connector {
+  width: 14px;
+  height: 3px;
+  background: #EDEAE0;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+.map-connector.done { background: var(--green-ok); }
+
+.header-stats {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.stat-chip {
+  background: var(--white);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-weight: 800;
+  font-size: 13px;
+  box-shadow: var(--shadow-card);
+  color: var(--forest);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ===================== STAGE UMUMIY STILLAR ===================== */
+.stage-screen { padding-bottom: 24px; }
+.stage-intro {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.stage-badge {
+  display: inline-block;
+  background: var(--forest);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.stage-intro h2 {
+  font-size: 24px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.stage-intro p {
+  color: #6b6b7a;
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+}
+
+.task-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 28px 22px;
+  max-width: 620px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+}
+.task-card-wide { max-width: 720px; }
+
+.progress-mini {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #b0a98e;
+  background: var(--cream-dark);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.feedback-box {
+  margin-top: 16px;
+  min-height: 0;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: all 0.3s ease;
+  padding: 0 14px;
+}
+.feedback-box.show {
+  max-height: 200px;
+  opacity: 1;
+  padding: 14px;
+  margin-top: 16px;
+}
+.feedback-box.correct { background: #E4F5E6; color: var(--green-ok); }
+.feedback-box.incorrect { background: #FCE6E1; color: var(--red); }
+
+/* ===================== 1-BOSQICH: Hayvonni tanib ol ===================== */
+.animal-display {
+  font-size: 110px;
+  text-align: center;
+  margin: 12px 0 24px;
+  animation: popIn 0.5s ease;
+}
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.option-btn {
+  background: var(--cream);
+  border: 2px solid #EADFC0;
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  transition: all 0.15s ease;
+}
+.option-btn:hover { border-color: var(--orange); background: #FFF3E8; transform: translateY(-2px); }
+.option-btn:active { transform: translateY(1px); }
+.option-btn.is-correct { background: #DDF3DF; border-color: var(--green-ok); color: var(--green-ok); animation: shake-success 0.4s ease; }
+.option-btn.is-wrong { background: #FBE0DA; border-color: var(--red); color: var(--red); }
+.option-btn.disabled { pointer-events: none; opacity: 0.6; }
+@keyframes shake-success {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* ===================== 2-BOSQICH: Yashash muhiti ===================== */
+.habitat-zone {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+@media (min-width: 480px) {
+  .habitat-zone { grid-template-columns: repeat(3, 1fr); }
+}
+.habitat-box {
+  border: 3px dashed #cfd8c5;
+  border-radius: var(--radius-md);
+  padding: 14px 8px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 13px;
+  min-height: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  background: var(--cream);
+}
+.habitat-box .habitat-emoji { font-size: 28px; }
+.habitat-box.drag-over { border-color: var(--orange); background: #FFF3E8; transform: scale(1.04); }
+.habitat-box.filled-correct { border-style: solid; border-color: var(--green-ok); background: #E4F5E6; }
+
+.animal-pool {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 70px;
+  padding: 12px;
+  background: var(--cream-dark);
+  border-radius: var(--radius-md);
+}
+.drag-animal {
+  font-size: 34px;
+  background: var(--white);
+  border-radius: 14px;
+  padding: 8px 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: transform 0.15s ease;
+  position: relative;
+}
+.drag-animal:active { cursor: grabbing; transform: scale(1.12); z-index: 50; }
+.drag-animal.placed { opacity: 0; pointer-events: none; }
+.drag-animal.shake { animation: shakeNo 0.4s ease; }
+@keyframes shakeNo {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+/* ===================== 3-BOSQICH: Oziqlanish moslashtirish ===================== */
+.match-zone {
+  display: grid;
+  grid-template-columns: 1fr 50px 1fr;
+  gap: 0;
+  position: relative;
+  margin-bottom: 12px;
+}
+.match-col { display: flex; flex-direction: column; gap: 10px; z-index: 2; }
+.match-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+.match-item {
+  background: var(--cream);
+  border: 2px solid #EADFC0;
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.match-item .match-emoji { font-size: 26px; }
+.match-item:hover { border-color: var(--blue); }
+.match-item.selected { border-color: var(--orange); background: #FFF3E8; transform: scale(1.04); }
+.match-item.matched-correct { border-color: var(--green-ok); background: #E4F5E6; cursor: default; }
+.match-item.matched-wrong { border-color: var(--red); background: #FBE0DA; animation: shakeNo 0.4s ease; }
+
+/* ===================== 4-BOSQICH: Izidan top ===================== */
+.track-display {
+  font-size: 90px;
+  text-align: center;
+  margin: 8px 0 20px;
+  filter: grayscale(0.2);
+}
+
+/* ===================== 5-BOSQICH: Ovozidan aniqla ===================== */
+.play-sound-btn {
+  display: block;
+  margin: 8px auto 24px;
+  background: var(--blue);
+  color: white;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 16px 28px;
+  border-radius: 999px;
+  box-shadow: 0 6px 0 #2a638f;
+  transition: transform 0.12s ease;
+}
+.play-sound-btn:hover { transform: translateY(-2px) scale(1.03); }
+.play-sound-btn:active { transform: translateY(2px); }
+.play-sound-btn.playing { animation: pulse-ring 0.6s ease infinite; }
+@keyframes pulse-ring {
+  0% { box-shadow: 0 6px 0 #2a638f, 0 0 0 0 rgba(59,130,196,0.4); }
+  100% { box-shadow: 0 6px 0 #2a638f, 0 0 0 16px rgba(59,130,196,0); }
+}
+
+/* ===================== 6-BOSQICH: To'g'ri/noto'g'ri ===================== */
+.fact-card {
+  background: var(--cream-dark);
+  border-radius: var(--radius-md);
+  padding: 24px 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.fact-emoji { font-size: 56px; margin-bottom: 10px; }
+.fact-text { font-size: 17px; font-weight: 700; color: var(--ink); line-height: 1.5; margin: 0; }
+.tf-buttons { display: flex; gap: 12px; }
+.tf-btn {
+  flex: 1;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 800;
+  transition: all 0.15s ease;
+}
+.tf-true { background: #E4F5E6; color: var(--green-ok); border: 2px solid #b9e4bd; }
+.tf-false { background: #FBE0DA; color: var(--red); border: 2px solid #f3bcae; }
+.tf-btn:hover { transform: translateY(-2px); }
+.tf-btn:disabled { opacity: 0.6; pointer-events: none; }
+
+/* ===================== 7-BOSQICH: Tezkor test ===================== */
+.quiz-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-top: 24px; }
+.timer-box {
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--orange);
+  background: #FFF1E6;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.timer-box.warning { color: var(--red); background: #FBE0DA; animation: blink 0.5s infinite; }
+@keyframes blink { 50% { opacity: 0.5; } }
+.timer-bar-track {
+  height: 8px;
+  background: var(--cream-dark);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.timer-bar-fill {
+  height: 100%;
+  background: var(--orange);
+  border-radius: 999px;
+  transition: width 1s linear, background 0.3s ease;
+}
+.timer-bar-fill.warning { background: var(--red); }
+.quiz-question {
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 18px;
+  color: var(--ink);
+  min-height: 50px;
+}
+
+/* ===================== 8-BOSQICH: Yakuniy missiya ===================== */
+.mission-animal {
+  font-size: 72px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.mission-animal-name {
+  text-align: center;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--forest);
+  margin-bottom: 16px;
+}
+.mission-questions { display: flex; flex-direction: column; gap: 18px; margin-bottom: 20px; }
+.mission-q-block { background: var(--cream); border-radius: var(--radius-md); padding: 14px; }
+.mission-q-text { font-weight: 800; font-size: 14px; margin-bottom: 10px; color: var(--ink); }
+.mission-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mission-opt {
+  background: var(--white);
+  border: 2px solid #EADFC0;
+  border-radius: 12px;
+  padding: 10px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+.mission-opt.selected { border-color: var(--orange); background: #FFF3E8; }
+.mission-opt.correct-final { border-color: var(--green-ok); background: #E4F5E6; color: var(--green-ok); }
+.mission-opt.wrong-final { border-color: var(--red); background: #FBE0DA; color: var(--red); }
+#s8-submitBtn { width: 100%; }
+
+/* ===================== YAKUNIY NATIJA ===================== */
+#screen-result, #screen-cert {
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.result-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 36px 26px;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.result-title { font-size: 26px; color: var(--forest); margin-bottom: 8px; }
+.result-mascot { font-size: 64px; animation: bounce 2.2s ease-in-out infinite; }
+.result-greeting { font-weight: 700; color: #5b5b6e; margin: 8px 0 22px; }
+
+.result-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.result-stat {
+  flex: 1;
+  background: var(--cream);
+  border-radius: var(--radius-md);
+  padding: 14px 6px;
+}
+.result-stat-value { display: block; font-size: 22px; font-weight: 800; color: var(--orange); }
+.result-stat-label { font-size: 11px; font-weight: 700; color: #8a8a99; }
+
+.result-level-box {
+  background: linear-gradient(135deg, #FFF3E8, #FFE9D6);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.result-level-label { font-size: 12px; font-weight: 700; color: #a08660; }
+.result-level-value { font-size: 18px; font-weight: 800; color: var(--orange); margin-top: 2px; }
+
+.result-breakdown {
+  text-align: left;
+  background: var(--cream-dark);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 22px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5b5b6e;
+}
+.result-breakdown div { display: flex; justify-content: space-between; padding: 4px 0; }
+
+.result-buttons { display: flex; flex-direction: column; gap: 10px; }
+
+.result-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  font-size: 18px;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  to { transform: translateY(420px) rotate(360deg); opacity: 0; }
+}
+
+/* ===================== SERTIFIKAT ===================== */
+.cert-wrapper { max-width: 600px; width: 100%; }
+.certificate {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 10px;
+  margin-bottom: 18px;
+}
+.cert-border {
+  border: 4px solid var(--gold);
+  border-radius: 20px;
+  padding: 36px 26px;
+  text-align: center;
+  background:
+    repeating-linear-gradient(45deg, rgba(244,196,48,0.04) 0 12px, transparent 12px 24px),
+    var(--cream);
+}
+.cert-ribbon { font-size: 48px; margin-bottom: 6px; }
+.cert-heading { font-size: 22px; color: var(--forest); margin-bottom: 14px; }
+.cert-sub { font-size: 13px; color: #8a8a99; font-weight: 700; margin: 0 0 6px; }
+.cert-name {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--orange);
+  border-bottom: 2px solid var(--gold);
+  display: inline-block;
+  padding: 0 12px 6px;
+  margin-bottom: 14px;
+}
+.cert-text { font-size: 13px; color: #5b5b6e; font-weight: 600; margin-bottom: 16px; }
+.cert-details { display: flex; justify-content: space-around; font-size: 14px; color: var(--forest); margin-bottom: 12px; }
+.cert-date { font-size: 12px; color: #a8a8b8; margin-bottom: 14px; }
+.cert-seal { font-weight: 800; color: var(--forest); font-size: 13px; }
+.cert-buttons { display: flex; gap: 10px; }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 480px) {
+  .welcome-card { padding: 30px 22px; }
+  .game-title { font-size: 26px; }
+  .task-card { padding: 22px 16px; }
+  .animal-display { font-size: 80px; }
+  .options-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .option-btn { font-size: 14px; padding: 14px 8px; }
+  .match-zone { grid-template-columns: 1fr 30px 1fr; }
+  .stage-intro h2 { font-size: 20px; }
+}
+
+@media print {
+  body * { visibility: hidden; }
+  .cert-wrapper, .cert-wrapper * { visibility: visible; }
+  .cert-buttons { display: none !important; }
+  .cert-wrapper { position: absolute; top: 0; left: 0; width: 100%; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ============ OVOZ BOSHQARUVI ============ -->
+<button id="soundToggle" class="sound-toggle" aria-label="Ovozni yoqish/o'chirish">🔊</button>
+
+<!-- ============ FON BEZAKLARI ============ -->
+<div class="bg-decor" aria-hidden="true">
+  <div class="cloud cloud1">☁️</div>
+  <div class="cloud cloud2">☁️</div>
+  <div class="leaf leaf1">🍃</div>
+  <div class="leaf leaf2">🍃</div>
+</div>
+
+<div id="app">
+
+  <!-- ============ 0. KIRISH EKRANI ============ -->
+  <section id="screen-welcome" class="screen active">
+    <div class="welcome-card">
+      <div class="welcome-mascot">🦉</div>
+      <h1 class="game-title">Tabiat Tadqiqotchisi</h1>
+      <p class="game-subtitle">Hayvonlar olamiga sayohatga tayyormisiz?</p>
+
+      <div class="welcome-input">
+        <label for="playerName">Ismingizni kiriting, tadqiqotchi:</label>
+        <input type="text" id="playerName" placeholder="Masalan: Amir" maxlength="20">
+      </div>
+
+      <button id="startBtn" class="btn-primary btn-large">
+        <span>🚀 Sayohatni boshlash</span>
+      </button>
+
+      <div class="welcome-info">
+        <div class="info-pill">🎯 8 bosqich</div>
+        <div class="info-pill">⭐ Yulduzlar</div>
+        <div class="info-pill">🏆 Sertifikat</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TADQIQOT XARITASI (Progress) ============ -->
+  <header id="mapHeader" class="map-header hidden">
+    <div class="map-track" id="mapTrack"></div>
+    <div class="header-stats">
+      <div class="stat-chip" id="starsChip">⭐ <span id="starsCount">0</span></div>
+      <div class="stat-chip" id="scoreChip">🎯 <span id="scoreCount">0</span></div>
+      <div class="stat-chip" id="levelChip">🌱 Boshlovchi</div>
+    </div>
+  </header>
+
+  <!-- ============ 1-BOSQICH: Hayvonni tanib ol ============ -->
+  <section id="screen-1" class="screen stage-screen">
+    <div class="stage-intro">
+      <div class="stage-badge">1-BOSQICH</div>
+      <h2>🔍 Hayvonni tanib ol</h2>
+      <p>Rasmdagi hayvonning nomini to'g'ri tanla!</p>
+    </div>
+    <div class="task-card">
+      <div class="progress-mini"><span id="s1-progress">1 / 8</span></div>
+      <div class="animal-display" id="s1-animalDisplay">🐘</div>
+      <div class="options-grid" id="s1-options"></div>
+      <div class="feedback-box" id="s1-feedback"></div>
+    </div>
+  </section>
+
+  <!-- ============ 2-BOSQICH: Yashash muhitini top ============ -->
+  <section id="screen-2" class="screen stage-screen">
+    <div class="stage-intro">
+      <div class="stage-badge">2-BOSQICH</div>
+      <h2>🏞️ Yashash muhitini top</h2>
+      <p>Hayvonni unga mos muhitga olib bor (sudrab tashla yoki bosib tanla)!</p>
+    </div>
+    <div class="task-card">
+      <div class="progress-mini"><span id="s2-progress">1 / 5</span></div>
+      <div class="habitat-zone" id="s2-zones"></div>
+      <div class="animal-pool" id="s2-animalPool"></div>
+      <div class="feedback-box" id="s2-feedback"></div>
+    </div>
+  </section>
+
+  <!-- ============ 3-BOSQICH: Kim nima bilan oziqlanadi ============ -->
+  <section id="screen-3" class="screen stage-screen">
+    <div class="stage-intro">
+      <div class="stage-badge">3-BOSQICH</div>
+      <h2>🍽️ Kim nima bilan oziqlanadi?</h2>
+      <p>Hayvonni mos oziq-ovqati bilan bog'la!</p>
+    </div>
+    <div class="task-card">
+      <div class="progress-mini"><span id="s3-progress">1 / 5</span></div>
+      <div class="match-zone">
+        <div class="match-col" id="s3-animals"></div>
+        <svg id="s3-lines" class="match-lines"></svg>
+        <div class="match-col" id="s3-foods"></div>
+      </div>
+      <div class="feedback-box" id="s3-feedback"></div>
+    </div>
+  </section>
+
+  <!-- ============ 4-BOSQICH: Izidan top ============ -->
+  <section id="screen-4" class="screen stage-screen">
+    <div class="stage-intro">
+      <div class="stage-badge">4-BOSQICH</div>
+      <h2>🐾 Izidan top</h2>
+      <p>Bu iz qaysi hayvonga tegishli ekanini top!</p>
+    </div>
+    <div class="task-card">
+      <div class="progress-mini"><span id="s4-progress">1 / 5</span></div>
+      <div class="track-display" id="s4-trackDisplay">🐾</div>
+      <div class="options-grid" id="s4-options"></div>
+      <div class="feedback-box" id="s4-feedback"></div>
+    </div>
+  </section>
+
+  <!-- ============ 5-BOSQICH: Ovozidan aniqla ============ -->
+  <section id="screen-5" class="screen stage-screen">
+    <div class="stage-intro">
+      <div class="stage-badge">5-BOSQICH</div>
+      <h2>🔊 Ovozidan aniqla</h2>
+      <p>Tugmani bos, ovozni eshit va mos hayvonni top!</p>
+    </div>
+    <div class="task-card">
+      <div class="progress-mini"><span id="s5-progress">1 / 5</span></div>
+      <button class="play-sound-btn" id="s5-playBtn">🔊 Ovozni eshitish</button>
+      <div class="options-grid" id="s5-options"></div>
+      <div class="feedback-box" id="s5-feedback"></div>
+    </div>
+  </section>
+
+  <!-- ============ 6-BOSQICH: To'g'ri yoki noto'g'ri ============ -->
+  <section id="screen-6" class="screen stage-screen">
+    <div class="stage-intro">
+      <div class="stage-badge">6-BOSQICH</div>
+      <h2>✅❌ To'g'ri yoki noto'g'ri</h2>
+      <p>Fakt haqiqatga to'g'ri keladimi?</p>
+    </div>
+    <div class="task-card">
+      <div class="progress-mini"><span id="s6-progress">1 / 6</span></div>
+      <div class="fact-card" id="s6-factCard">
+        <div class="fact-emoji" id="s6-emoji">🦒</div>
+        <p class="fact-text" id="s6-text"></p>
+      </div>
+      <div class="tf-buttons">
+        <button class="tf-btn tf-true" id="s6-trueBtn">✅ To'g'ri</button>
+        <button class="tf-btn tf-false" id="s6-falseBtn">❌ Noto'g'ri</button>
+      </div>
+      <div class="feedback-box" id="s6-feedback"></div>
+    </div>
+  </section>
+
+  <!-- ============ 7-BOSQICH: Tezkor test ============ -->
+  <section id="screen-7" class="screen stage-screen">
+    <div class="stage-intro">
+      <div class="stage-badge">7-BOSQICH</div>
+      <h2>⚡ Tezkor test</h2>
+      <p>10 ta savol, vaqtga ulguring!</p>
+    </div>
+    <div class="task-card">
+      <div class="quiz-top">
+        <div class="progress-mini"><span id="s7-progress">1 / 10</span></div>
+        <div class="timer-box" id="s7-timer">⏱ 15</div>
+      </div>
+      <div class="timer-bar-track"><div class="timer-bar-fill" id="s7-timerBar"></div></div>
+      <h3 class="quiz-question" id="s7-question"></h3>
+      <div class="options-grid" id="s7-options"></div>
+      <div class="feedback-box" id="s7-feedback"></div>
+    </div>
+  </section>
+
+  <!-- ============ 8-BOSQICH: Yakuniy missiya ============ -->
+  <section id="screen-8" class="screen stage-screen">
+    <div class="stage-intro">
+      <div class="stage-badge">8-BOSQICH · YAKUNIY MISSIYA</div>
+      <h2>🏆 Katta tadqiqot xaritasi</h2>
+      <p>Barcha hayvonlarni to'g'ri joylashtir: muhit, oziq va xususiyat!</p>
+    </div>
+    <div class="task-card task-card-wide">
+      <div class="progress-mini"><span id="s8-progress">1 / 6</span></div>
+      <div class="mission-animal" id="s8-animalDisplay"></div>
+      <div class="mission-questions" id="s8-questions"></div>
+      <button class="btn-primary" id="s8-submitBtn">Tasdiqlash ✓</button>
+      <div class="feedback-box" id="s8-feedback"></div>
+    </div>
+  </section>
+
+  <!-- ============ YAKUNIY NATIJA EKRANI ============ -->
+  <section id="screen-result" class="screen">
+    <div class="result-card">
+      <div class="result-confetti" id="resultConfetti" aria-hidden="true"></div>
+      <h2 class="result-title">🎉 Tadqiqot yakunlandi!</h2>
+      <div class="result-mascot" id="resultMascot">🦉</div>
+      <p class="result-greeting" id="resultGreeting"></p>
+
+      <div class="result-stats">
+        <div class="result-stat">
+          <span class="result-stat-value" id="resultScore">0</span>
+          <span class="result-stat-label">Umumiy ball</span>
+        </div>
+        <div class="result-stat">
+          <span class="result-stat-value" id="resultStars">0 / 36</span>
+          <span class="result-stat-label">Yulduzlar</span>
+        </div>
+        <div class="result-stat">
+          <span class="result-stat-value" id="resultCorrect">0 / 0</span>
+          <span class="result-stat-label">To'g'ri javoblar</span>
+        </div>
+      </div>
+
+      <div class="result-level-box">
+        <div class="result-level-label">Erishilgan daraja:</div>
+        <div class="result-level-value" id="resultLevel">🌱 Boshlovchi tadqiqotchi</div>
+      </div>
+
+      <div class="result-breakdown" id="resultBreakdown"></div>
+
+      <div class="result-buttons">
+        <button class="btn-primary" id="showCertBtn">🏅 Sertifikatni ko'rish</button>
+        <button class="btn-secondary" id="restartBtn">🔄 Qaytadan o'ynash</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SERTIFIKAT ============ -->
+  <section id="screen-cert" class="screen">
+    <div class="cert-wrapper">
+      <div class="certificate" id="certificate">
+        <div class="cert-border">
+          <div class="cert-ribbon">🏆</div>
+          <h3 class="cert-heading">Eng yaxshi tadqiqotchi sertifikati</h3>
+          <p class="cert-sub">Mazkur sertifikat quyidagi tadqiqotchiga topshiriladi:</p>
+          <div class="cert-name" id="certName">Ism</div>
+          <p class="cert-text">"Hayvonlar Olami" tadqiqot dasturini muvaffaqiyatli yakunlagani uchun</p>
+          <div class="cert-details">
+            <div><strong id="certLevel">Daraja</strong></div>
+            <div><strong id="certScore">Ball</strong></div>
+          </div>
+          <div class="cert-date" id="certDate"></div>
+          <div class="cert-seal">🦉 Tabiat Tadqiqotchisi</div>
+        </div>
+      </div>
+      <div class="cert-buttons">
+        <button class="btn-secondary" id="backFromCertBtn">⬅ Orqaga</button>
+        <button class="btn-primary" id="printCertBtn">🖨️ Chop etish / Saqlash</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Ovoz effektlari uchun audio elementlar (Web Audio API orqali generatsiya qilinadi) -->
+<script>
+// ===================================================================
+// OVOZ EFFEKTLARI MODULI — Web Audio API asosida generatsiya qilinadi
+// (Tashqi audio fayllarga ehtiyoj yo'q, offline ishlaydi)
+// ===================================================================
+
+const SoundFX = (() => {
+  let ctx = null;
+  let muted = false;
+
+  function getCtx() {
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (ctx.state === "suspended") ctx.resume();
+    return ctx;
+  }
+
+  function setMuted(val) { muted = val; }
+  function isMuted() { return muted; }
+
+  // Oddiy ohang (tone) chiqarish
+  function tone(freq, duration, type = "sine", startGain = 0.18, delay = 0) {
+    if (muted) return;
+    try {
+      const c = getCtx();
+      const osc = c.createOscillator();
+      const gain = c.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(c.destination);
+      const t0 = c.currentTime + delay;
+      gain.gain.setValueAtTime(startGain, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.02);
+    } catch (e) { /* audio mavjud bo'lmasa, jim o'tkazib yuboramiz */ }
+  }
+
+  function glide(freqStart, freqEnd, duration, type = "sine", gainVal = 0.15, delay = 0) {
+    if (muted) return;
+    try {
+      const c = getCtx();
+      const osc = c.createOscillator();
+      const gain = c.createGain();
+      osc.type = type;
+      const t0 = c.currentTime + delay;
+      osc.frequency.setValueAtTime(freqStart, t0);
+      osc.frequency.exponentialRampToValueAtTime(freqEnd, t0 + duration);
+      osc.connect(gain);
+      gain.connect(c.destination);
+      gain.gain.setValueAtTime(gainVal, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.02);
+    } catch (e) {}
+  }
+
+  function noiseBurst(duration, gainVal = 0.12, delay = 0, filterFreq = 1000) {
+    if (muted) return;
+    try {
+      const c = getCtx();
+      const bufferSize = c.sampleRate * duration;
+      const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = c.createBufferSource();
+      noise.buffer = buffer;
+      const filter = c.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.value = filterFreq;
+      const gain = c.createGain();
+      const t0 = c.currentTime + delay;
+      gain.gain.setValueAtTime(gainVal, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(c.destination);
+      noise.start(t0);
+      noise.stop(t0 + duration + 0.02);
+    } catch (e) {}
+  }
+
+  // ---------- UI effektlari ----------
+  function click() { tone(700, 0.07, "triangle", 0.12); }
+  function select() { tone(520, 0.09, "sine", 0.15); }
+
+  function correct() {
+    tone(523.25, 0.12, "sine", 0.18, 0);     // C5
+    tone(659.25, 0.12, "sine", 0.18, 0.1);   // E5
+    tone(783.99, 0.18, "sine", 0.2, 0.2);    // G5
+  }
+
+  function incorrect() {
+    tone(300, 0.18, "sawtooth", 0.1, 0);
+    tone(220, 0.25, "sawtooth", 0.1, 0.12);
+  }
+
+  function levelUp() {
+    [523.25, 587.33, 659.25, 783.99, 1046.5].forEach((f, i) => {
+      tone(f, 0.15, "triangle", 0.15, i * 0.09);
+    });
+  }
+
+  function stageComplete() {
+    tone(440, 0.12, "sine", 0.18, 0);
+    tone(554.37, 0.12, "sine", 0.18, 0.12);
+    tone(659.25, 0.12, "sine", 0.18, 0.24);
+    tone(880, 0.25, "sine", 0.2, 0.36);
+  }
+
+  function tick() { tone(900, 0.04, "square", 0.06); }
+  function timeWarning() { tone(440, 0.08, "square", 0.1); }
+  function whoosh() { glide(200, 800, 0.3, "sine", 0.08); }
+  function pop() { tone(880, 0.06, "sine", 0.12); }
+  function drop() { glide(600, 150, 0.15, "triangle", 0.12); }
+
+  // ---------- Hayvon ovozlari (sintetik taqlid) ----------
+  function animalSound(key) {
+    if (muted) return;
+    switch (key) {
+      case "lion": // Sherning bo'kirishi
+        glide(110, 70, 0.5, "sawtooth", 0.2);
+        glide(90, 55, 0.6, "sawtooth", 0.15, 0.3);
+        break;
+      case "dog": // Itning hurishi
+        tone(400, 0.1, "square", 0.18, 0);
+        tone(420, 0.1, "square", 0.18, 0.15);
+        tone(400, 0.12, "square", 0.18, 0.3);
+        break;
+      case "cat": // Mushukning miyovlashi
+        glide(500, 800, 0.2, "sine", 0.15, 0);
+        glide(800, 600, 0.25, "sine", 0.12, 0.22);
+        break;
+      case "cow": // Sigirning ma'rashi
+        glide(150, 110, 0.6, "sawtooth", 0.18);
+        break;
+      case "bird": // Qushning sayrashi
+        tone(1800, 0.08, "sine", 0.1, 0);
+        tone(2100, 0.08, "sine", 0.1, 0.1);
+        tone(1900, 0.1, "sine", 0.1, 0.2);
+        tone(2300, 0.06, "sine", 0.08, 0.32);
+        break;
+      default:
+        tone(440, 0.2, "sine", 0.15);
+    }
+  }
+
+  return {
+    setMuted, isMuted, click, select, correct, incorrect,
+    levelUp, stageComplete, tick, timeWarning, whoosh, pop, drop,
+    animalSound,
+  };
+})();
+
+</script>
+<script>
+// ===================================================================
+// TABIAT TADQIQOTCHISI — MA'LUMOTLAR BAZASI
+// 4-sinf Tabiiy fan, "Hayvonlar" mavzusi
+// ===================================================================
+
+const GAME_DATA = {
+
+  // ---------- 1-BOSQICH: Hayvonni tanib ol ----------
+  stage1: [
+    { emoji: "🐘", correct: "Fil", options: ["Fil", "Begemot", "Karkidon", "Bo'ri"] },
+    { emoji: "🦒", correct: "Jirafa", options: ["Tuya", "Jirafa", "Ot", "Bug'u"] },
+    { emoji: "🦁", correct: "Sher", options: ["Yo'lbars", "Sher", "Leopard", "Mushuk"] },
+    { emoji: "🐅", correct: "Yo'lbars", options: ["Sher", "Leopard", "Yo'lbars", "Gepard"] },
+    { emoji: "🐧", correct: "Pingvin", options: ["O'rdak", "G'oz", "Pingvin", "Laylak"] },
+    { emoji: "🦊", correct: "Tulki", options: ["Bo'ri", "Tulki", "It", "Mushuk"] },
+    { emoji: "🐺", correct: "Bo'ri", options: ["Tulki", "It", "Bo'ri", "Shoqol"] },
+    { emoji: "🦅", correct: "Burgut", options: ["Burgut", "Tovus", "Boyo'g'li", "Qarg'a"] },
+    { emoji: "🐢", correct: "Toshbaqa", options: ["Kalamush", "Toshbaqa", "Timsoh", "Kaltakesak"] },
+    { emoji: "🦌", correct: "Bug'u", options: ["Echki", "Qo'y", "Bug'u", "Ot"] },
+  ],
+
+  // ---------- 2-BOSQICH: Yashash muhitini top ----------
+  habitats: ["O'rmon", "Cho'l", "Tog'", "Suv", "Dasht"],
+  stage2: [
+    { emoji: "🐅", name: "Yo'lbars", habitat: "O'rmon" },
+    { emoji: "🐫", name: "Tuya", habitat: "Cho'l" },
+    { emoji: "🐐", name: "Tog' echkisi", habitat: "Tog'" },
+    { emoji: "🐬", name: "Delfin", habitat: "Suv" },
+    { emoji: "🐎", name: "Yovvoyi ot", habitat: "Dasht" },
+    { emoji: "🦍", name: "Gorilla", habitat: "O'rmon" },
+    { emoji: "🦂", name: "Chayon", habitat: "Cho'l" },
+    { emoji: "🦅", name: "Tog' burguti", habitat: "Tog'" },
+    { emoji: "🐠", name: "Baliq", habitat: "Suv" },
+    { emoji: "🦬", name: "Bizon", habitat: "Dasht" },
+  ],
+
+  // ---------- 3-BOSQICH: Kim nima bilan oziqlanadi ----------
+  stage3: [
+    { emoji: "🐰", name: "Quyon", food: "🥕", foodName: "Sabzi" },
+    { emoji: "🐻", name: "Ayiq", food: "🍯", foodName: "Asal" },
+    { emoji: "🐼", name: "Panda", food: "🎋", foodName: "Bambuk" },
+    { emoji: "🦁", name: "Sher", food: "🥩", foodName: "Go'sht" },
+    { emoji: "🐿️", name: "Olmaxon", food: "🌰", foodName: "Yong'oq" },
+  ],
+
+  // ---------- 4-BOSQICH: Izidan top ----------
+  stage4: [
+    { track: "🐾", correct: "Bo'ri", emoji: "🐺", options: ["Mushuk", "Bo'ri", "Quyon", "Ot"] },
+    { track: "🐾", correct: "Ayiq", emoji: "🐻", options: ["Ayiq", "Bug'u", "Tulki", "Echki"] },
+    { track: "🐾", correct: "Ot", emoji: "🐎", options: ["Sigir", "Ot", "Eshak", "Tuya"] },
+    { track: "🐾", correct: "Tovuq", emoji: "🐔", options: ["O'rdak", "G'oz", "Tovuq", "Tovus"] },
+    { track: "🐾", correct: "Mushuk", emoji: "🐱", options: ["Mushuk", "It", "Sher", "Quyon"] },
+  ],
+
+  // ---------- 5-BOSQICH: Ovozidan aniqla ----------
+  stage5: [
+    { soundKey: "lion", correct: "Sher", emoji: "🦁", options: ["Sher", "Mushuk", "It", "Bo'ri"] },
+    { soundKey: "dog", correct: "It", emoji: "🐶", options: ["Bo'ri", "It", "Tulki", "Shoqol"] },
+    { soundKey: "cat", correct: "Mushuk", emoji: "🐱", options: ["Mushuk", "Sher", "Yo'lbars", "Quyon"] },
+    { soundKey: "cow", correct: "Sigir", emoji: "🐮", options: ["Ot", "Echki", "Sigir", "Qo'y"] },
+    { soundKey: "bird", correct: "Qush", emoji: "🐦", options: ["Qush", "Baliq", "Ilon", "Toshbaqa"] },
+  ],
+
+  // ---------- 6-BOSQICH: To'g'ri yoki noto'g'ri ----------
+  stage6: [
+    { emoji: "🦒", text: "Jirafa dunyodagi eng baland hayvon hisoblanadi.", answer: true,
+      explain: "To'g'ri! Jirafaning bo'yi 5-6 metrgacha yetadi." },
+    { emoji: "🐧", text: "Pingvinlar uchishni biladigan qushlardir.", answer: false,
+      explain: "Noto'g'ri. Pingvinlar ucha olmaydi, lekin a'lo suzuvchilardir." },
+    { emoji: "🦇", text: "Ko'rshapalak — bu qushlar turkumiga kiradi.", answer: false,
+      explain: "Noto'g'ri. Ko'rshapalak sutemizuvchi hayvon, u qush emas." },
+    { emoji: "🐫", text: "Tuya o'rkachida suv saqlaydi.", answer: false,
+      explain: "Noto'g'ri. Tuya o'rkachida suv emas, yog' moddasi to'planadi." },
+    { emoji: "🦉", text: "Boyo'g'li kechasi yaxshi ko'radigan hayvondir.", answer: true,
+      explain: "To'g'ri! Boyo'g'li tunda ovga chiqadi va juda yaxshi ko'radi." },
+    { emoji: "🐢", text: "Toshbaqa eng tez yuguruvchi hayvonlardan biridir.", answer: false,
+      explain: "Noto'g'ri. Toshbaqa, aksincha, juda sekin harakatlanadi." },
+  ],
+
+  // ---------- 7-BOSQICH: Tezkor test (10 savol) ----------
+  stage7: [
+    { q: "Qaysi hayvon 'changalzorlar shohi' deb ataladi?", options: ["Yo'lbars", "Sher", "Fil", "Leopard"], correct: "Sher" },
+    { q: "Quyidagilardan qaysi biri sutemizuvchi emas?", options: ["Delfin", "Sher", "Baliq", "Tulki"], correct: "Baliq" },
+    { q: "Tuya qaysi muhitda yashaydi?", options: ["O'rmon", "Cho'l", "Suv", "Tog'"], correct: "Cho'l" },
+    { q: "Qaysi hayvon tuxum qo'yadi va sut bilan boqadi?", options: ["Echidna", "Sigir", "Mushuk", "Quyon"], correct: "Echidna" },
+    { q: "Ayiqlar qishda nima qiladi?", options: ["Ko'chib ketadi", "Uxlab qoladi (qish uyqusi)", "Ovqatlanmaydi", "Uchib ketadi"], correct: "Uxlab qoladi (qish uyqusi)" },
+    { q: "Qaysi hayvon o'simlik bilan ham, go'sht bilan ham oziqlanadi?", options: ["Sher", "Ayiq", "Quyon", "Sigir"], correct: "Ayiq" },
+    { q: "Dunyodagi eng katta quruqlik hayvoni qaysi?", options: ["Jirafa", "Fil", "Begemot", "Buqa"], correct: "Fil" },
+    { q: "Qaysi hayvon o'z rangini atrofga moslab o'zgartira oladi?", options: ["Buqalamun", "Toshbaqa", "Quyon", "Sigir"], correct: "Buqalamun" },
+    { q: "Pingvinlar qaysi qit'ada ko'p yashaydi?", options: ["Afrika", "Antarktida", "Osiyo", "Yevropa"], correct: "Antarktida" },
+    { q: "Qush bolalarini boqish uchun nima qiladi?", options: ["Em qidirib topib beradi", "Hech narsa qilmaydi", "Boshqa qushga beradi", "Faqat suv beradi"], correct: "Em qidirib topib beradi" },
+  ],
+
+  // ---------- 8-BOSQICH: Yakuniy missiya ----------
+  stage8: [
+    {
+      emoji: "🦁", name: "Sher",
+      habitat: { q: "Sher qayerda yashaydi?", options: ["O'rmon", "Dasht", "Tog'", "Suv"], correct: "Dasht" },
+      food: { q: "Sher nima yeydi?", options: ["O'simlik", "Go'sht", "Baliq", "Meva"], correct: "Go'sht" },
+      trait: { q: "Sherning asosiy xususiyati?", options: ["Uchadi", "Kuchli va yirtqich", "Suvda yashaydi", "Mayda hayvon"], correct: "Kuchli va yirtqich" },
+    },
+    {
+      emoji: "🐧", name: "Pingvin",
+      habitat: { q: "Pingvin qayerda yashaydi?", options: ["Cho'l", "Tog'", "Sovuq qutb mintaqasi", "O'rmon"], correct: "Sovuq qutb mintaqasi" },
+      food: { q: "Pingvin nima yeydi?", options: ["Baliq", "Meva", "Yong'oq", "Asal"], correct: "Baliq" },
+      trait: { q: "Pingvinning xususiyati?", options: ["Uchadi", "Ucha olmaydi, a'lo suzadi", "Dasht hayvoni", "Yirtqich"], correct: "Ucha olmaydi, a'lo suzadi" },
+    },
+    {
+      emoji: "🐫", name: "Tuya",
+      habitat: { q: "Tuya qayerda yashaydi?", options: ["Cho'l", "O'rmon", "Suv", "Tog'"], correct: "Cho'l" },
+      food: { q: "Tuya nima yeydi?", options: ["Go'sht", "Baliq", "O'simlik (tikanli)", "Hasharot"], correct: "O'simlik (tikanli)" },
+      trait: { q: "Tuyaning xususiyati?", options: ["Suvsiz uzoq yashay oladi", "Suvda suzadi", "Tez uchadi", "Kichik hayvon"], correct: "Suvsiz uzoq yashay oladi" },
+    },
+    {
+      emoji: "🐻", name: "Ayiq",
+      habitat: { q: "Ayiq qayerda yashaydi?", options: ["O'rmon", "Cho'l", "Suv tubi", "Dasht"], correct: "O'rmon" },
+      food: { q: "Ayiq nima yeydi?", options: ["Faqat go'sht", "Asal, meva, baliq", "Faqat o'simlik", "Faqat hasharot"], correct: "Asal, meva, baliq" },
+      trait: { q: "Ayiqning xususiyati?", options: ["Qishda uxlaydi", "Suvda yashaydi", "Uchadi", "Mayda hayvon"], correct: "Qishda uxlaydi" },
+    },
+    {
+      emoji: "🐬", name: "Delfin",
+      habitat: { q: "Delfin qayerda yashaydi?", options: ["Suv", "Tog'", "Cho'l", "O'rmon"], correct: "Suv" },
+      food: { q: "Delfin nima yeydi?", options: ["O'simlik", "Baliq", "Meva", "Yong'oq"], correct: "Baliq" },
+      trait: { q: "Delfinning xususiyati?", options: ["Sutemizuvchi, aqlli", "Baliq turkumiga kiradi", "Quruqlikda yuradi", "Tuxum qo'yadi"], correct: "Sutemizuvchi, aqlli" },
+    },
+    {
+      emoji: "🦒", name: "Jirafa",
+      habitat: { q: "Jirafa qayerda yashaydi?", options: ["Dasht/savanna", "Tog'", "Suv", "Qutb"], correct: "Dasht/savanna" },
+      food: { q: "Jirafa nima yeydi?", options: ["Go'sht", "Daraxt bargi", "Baliq", "Hasharot"], correct: "Daraxt bargi" },
+      trait: { q: "Jirafaning xususiyati?", options: ["Eng baland hayvon", "Eng kichik hayvon", "Suvda yashaydi", "Uchadi"], correct: "Eng baland hayvon" },
+    },
+  ],
+
+  // ---------- Rag'batlantiruvchi xabarlar ----------
+  praise: [
+    "Ajoyib! 🌟", "Zo'r natija! 🎉", "Sen haqiqiy tadqiqotchisan! 🔬",
+    "Mukammal! 👏", "Davom et, juda yaxshi ketayapsan! 🚀", "Aql bovar qilmaydi! 🤩",
+    "Bunday bo'lishi kerak! 💪", "Sen bilimdonsan! 📚", "Hayratlanarli! ✨"
+  ],
+  encourage: [
+    "Hech qisi yo'q, yana urinib ko'r! 💡", "Bu safar boshqacha javob bilan sinab ko'r! 🤔",
+    "Sen uddalaysan, davom et! 🌱", "Xato — bu o'rganishning bir qismi! 📖",
+    "Yaqin qoldi, qaytadan urin! 🔄"
+  ],
+};
+
+// ---------- Daraja tizimi (umumiy ball foizi bo'yicha) ----------
+const LEVELS = [
+  { min: 0,   name: "🌱 Boshlovchi tadqiqotchi" },
+  { min: 40,  name: "🔍 Yosh tadqiqotchi" },
+  { min: 70,  name: "🧭 Tajribali tadqiqotchi" },
+  { min: 90,  name: "🏆 Ustoz tadqiqotchi" },
+];
+
+// ---------- Ovozli yo'riqnomalar matni ----------
+const VOICE_GUIDE = {
+  welcome: "Assalomu alaykum, kichik tadqiqotchi! Hayvonlar olamiga sayohatga tayyor bo'lsang, ismingni yoz va sayohatni boshla tugmasini bos.",
+  stage1: "Ekrandagi hayvonni diqqat bilan ko'rib chiq va uning to'g'ri nomini tanla.",
+  stage2: "Har bir hayvonni o'ziga mos yashash muhitiga olib bor.",
+  stage3: "Hayvonni u yeydigan oziq-ovqat bilan bog'la.",
+  stage4: "Bu izlar qaysi hayvonga tegishli? Diqqat bilan tanla.",
+  stage5: "Tugmani bosib ovozni eshit, so'ngra mos hayvonni top.",
+  stage6: "Fakt haqiqatga to'g'ri keladimi yoki yo'qmi, hal qil.",
+  stage7: "Vaqt boryapti! Tez va aniq javob ber.",
+  stage8: "Endi har bir hayvon haqida bilganlaringni jamlab, to'g'ri javoblarni belgila.",
+  result: "Tabriklaymiz! Sayohat yakunlandi. Natijalaringni ko'rib chiq."
+};
+
+</script>
+<script>
+// ===================================================================
+// TABIAT TADQIQOTCHISI — O'YIN LOGIKASI
+// ===================================================================
+
+const STAGE_NAMES = [
+  "", "Tanib ol", "Muhit", "Oziqlanish", "Izlar", "Ovoz", "T/N", "Test", "Missiya"
+];
+const STAGE_TOTAL = 8;
+
+const State = {
+  playerName: "Tadqiqotchi",
+  score: 0,
+  stars: 0,
+  maxStars: 0,
+  currentStage: 0,
+  correctCount: 0,
+  totalCount: 0,
+  stageResults: [], // {stage, correct, total, stars}
+};
+
+// ---------- Yordamchi funksiyalar ----------
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function randomPraise() {
+  return pickRandom(GAME_DATA.praise);
+}
+
+function randomEncourage() {
+  return pickRandom(GAME_DATA.encourage);
+}
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const el = document.getElementById(id);
+  if (el) el.classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function showFeedback(boxEl, isCorrect, message) {
+  boxEl.textContent = message;
+  boxEl.classList.remove("correct", "incorrect", "show");
+  void boxEl.offsetWidth; // reflow trigger qayta animatsiya uchun
+  boxEl.classList.add(isCorrect ? "correct" : "incorrect", "show");
+}
+
+function hideFeedback(boxEl) {
+  boxEl.classList.remove("show");
+}
+
+function addScore(points, isCorrect) {
+  State.totalCount++;
+  if (isCorrect) {
+    State.score += points;
+    State.correctCount++;
+    State.stars++;
+  }
+  updateHeaderStats();
+}
+
+function updateHeaderStats() {
+  document.getElementById("starsCount").textContent = State.stars;
+  document.getElementById("scoreCount").textContent = State.score;
+  const levelChip = document.getElementById("levelChip");
+  const pct = State.maxStars > 0 ? Math.round((State.stars / State.maxStars) * 100) : 0;
+  const level = getLevelByPct(pct);
+  levelChip.textContent = level.name;
+}
+
+function getLevelByPct(pct) {
+  let result = LEVELS[0];
+  for (const lvl of LEVELS) {
+    if (pct >= lvl.min) result = lvl;
+  }
+  return result;
+}
+
+// ---------- Tadqiqot xaritasi (progress header) ----------
+function buildMapTrack() {
+  const track = document.getElementById("mapTrack");
+  track.innerHTML = "";
+  const icons = ["🔍", "🏞️", "🍽️", "🐾", "🔊", "✅", "⚡", "🏆"];
+  for (let i = 1; i <= STAGE_TOTAL; i++) {
+    if (i > 1) {
+      const conn = document.createElement("div");
+      conn.className = "map-connector" + (i - 1 < State.currentStage ? " done" : "");
+      track.appendChild(conn);
+    }
+    const node = document.createElement("div");
+    let cls = "map-node";
+    if (i < State.currentStage) cls += " done";
+    else if (i === State.currentStage) cls += " current";
+    node.className = cls;
+    node.innerHTML = `<div class="map-node-icon">${i < State.currentStage ? "✓" : icons[i - 1]}</div>
+                       <div class="map-node-label">${i}</div>`;
+    track.appendChild(node);
+  }
+}
+
+function goToStage(n) {
+  State.currentStage = n;
+  buildMapTrack();
+  document.getElementById("mapHeader").classList.remove("hidden");
+  SoundFX.whoosh();
+  showScreen("screen-" + n);
+  const initFns = {
+    1: initStage1, 2: initStage2, 3: initStage3, 4: initStage4,
+    5: initStage5, 6: initStage6, 7: initStage7, 8: initStage8,
+  };
+  if (initFns[n]) initFns[n]();
+}
+
+function finishStage(stageNum, correct, total) {
+  State.stageResults.push({ stage: stageNum, correct, total });
+  SoundFX.stageComplete();
+  if (stageNum < STAGE_TOTAL) {
+    setTimeout(() => goToStage(stageNum + 1), 1200);
+  } else {
+    setTimeout(() => showFinalResult(), 1200);
+  }
+}
+
+// ===================================================================
+// 1-BOSQICH: Hayvonni tanib ol
+// ===================================================================
+let s1_index = 0;
+let s1_correctCount = 0;
+const s1_items = shuffle(GAME_DATA.stage1).slice(0, 6);
+
+function initStage1() {
+  s1_index = 0;
+  s1_correctCount = 0;
+  renderStage1();
+}
+
+function renderStage1() {
+  const total = s1_items.length;
+  document.getElementById("s1-progress").textContent = `${s1_index + 1} / ${total}`;
+  const item = s1_items[s1_index];
+  document.getElementById("s1-animalDisplay").textContent = item.emoji;
+  const optionsBox = document.getElementById("s1-options");
+  optionsBox.innerHTML = "";
+  hideFeedback(document.getElementById("s1-feedback"));
+
+  const opts = shuffle(item.options);
+  opts.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.addEventListener("click", () => handleStage1Answer(btn, opt, item));
+    optionsBox.appendChild(btn);
+  });
+}
+
+function handleStage1Answer(btn, chosen, item) {
+  const allBtns = document.querySelectorAll("#s1-options .option-btn");
+  allBtns.forEach(b => b.classList.add("disabled"));
+  const isCorrect = chosen === item.correct;
+  const fb = document.getElementById("s1-feedback");
+
+  if (isCorrect) {
+    btn.classList.add("is-correct");
+    SoundFX.correct();
+    showFeedback(fb, true, `${randomPraise()} To'g'ri, bu — ${item.correct}!`);
+    s1_correctCount++;
+    addScore(10, true);
+  } else {
+    btn.classList.add("is-wrong");
+    allBtns.forEach(b => { if (b.textContent === item.correct) b.classList.add("is-correct"); });
+    SoundFX.incorrect();
+    showFeedback(fb, false, `${randomEncourage()} To'g'ri javob: ${item.correct}.`);
+    addScore(10, false);
+  }
+
+  setTimeout(() => {
+    s1_index++;
+    if (s1_index < s1_items.length) {
+      renderStage1();
+    } else {
+      finishStage(1, s1_correctCount, s1_items.length);
+    }
+  }, 1400);
+}
+
+// ===================================================================
+// 2-BOSQICH: Yashash muhitini top (drag & drop / tap-to-place)
+// ===================================================================
+let s2_items = [];
+let s2_placedCount = 0;
+let s2_correctCount = 0;
+let s2_selectedAnimal = null;
+
+function initStage2() {
+  s2_items = shuffle(GAME_DATA.stage2).slice(0, 5);
+  s2_placedCount = 0;
+  s2_correctCount = 0;
+  s2_selectedAnimal = null;
+  renderStage2();
+}
+
+function renderStage2() {
+  document.getElementById("s2-progress").textContent = `0 / ${s2_items.length}`;
+  hideFeedback(document.getElementById("s2-feedback"));
+
+  const zonesBox = document.getElementById("s2-zones");
+  zonesBox.innerHTML = "";
+  const habitatEmojis = { "O'rmon": "🌳", "Cho'l": "🏜️", "Tog'": "⛰️", "Suv": "🌊", "Dasht": "🌾" };
+  GAME_DATA.habitats.forEach(h => {
+    const box = document.createElement("div");
+    box.className = "habitat-box";
+    box.dataset.habitat = h;
+    box.innerHTML = `<div class="habitat-emoji">${habitatEmojis[h]}</div><div>${h}</div>`;
+    setupDropZone(box);
+    zonesBox.appendChild(box);
+  });
+
+  const poolBox = document.getElementById("s2-animalPool");
+  poolBox.innerHTML = "";
+  s2_items.forEach((item, idx) => {
+    const el = document.createElement("div");
+    el.className = "drag-animal";
+    el.textContent = item.emoji;
+    el.dataset.idx = idx;
+    el.setAttribute("draggable", "true");
+    el.setAttribute("tabindex", "0");
+    el.setAttribute("aria-label", item.name);
+    setupDragAnimal(el, item);
+    poolBox.appendChild(el);
+  });
+}
+
+function setupDragAnimal(el, item) {
+  el.addEventListener("dragstart", e => {
+    e.dataTransfer.setData("text/plain", el.dataset.idx);
+    SoundFX.pop();
+  });
+  // Tap-to-select fallback (mobil uchun ham qulay)
+  el.addEventListener("click", () => {
+    if (el.classList.contains("placed")) return;
+    document.querySelectorAll(".drag-animal").forEach(a => a.style.outline = "none");
+    s2_selectedAnimal = { el, item };
+    el.style.outline = "3px solid var(--orange)";
+    SoundFX.select();
+  });
+}
+
+function setupDropZone(box) {
+  box.addEventListener("dragover", e => { e.preventDefault(); box.classList.add("drag-over"); });
+  box.addEventListener("dragleave", () => box.classList.remove("drag-over"));
+  box.addEventListener("drop", e => {
+    e.preventDefault();
+    box.classList.remove("drag-over");
+    const idx = e.dataTransfer.getData("text/plain");
+    const el = document.querySelector(`.drag-animal[data-idx="${idx}"]`);
+    if (el) checkHabitatPlacement(el, s2_items[idx], box);
+  });
+  // Tap-to-place fallback
+  box.addEventListener("click", () => {
+    if (s2_selectedAnimal) {
+      checkHabitatPlacement(s2_selectedAnimal.el, s2_selectedAnimal.item, box);
+      s2_selectedAnimal = null;
+    }
+  });
+}
+
+function checkHabitatPlacement(el, item, box) {
+  if (el.classList.contains("placed")) return;
+  const fb = document.getElementById("s2-feedback");
+  const isCorrect = item.habitat === box.dataset.habitat;
+
+  if (isCorrect) {
+    el.classList.add("placed");
+    box.classList.add("filled-correct");
+    box.querySelector(".habitat-emoji").textContent = item.emoji;
+    SoundFX.correct();
+    showFeedback(fb, true, `${randomPraise()} ${item.name} — ${item.habitat}da yashaydi!`);
+    s2_correctCount++;
+    s2_placedCount++;
+    addScore(10, true);
+  } else {
+    el.classList.add("shake");
+    setTimeout(() => el.classList.remove("shake"), 400);
+    SoundFX.incorrect();
+    showFeedback(fb, false, `${randomEncourage()} ${item.name} ${box.dataset.habitat}da yashamaydi. To'g'ri joy: ${item.habitat}.`);
+  }
+  document.getElementById("s2-progress").textContent = `${s2_placedCount} / ${s2_items.length}`;
+
+  if (s2_placedCount >= s2_items.length) {
+    setTimeout(() => finishStage(2, s2_correctCount, s2_items.length), 1200);
+  }
+}
+
+// ===================================================================
+// 3-BOSQICH: Kim nima bilan oziqlanadi (moslashtirish)
+// ===================================================================
+let s3_animals = [], s3_foods = [];
+let s3_selectedAnimalIdx = null;
+let s3_matchedCount = 0;
+let s3_correctCount = 0;
+
+function initStage3() {
+  const items = shuffle(GAME_DATA.stage3);
+  s3_animals = items.map((it, i) => ({ ...it, idx: i, matched: false }));
+  s3_foods = shuffle(items.map((it, i) => ({ ...it, idx: i, matched: false })));
+  s3_selectedAnimalIdx = null;
+  s3_matchedCount = 0;
+  s3_correctCount = 0;
+  renderStage3();
+}
+
+function renderStage3() {
+  document.getElementById("s3-progress").textContent = `${s3_matchedCount} / ${s3_animals.length}`;
+  hideFeedback(document.getElementById("s3-feedback"));
+
+  const animalsCol = document.getElementById("s3-animals");
+  animalsCol.innerHTML = "";
+  s3_animals.forEach(a => {
+    const el = document.createElement("div");
+    el.className = "match-item";
+    el.innerHTML = `<span class="match-emoji">${a.emoji}</span><span>${a.name}</span>`;
+    el.dataset.idx = a.idx;
+    if (a.matched) el.classList.add("matched-correct");
+    el.addEventListener("click", () => selectAnimalForMatch(a, el));
+    animalsCol.appendChild(el);
+  });
+
+  const foodsCol = document.getElementById("s3-foods");
+  foodsCol.innerHTML = "";
+  s3_foods.forEach(f => {
+    const el = document.createElement("div");
+    el.className = "match-item";
+    el.innerHTML = `<span class="match-emoji">${f.food}</span><span>${f.foodName}</span>`;
+    el.dataset.idx = f.idx;
+    if (f.matched) el.classList.add("matched-correct");
+    el.addEventListener("click", () => selectFoodForMatch(f, el));
+    foodsCol.appendChild(el);
+  });
+}
+
+function selectAnimalForMatch(animal, el) {
+  if (animal.matched) return;
+  document.querySelectorAll("#s3-animals .match-item").forEach(e => e.classList.remove("selected"));
+  el.classList.add("selected");
+  s3_selectedAnimalIdx = animal.idx;
+  SoundFX.select();
+}
+
+function selectFoodForMatch(food, el) {
+  if (food.matched || s3_selectedAnimalIdx === null) return;
+  const fb = document.getElementById("s3-feedback");
+  const animal = s3_animals.find(a => a.idx === s3_selectedAnimalIdx);
+  const animalEl = document.querySelector(`#s3-animals .match-item[data-idx="${animal.idx}"]`);
+  const isCorrect = food.idx === s3_selectedAnimalIdx;
+
+  if (isCorrect) {
+    animal.matched = true;
+    food.matched = true;
+    animalEl.classList.remove("selected");
+    animalEl.classList.add("matched-correct");
+    el.classList.add("matched-correct");
+    SoundFX.correct();
+    showFeedback(fb, true, `${randomPraise()} ${animal.name} — ${animal.foodName} yeydi!`);
+    s3_correctCount++;
+    s3_matchedCount++;
+    addScore(10, true);
+  } else {
+    el.classList.add("matched-wrong");
+    setTimeout(() => el.classList.remove("matched-wrong"), 400);
+    SoundFX.incorrect();
+    showFeedback(fb, false, `${randomEncourage()} ${animal.name} buni yemaydi. Yana urin!`);
+  }
+  s3_selectedAnimalIdx = null;
+  document.getElementById("s3-progress").textContent = `${s3_matchedCount} / ${s3_animals.length}`;
+
+  if (s3_matchedCount >= s3_animals.length) {
+    setTimeout(() => finishStage(3, s3_correctCount, s3_animals.length), 1200);
+  } else {
+    renderStage3();
+  }
+}
+
+// ===================================================================
+// 4-BOSQICH: Izidan top
+// ===================================================================
+let s4_index = 0;
+let s4_correctCount = 0;
+const s4_items = shuffle(GAME_DATA.stage4);
+
+function initStage4() {
+  s4_index = 0;
+  s4_correctCount = 0;
+  renderStage4();
+}
+
+function renderStage4() {
+  const total = s4_items.length;
+  document.getElementById("s4-progress").textContent = `${s4_index + 1} / ${total}`;
+  hideFeedback(document.getElementById("s4-feedback"));
+  const item = s4_items[s4_index];
+  document.getElementById("s4-trackDisplay").innerHTML =
+    `<div style="font-size:70px; letter-spacing:10px;">🐾 🐾 🐾</div>`;
+
+  const optionsBox = document.getElementById("s4-options");
+  optionsBox.innerHTML = "";
+  shuffle(item.options).forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.addEventListener("click", () => handleStage4Answer(btn, opt, item));
+    optionsBox.appendChild(btn);
+  });
+}
+
+function handleStage4Answer(btn, chosen, item) {
+  const allBtns = document.querySelectorAll("#s4-options .option-btn");
+  allBtns.forEach(b => b.classList.add("disabled"));
+  const isCorrect = chosen === item.correct;
+  const fb = document.getElementById("s4-feedback");
+
+  if (isCorrect) {
+    btn.classList.add("is-correct");
+    SoundFX.correct();
+    showFeedback(fb, true, `${randomPraise()} Bu iz — ${item.correct}ning izi! ${item.emoji}`);
+    s4_correctCount++;
+    addScore(10, true);
+  } else {
+    btn.classList.add("is-wrong");
+    allBtns.forEach(b => { if (b.textContent === item.correct) b.classList.add("is-correct"); });
+    SoundFX.incorrect();
+    showFeedback(fb, false, `${randomEncourage()} To'g'ri javob: ${item.correct} ${item.emoji}`);
+    addScore(10, false);
+  }
+
+  setTimeout(() => {
+    s4_index++;
+    if (s4_index < s4_items.length) {
+      renderStage4();
+    } else {
+      finishStage(4, s4_correctCount, s4_items.length);
+    }
+  }, 1400);
+}
+
+// ===================================================================
+// 5-BOSQICH: Ovozidan aniqla
+// ===================================================================
+let s5_index = 0;
+let s5_correctCount = 0;
+const s5_items = shuffle(GAME_DATA.stage5);
+
+function initStage5() {
+  s5_index = 0;
+  s5_correctCount = 0;
+  renderStage5();
+}
+
+function renderStage5() {
+  const total = s5_items.length;
+  document.getElementById("s5-progress").textContent = `${s5_index + 1} / ${total}`;
+  hideFeedback(document.getElementById("s5-feedback"));
+  const item = s5_items[s5_index];
+
+  const playBtn = document.getElementById("s5-playBtn");
+  playBtn.disabled = false;
+  playBtn.textContent = "🔊 Ovozni eshitish";
+  playBtn.onclick = () => {
+    playBtn.classList.add("playing");
+    SoundFX.animalSound(item.soundKey);
+    setTimeout(() => playBtn.classList.remove("playing"), 700);
+  };
+
+  const optionsBox = document.getElementById("s5-options");
+  optionsBox.innerHTML = "";
+  shuffle(item.options).forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.addEventListener("click", () => handleStage5Answer(btn, opt, item));
+    optionsBox.appendChild(btn);
+  });
+
+  // Avtomatik birinchi marta ovozni eshittirish
+  setTimeout(() => {
+    playBtn.classList.add("playing");
+    SoundFX.animalSound(item.soundKey);
+    setTimeout(() => playBtn.classList.remove("playing"), 700);
+  }, 400);
+}
+
+function handleStage5Answer(btn, chosen, item) {
+  const allBtns = document.querySelectorAll("#s5-options .option-btn");
+  allBtns.forEach(b => b.classList.add("disabled"));
+  const isCorrect = chosen === item.correct;
+  const fb = document.getElementById("s5-feedback");
+
+  if (isCorrect) {
+    btn.classList.add("is-correct");
+    SoundFX.correct();
+    showFeedback(fb, true, `${randomPraise()} To'g'ri, bu — ${item.correct}ning ovozi!`);
+    s5_correctCount++;
+    addScore(10, true);
+  } else {
+    btn.classList.add("is-wrong");
+    allBtns.forEach(b => { if (b.textContent === item.correct) b.classList.add("is-correct"); });
+    SoundFX.incorrect();
+    showFeedback(fb, false, `${randomEncourage()} To'g'ri javob: ${item.correct}.`);
+    addScore(10, false);
+  }
+
+  setTimeout(() => {
+    s5_index++;
+    if (s5_index < s5_items.length) {
+      renderStage5();
+    } else {
+      finishStage(5, s5_correctCount, s5_items.length);
+    }
+  }, 1400);
+}
+
+// ===================================================================
+// 6-BOSQICH: To'g'ri yoki noto'g'ri
+// ===================================================================
+let s6_index = 0;
+let s6_correctCount = 0;
+const s6_items = shuffle(GAME_DATA.stage6);
+
+function initStage6() {
+  s6_index = 0;
+  s6_correctCount = 0;
+  renderStage6();
+}
+
+function renderStage6() {
+  const total = s6_items.length;
+  document.getElementById("s6-progress").textContent = `${s6_index + 1} / ${total}`;
+  hideFeedback(document.getElementById("s6-feedback"));
+  const item = s6_items[s6_index];
+  document.getElementById("s6-emoji").textContent = item.emoji;
+  document.getElementById("s6-text").textContent = item.text;
+
+  const trueBtn = document.getElementById("s6-trueBtn");
+  const falseBtn = document.getElementById("s6-falseBtn");
+  trueBtn.disabled = false;
+  falseBtn.disabled = false;
+  trueBtn.onclick = () => handleStage6Answer(true, item);
+  falseBtn.onclick = () => handleStage6Answer(false, item);
+}
+
+function handleStage6Answer(chosen, item) {
+  document.getElementById("s6-trueBtn").disabled = true;
+  document.getElementById("s6-falseBtn").disabled = true;
+  const isCorrect = chosen === item.answer;
+  const fb = document.getElementById("s6-feedback");
+
+  if (isCorrect) {
+    SoundFX.correct();
+    showFeedback(fb, true, `${randomPraise()} ${item.explain}`);
+    s6_correctCount++;
+    addScore(10, true);
+  } else {
+    SoundFX.incorrect();
+    showFeedback(fb, false, `${randomEncourage()} ${item.explain}`);
+    addScore(10, false);
+  }
+
+  setTimeout(() => {
+    s6_index++;
+    if (s6_index < s6_items.length) {
+      renderStage6();
+    } else {
+      finishStage(6, s6_correctCount, s6_items.length);
+    }
+  }, 1900);
+}
+
+// ===================================================================
+// 7-BOSQICH: Tezkor test (taymer bilan)
+// ===================================================================
+let s7_index = 0;
+let s7_correctCount = 0;
+let s7_timeLeft = 15;
+let s7_timerInterval = null;
+const S7_TIME_LIMIT = 15;
+const s7_items = shuffle(GAME_DATA.stage7);
+
+function initStage7() {
+  s7_index = 0;
+  s7_correctCount = 0;
+  renderStage7();
+}
+
+function renderStage7() {
+  const total = s7_items.length;
+  document.getElementById("s7-progress").textContent = `${s7_index + 1} / ${total}`;
+  hideFeedback(document.getElementById("s7-feedback"));
+  const item = s7_items[s7_index];
+  document.getElementById("s7-question").textContent = item.q;
+
+  const optionsBox = document.getElementById("s7-options");
+  optionsBox.innerHTML = "";
+  shuffle(item.options).forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.addEventListener("click", () => handleStage7Answer(btn, opt, item));
+    optionsBox.appendChild(btn);
+  });
+
+  startStage7Timer(item);
+}
+
+function startStage7Timer(item) {
+  clearInterval(s7_timerInterval);
+  s7_timeLeft = S7_TIME_LIMIT;
+  const timerBox = document.getElementById("s7-timer");
+  const timerBar = document.getElementById("s7-timerBar");
+  timerBox.textContent = `⏱ ${s7_timeLeft}`;
+  timerBox.classList.remove("warning");
+  timerBar.classList.remove("warning");
+  timerBar.style.width = "100%";
+
+  s7_timerInterval = setInterval(() => {
+    s7_timeLeft--;
+    timerBox.textContent = `⏱ ${s7_timeLeft}`;
+    timerBar.style.width = `${(s7_timeLeft / S7_TIME_LIMIT) * 100}%`;
+    if (s7_timeLeft <= 5) {
+      timerBox.classList.add("warning");
+      timerBar.classList.add("warning");
+      SoundFX.timeWarning();
+    } else {
+      SoundFX.tick();
+    }
+    if (s7_timeLeft <= 0) {
+      clearInterval(s7_timerInterval);
+      handleStage7Timeout(item);
+    }
+  }, 1000);
+}
+
+function handleStage7Timeout(item) {
+  const allBtns = document.querySelectorAll("#s7-options .option-btn");
+  allBtns.forEach(b => {
+    b.classList.add("disabled");
+    if (b.textContent === item.correct) b.classList.add("is-correct");
+  });
+  const fb = document.getElementById("s7-feedback");
+  SoundFX.incorrect();
+  showFeedback(fb, false, `⏰ Vaqt tugadi! To'g'ri javob: ${item.correct}.`);
+  addScore(0, false);
+  State.totalCount++; // vaqt tugaganda ham hisoblanadi (lekin band qilinmagan)
+
+  setTimeout(() => advanceStage7(), 1300);
+}
+
+function handleStage7Answer(btn, chosen, item) {
+  clearInterval(s7_timerInterval);
+  const allBtns = document.querySelectorAll("#s7-options .option-btn");
+  allBtns.forEach(b => b.classList.add("disabled"));
+  const isCorrect = chosen === item.correct;
+  const fb = document.getElementById("s7-feedback");
+
+  // Tezroq javob bersa ko'proq ball: qolgan vaqt asosida bonus
+  const bonus = Math.max(0, s7_timeLeft);
+  const points = isCorrect ? 10 + bonus : 0;
+
+  if (isCorrect) {
+    btn.classList.add("is-correct");
+    SoundFX.correct();
+    showFeedback(fb, true, `${randomPraise()} +${points} ball (tezlik bonusi bilan)!`);
+    s7_correctCount++;
+    State.score += points;
+    State.correctCount++;
+    State.stars++;
+    State.totalCount++;
+    updateHeaderStats();
+  } else {
+    btn.classList.add("is-wrong");
+    allBtns.forEach(b => { if (b.textContent === item.correct) b.classList.add("is-correct"); });
+    SoundFX.incorrect();
+    showFeedback(fb, false, `${randomEncourage()} To'g'ri javob: ${item.correct}.`);
+    State.totalCount++;
+  }
+
+  setTimeout(() => advanceStage7(), 1200);
+}
+
+function advanceStage7() {
+  s7_index++;
+  if (s7_index < s7_items.length) {
+    renderStage7();
+  } else {
+    finishStage(7, s7_correctCount, s7_items.length);
+  }
+}
+
+// ===================================================================
+// 8-BOSQICH: Yakuniy missiya
+// ===================================================================
+let s8_index = 0;
+let s8_correctCount = 0;
+let s8_currentAnswers = {};
+const s8_items = shuffle(GAME_DATA.stage8);
+
+function initStage8() {
+  s8_index = 0;
+  s8_correctCount = 0;
+  renderStage8();
+}
+
+function renderStage8() {
+  const total = s8_items.length;
+  document.getElementById("s8-progress").textContent = `${s8_index + 1} / ${total}`;
+  hideFeedback(document.getElementById("s8-feedback"));
+  const item = s8_items[s8_index];
+  s8_currentAnswers = {};
+
+  document.getElementById("s8-animalDisplay").innerHTML =
+    `<div style="font-size:64px;">${item.emoji}</div><div class="mission-animal-name">${item.name}</div>`;
+
+  const qBox = document.getElementById("s8-questions");
+  qBox.innerHTML = "";
+  ["habitat", "food", "trait"].forEach(key => {
+    const qData = item[key];
+    const block = document.createElement("div");
+    block.className = "mission-q-block";
+    const qText = document.createElement("div");
+    qText.className = "mission-q-text";
+    qText.textContent = qData.q;
+    block.appendChild(qText);
+
+    const optsDiv = document.createElement("div");
+    optsDiv.className = "mission-opts";
+    shuffle(qData.options).forEach(opt => {
+      const optBtn = document.createElement("button");
+      optBtn.className = "mission-opt";
+      optBtn.textContent = opt;
+      optBtn.addEventListener("click", () => {
+        optsDiv.querySelectorAll(".mission-opt").forEach(o => o.classList.remove("selected"));
+        optBtn.classList.add("selected");
+        s8_currentAnswers[key] = opt;
+        SoundFX.select();
+        checkStage8Ready();
+      });
+      optsDiv.appendChild(optBtn);
+    });
+    block.appendChild(optsDiv);
+    qBox.appendChild(block);
+  });
+
+  const submitBtn = document.getElementById("s8-submitBtn");
+  submitBtn.disabled = true;
+  submitBtn.onclick = () => handleStage8Submit(item);
+}
+
+function checkStage8Ready() {
+  const submitBtn = document.getElementById("s8-submitBtn");
+  submitBtn.disabled = !(s8_currentAnswers.habitat && s8_currentAnswers.food && s8_currentAnswers.trait);
+}
+
+function handleStage8Submit(item) {
+  const keys = ["habitat", "food", "trait"];
+  let correctParts = 0;
+  keys.forEach(key => {
+    const isRight = s8_currentAnswers[key] === item[key].correct;
+    if (isRight) correctParts++;
+    document.querySelectorAll(`.mission-q-block .mission-opt.selected`).forEach(() => {});
+  });
+
+  // Har bir blokni vizual belgilash
+  document.querySelectorAll(".mission-q-block").forEach((block, i) => {
+    const key = keys[i];
+    const correctVal = item[key].correct;
+    block.querySelectorAll(".mission-opt").forEach(opt => {
+      opt.classList.remove("selected");
+      if (opt.textContent === correctVal) opt.classList.add("correct-final");
+      else if (opt.textContent === s8_currentAnswers[key]) opt.classList.add("wrong-final");
+    });
+  });
+
+  const fb = document.getElementById("s8-feedback");
+  const allRight = correctParts === 3;
+  if (allRight) {
+    SoundFX.correct();
+    showFeedback(fb, true, `${randomPraise()} ${item.name} haqida hamma narsani bilasan!`);
+    s8_correctCount++;
+  } else {
+    SoundFX.incorrect();
+    showFeedback(fb, false, `${randomEncourage()} ${correctParts}/3 to'g'ri. To'g'ri javoblar belgilandi.`);
+  }
+  addScore(20, allRight);
+  document.getElementById("s8-submitBtn").disabled = true;
+
+  setTimeout(() => {
+    s8_index++;
+    if (s8_index < s8_items.length) {
+      renderStage8();
+    } else {
+      finishStage(8, s8_correctCount, s8_items.length);
+    }
+  }, 2000);
+}
+
+// ===================================================================
+// YAKUNIY NATIJA
+// ===================================================================
+function calcMaxStars() {
+  // Har bir savol = 1 yulduz (8-bosqich har hayvon uchun 1 yulduz)
+  return s1_items.length + s2_items.length + s3_animals.length +
+         s4_items.length + s5_items.length + s6_items.length +
+         s7_items.length + s8_items.length;
+}
+
+function showFinalResult() {
+  State.maxStars = calcMaxStars();
+  const pct = Math.round((State.stars / State.maxStars) * 100);
+  const level = getLevelByPct(pct);
+
+  document.getElementById("mapHeader").classList.add("hidden");
+  showScreen("screen-result");
+  SoundFX.levelUp();
+  launchConfetti();
+
+  document.getElementById("resultGreeting").textContent =
+    `Ajoyib ish bajardingiz, ${State.playerName}! Mana sizning natijalaringiz:`;
+  document.getElementById("resultScore").textContent = State.score;
+  document.getElementById("resultStars").textContent = `${State.stars} / ${State.maxStars}`;
+  document.getElementById("resultCorrect").textContent = `${State.correctCount} / ${State.totalCount}`;
+  document.getElementById("resultLevel").textContent = level.name;
+
+  const breakdown = document.getElementById("resultBreakdown");
+  breakdown.innerHTML = "";
+  const stageLabels = {
+    1: "🔍 Tanib olish", 2: "🏞️ Yashash muhiti", 3: "🍽️ Oziqlanish",
+    4: "🐾 Izlar", 5: "🔊 Ovozlar", 6: "✅ To'g'ri/noto'g'ri",
+    7: "⚡ Tezkor test", 8: "🏆 Yakuniy missiya"
+  };
+  State.stageResults.forEach(r => {
+    const row = document.createElement("div");
+    row.innerHTML = `<span>${stageLabels[r.stage]}</span><span>${r.correct} / ${r.total} ✓</span>`;
+    breakdown.appendChild(row);
+  });
+}
+
+function launchConfetti() {
+  const box = document.getElementById("resultConfetti");
+  box.innerHTML = "";
+  const pieces = ["🎉", "⭐", "🎊", "🌟", "🏆"];
+  for (let i = 0; i < 24; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.textContent = pickRandom(pieces);
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.animationDuration = `${1.8 + Math.random() * 1.4}s`;
+    piece.style.animationDelay = `${Math.random() * 0.6}s`;
+    box.appendChild(piece);
+  }
+}
+
+function showCertificate() {
+  showScreen("screen-cert");
+  const pct = Math.round((State.stars / State.maxStars) * 100);
+  const level = getLevelByPct(pct);
+  document.getElementById("certName").textContent = State.playerName;
+  document.getElementById("certLevel").textContent = level.name;
+  document.getElementById("certScore").textContent = `${State.score} ball`;
+  const today = new Date();
+  const uzMonths = ["yanvar", "fevral", "mart", "aprel", "may", "iyun",
+                     "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
+  document.getElementById("certDate").textContent =
+    `${today.getDate()}-${uzMonths[today.getMonth()]}, ${today.getFullYear()}-yil`;
+}
+
+// ===================================================================
+// BOSHLANG'ICH SOZLASH (DOM yuklangach)
+// ===================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  // Ovoz tugmasi
+  const soundBtn = document.getElementById("soundToggle");
+  soundBtn.addEventListener("click", () => {
+    const isMuted = !SoundFX.isMuted();
+    SoundFX.setMuted(isMuted);
+    soundBtn.textContent = isMuted ? "🔇" : "🔊";
+    if (!isMuted) SoundFX.click();
+  });
+
+  // Boshlash tugmasi
+  document.getElementById("startBtn").addEventListener("click", () => {
+    const nameInput = document.getElementById("playerName");
+    const name = nameInput.value.trim();
+    State.playerName = name || "Tadqiqotchi";
+    // Umumiy yulduzlar sonini oldindan hisoblaymiz (header progress uchun)
+    State.maxStars = GAME_DATA.stage1.slice(0, 6).length + 5 + GAME_DATA.stage3.length +
+                      GAME_DATA.stage4.length + GAME_DATA.stage5.length +
+                      GAME_DATA.stage6.length + GAME_DATA.stage7.length + GAME_DATA.stage8.length;
+    SoundFX.click();
+    goToStage(1);
+  });
+
+  document.getElementById("playerName").addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("startBtn").click();
+  });
+
+  // Natija ekrani tugmalari
+  document.getElementById("showCertBtn").addEventListener("click", () => {
+    SoundFX.click();
+    showCertificate();
+  });
+  document.getElementById("restartBtn").addEventListener("click", () => {
+    SoundFX.click();
+    if (window.location.protocol === "about:" && window.parent !== window) {
+      window.parent.postMessage({ type: "reload-game" }, "*");
+    } else {
+      location.reload();
+    }
+  });
+  document.getElementById("backFromCertBtn").addEventListener("click", () => {
+    SoundFX.click();
+    showScreen("screen-result");
+  });
+  document.getElementById("printCertBtn").addEventListener("click", () => {
+    SoundFX.click();
+    window.print();
+  });
+});
+
+</script>
+</body>
+</html>
